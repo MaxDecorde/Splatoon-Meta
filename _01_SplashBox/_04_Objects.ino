@@ -146,9 +146,6 @@ class Object {
   }
 
   void UpdateCollision () {
-    x+=vx/VFORCE;
-    y+=vy/VFORCE;
-    return;
     //Finds how much pixel you need to move
     int16_t pxXr = vx/VFORCE; //pixel on X axis require to move
     char dirX = vx > 0 ? 1 : -1;
@@ -210,20 +207,20 @@ class Object {
   
             //Move then remove a pixel (or less) from the to-move list (By remove, I mean get closer to zero)
             if(getCollisionQuality()==1) {
-              //x -= (int16_t)pxXr;
-              //pxXr -= pxXr;
+              x += (int16_t)pxXr;
+              pxXr -= pxXr;
             } else if(getCollisionQuality()==0) {
-              x -= constrain(pxXr,-1,0);
+              x += constrain(pxXr,-1,0);
               pxXr -= constrain(pxXr,-1,0);
             }
           } else if(dirX == 1) {
   
             //Move then remove a pixel (or less) from the to-move list (By remove, I mean get closer to zero)
             if(getCollisionQuality()==1) {
-              //x -= (int16_t)pxXr;
-              //pxXr -= pxXr;
+              x += (int16_t)pxXr;
+              pxXr -= pxXr;
             } else if(getCollisionQuality()==0) {
-              x -= constrain(pxXr,0,1);
+              x += constrain(pxXr,0,1);
               pxXr -= constrain(pxXr,0,1);
             }
           }
