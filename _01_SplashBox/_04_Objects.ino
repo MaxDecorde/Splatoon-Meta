@@ -42,12 +42,7 @@ class Object {
       gb.display.fillRect(toScreenX(x/SCALE), toScreenY(y/SCALE), getWidth(), getHeight());
   }
   
-  bool CheckForCollisionX (char Dir) {
-    byte colPosX = 4/*+(VelocityX / 127.0F * 3)*/;
-    
-    char colDecXPos = 1; //Def; 1
-    char colDecXNeg = 0; //Def; 0
-    
+  bool CheckForCollisionX (int8_t Dir) {
     if(Dir != 0) {
       byte ColX[8];
       if(Dir == 1) {
@@ -76,7 +71,7 @@ class Object {
     return true;
   }
   
-  bool CheckForCollisionY (char Dir) {
+  bool CheckForCollisionY (int8_t Dir) {
     if(Dir != 0) {
       byte ColY[8];
       if(Dir == 1) {
@@ -146,24 +141,21 @@ class Object {
   }
 
   void UpdateCollision () {
-    x+= vx/VFORCE;
-    y-=vy/VFORCE;
-    return;
     //Finds how much pixel you need to move
     int16_t pxXr = vx/VFORCE; //pixel on X axis require to move
-    char dirX = vx > 0 ? 1 : -1;
+    int8_t dirX = vx > 0 ? 1 : -1;
     
     int16_t pxYr = vy/VFORCE; //pixel on Y axis require to move
-    char dirY = vy >= 0 ? 1 : -1;
+    int8_t dirY = vy >= 0 ? 1 : -1;
   
     //Finds the number of iteration needed to move everything
-    byte pxr = (byte)(abs(pxXr)+abs(pxYr));
+    byte pxr = (abs(pxXr)+abs(pxYr));
   
     //Loops for each move iteration
     for(byte i = 0; i < pxr; i++) {
   
       //Finds what axis it should do first
-      if(abs(pxYr) > 0) {
+      if(pxYr != 0) {
   
         //Check if there's nothing next to the object
         if(CheckForCollisionY(dirY)) {
@@ -174,7 +166,7 @@ class Object {
             //Move then remove a pixel (or less) from the to-move list (By remove, I mean get closer to zero)
             if(getCollisionQuality()==1) {
               y -= pxYr;
-              pxYr -= pxYr;
+              pxYr = 0;
             } else if(getCollisionQuality()==0) {
               y -= constrain(pxYr,-1,0);
               pxYr -= constrain(pxYr,-1,0);
@@ -184,9 +176,9 @@ class Object {
             //Move then remove a pixel (or less) from the to-move list (By remove, I mean get closer to zero)
             if(getCollisionQuality()==1) {
               y -= pxYr;
-              pxYr -= pxYr;
+              pxYr = 0;
             } else if(getCollisionQuality()==0) {
-              y -= constrain((int16_t)pxYr,0,1);
+              y -= constrain(pxYr,0,1);
               pxYr -= constrain(pxYr,0,1);
             }
           }
@@ -210,20 +202,20 @@ class Object {
   
             //Move then remove a pixel (or less) from the to-move list (By remove, I mean get closer to zero)
             if(getCollisionQuality()==1) {
-              x += (int16_t)pxXr;
-              pxXr -= pxXr;
+              x += pxXr;
+              pxXr = 0;
             } else if(getCollisionQuality()==0) {
-              x += constrain(pxXr,-1,0);
+              x -= constrain(pxXr,-1,0);
               pxXr -= constrain(pxXr,-1,0);
             }
           } else if(dirX == 1) {
   
             //Move then remove a pixel (or less) from the to-move list (By remove, I mean get closer to zero)
             if(getCollisionQuality()==1) {
-              x += (int16_t)pxXr;
-              pxXr -= pxXr;
+              x += pxXr;
+              pxXr = 0;
             } else if(getCollisionQuality()==0) {
-              x += constrain(pxXr,0,1);
+              x -= constrain(pxXr,0,1);
               pxXr -= constrain(pxXr,0,1);
             }
           }
