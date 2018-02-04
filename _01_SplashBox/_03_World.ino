@@ -140,7 +140,7 @@ class World {
   }
 
   byte getTile(byte x, byte y){
-    return pgm_read_byte(GetMap[CurrentLoadedMap] + 4 + (x+y*MapWidth));
+    return GetMap[CurrentLoadedMap][4 + (x+y*MapWidth)];
   }
 
   void Draw () {
