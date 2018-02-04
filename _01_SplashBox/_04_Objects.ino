@@ -146,6 +146,9 @@ class Object {
   }
 
   void UpdateCollision () {
+    x+=vx/VFORCE;
+    y+=vy/VFORCE;
+    return;
     //Finds how much pixel you need to move
     int pxXr = vx/VFORCE; //pixel on X axis require to move
     char dirX = vx > 0 ? 1 : -1;
