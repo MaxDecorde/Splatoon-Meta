@@ -455,7 +455,7 @@ class PlayersOperator {
 
   void Initialize () {
     mainPlayer.InputControl = true;
-    for(int i = 0; i < PLAYER_C; i++) {
+    for(int16_t i = 0; i < PLAYER_C; i++) {
       if(i != 0) {
         players[i-1].blinkEye = random(60);
         players[i-1].InputControl = false;
@@ -480,7 +480,7 @@ class PlayersOperator {
   }
 
   void UpdateGlobal () {
-    for(int i = 0; i < PLAYER_C; i++) {
+    for(int16_t i = 0; i < PLAYER_C; i++) {
       if(i == 0) {
         mainPlayer.Update();
       } else {

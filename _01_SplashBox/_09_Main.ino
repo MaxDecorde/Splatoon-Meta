@@ -71,8 +71,8 @@ void DrawCursor() {
       bulletsManager.spawnBullet(
         player.mainPlayer.x+4,
         player.mainPlayer.y+4,
-        (int)(cos(aimingAngle)*110.0F),
-        (int)(sin(aimingAngle)*110.0F),
+        (int16_t)(cos(aimingAngle)*110.0F),
+        (int16_t)(sin(aimingAngle)*110.0F),
         player.mainPlayer.PlayerColor,
         0
       );

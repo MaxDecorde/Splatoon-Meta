@@ -10,31 +10,31 @@ class Bullets:
     bool IsDead = true;
     byte color = 0;
     byte Owner = 0;
-    virtual int getWidth() {
+    virtual int16_t getWidth() {
       return 3;
     };
-    virtual int getHeight() {
+    virtual int16_t getHeight() {
       return 3;
     };
-    virtual int getGravity() {
+    virtual int16_t getGravity() {
       return 10;
     };
-    virtual int getXFriction() {
+    virtual int16_t getXFriction() {
       return 0;
     };
-    virtual int getYFriction() {
+    virtual int16_t getYFriction() {
       return 0;
     };
-    virtual int getXBounce() {
+    virtual int16_t getXBounce() {
       return 90;
     };
-    virtual int getYBounce() {
+    virtual int16_t getYBounce() {
       return 10;
     };
     virtual byte getCollisionQuality() {
       return 1;
     };
-    virtual int getDamage() {
+    virtual int16_t getDamage() {
       return 30;
     };
 
@@ -137,7 +137,7 @@ class BulletsManager {
   public:
   Bullets bullets[BCOUNT];
 
-  void spawnBullet (int x, int y, int vx, int vy, byte color, byte owner) {
+  void spawnBullet (int x, int16_t y, int16_t vx, int16_t vy, byte color, byte owner) {
     for(byte i = 0; i < BCOUNT; i++) {
       if(bullets[i].IsDead) {
         bullets[i].Recreate();

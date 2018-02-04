@@ -26,7 +26,7 @@ boolean inRange (byte r, byte v) {
   return inRay(r,r+8,v+2) || inRay(r,r+8,v+6);
 }
 
-int ClampInt (int minv, int maxv, int value) {
+int ClampInt (int minv, int16_t maxv, int16_t value) {
   if(value < minv)
     return minv;
   else if(value >= maxv)
@@ -75,7 +75,7 @@ class World {
   }
   
   void SMSetColor (byte setX, byte setY, byte Color) {
-    int offset = (setX + (setY * MaxMapW)) / 8;
+    int16_t offset = (setX + (setY * MaxMapW)) / 8;
     byte i = (setX + (setY * MaxMapW)) % 8;
   
     byte mask = 1 << i;
@@ -87,7 +87,7 @@ class World {
   }
   
   byte SMGetColor (byte getX, byte getY) {
-    int offset = (getX + (getY * MaxMapW)) / 8;
+    int16_t offset = (getX + (getY * MaxMapW)) / 8;
     byte i = (getX + (getY * MaxMapW)) % 8;
     return ((splashMemoryColor[offset] >> i) & B00000001);
   }
@@ -124,11 +124,11 @@ class World {
     }
   }
   
-  int MergeWalls (int a, int b) {
+  int16_t MergeWalls (int a, int16_t b) {
     return (a+b)/2;
   }
   
-  int PixelInCollider (byte PIMX, byte PIMY, byte PICX, byte PICY) { //PIM = Pos in map (0-255), PIC = Pos in cube (0-8)
+  int16_t PixelInCollider (byte PIMX, byte PIMY, byte PICX, byte PICY) { //PIM = Pos in map (0-255), PIC = Pos in cube (0-8)
     switch (getTile(PIMX,PIMY) != 0) {
       case 0:
         return 0;
@@ -144,10 +144,10 @@ class World {
   }
 
   void Draw () {
-    int xMin = cameraX / 8;
-    int xMax = LCDWIDTH / 8 + cameraX / 8 + 2;
-    int yMin = cameraY / 8;
-    int yMax = LCDHEIGHT / 8 + cameraY / 8 + 2;
+    int16_t xMin = cameraX / 8;
+    int16_t xMax = LCDWIDTH / 8 + cameraX / 8 + 2;
+    int16_t yMin = cameraY / 8;
+    int16_t yMax = LCDHEIGHT / 8 + cameraY / 8 + 2;
     
     for(int y = yMin; y < yMax; y++) {
       for(int x = xMin; x < xMax; x++ ) {

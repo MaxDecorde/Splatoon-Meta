@@ -1,7 +1,7 @@
 // SOUND
 /////////////////
 
-const int soundfx[9][8] = {
+const int16_t soundfx[9][8] = {
   {1,27,90,2,7,7,3,7}, //jump <
   {1,27,112,1,1,1,6,4}, // walljump <
   {0,27,57,1,1,1,6,4}, // unlockdoor <
@@ -13,7 +13,7 @@ const int soundfx[9][8] = {
   {1,28,51,2,2,14,7,7} // groundpound <
 };
 
-void sfx(int fxno, int channel) {
+void sfx(int16_t  fxno, int16_t channel) {
   //gb.sound.command(0, soundfx[fxno][6], 0, channel); // set volume
   //gb.sound.command(1, soundfx[fxno][0], 0, channel); // set waveform
   //gb.sound.command(2, soundfx[fxno][5], -soundfx[fxno][4], channel); // set volume slide

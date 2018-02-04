@@ -3,29 +3,29 @@
 
 class Object {
   public:
-  int x,y,vx,vy;
+  int16_t x,y,vx,vy;
   bool IsGroundedDown,IsGroundedLeft,IsGroundedRight,IsGroundedUp;
   bool collided = false;
   
-  virtual int getWidth() {
+  virtual int16_t getWidth() {
     return 8;
   };
-  virtual int getHeight() {
+  virtual int16_t getHeight() {
     return 8;
   };
-  virtual int getGravity() {
+  virtual int16_t getGravity() {
     return 15;
   };
-  virtual int getXFriction() {
+  virtual int16_t getXFriction() {
     return 0;
   };
-  virtual int getYFriction() {
+  virtual int16_t getYFriction() {
     return 0;
   };
-  virtual int getXBounce() {
+  virtual int16_t getXBounce() {
     return 0;
   };
-  virtual int getYBounce() {
+  virtual int16_t getYBounce() {
     return 0;
   };
   virtual byte getCollisionQuality() {
@@ -51,10 +51,10 @@ class Object {
     if(Dir != 0) {
       byte ColX[8];
       if(Dir == 1) {
-        for(int xd; xd < getWidth(); xd++) { //yd = Y Down
+        for(int16_t xd; xd < getWidth(); xd++) { //yd = Y Down
           ColX[xd] =  world.PixelInCollider((x/SCALE-1)/8 , (y/SCALE+xd)/8 , (x/SCALE+getWidth()-1) - ((x/SCALE-1)/8)*8 , (y/SCALE+xd) - ((y/SCALE+xd)/8)*8);
         }
-        for(int xd; xd < getWidth(); xd++) {
+        for(int16_t xd; xd < getWidth(); xd++) {
           if(ColX[xd] == 1) {
             IsGroundedLeft = true;
             return false;
@@ -62,10 +62,10 @@ class Object {
         }
       }
       if(Dir == -1) {
-        for(int xd; xd < getWidth(); xd++) { //yd = Y Down
+        for(int16_t xd; xd < getWidth(); xd++) { //yd = Y Down
           ColX[xd] = world.PixelInCollider((x/SCALE+getWidth())/8, (y/SCALE+xd)/8 , (x/SCALE) - ((x/SCALE+getWidth())/8)*8 , (y/SCALE+xd) - ((y/SCALE+xd)/8)*8);
         }
-        for(int xd; xd < getWidth(); xd++) {
+        for(int16_t xd; xd < getWidth(); xd++) {
           if(ColX[xd] == 1) {
             IsGroundedRight = true;
             return false;
@@ -80,10 +80,10 @@ class Object {
     if(Dir != 0) {
       byte ColY[8];
       if(Dir == 1) {
-        for(int yd; yd < getHeight(); yd++) { //yd = Y Down
+        for(int16_t yd; yd < getHeight(); yd++) { //yd = Y Down
           ColY[yd] = world.PixelInCollider((x/SCALE+yd)/8 , (y/SCALE-1)/8 , (x/SCALE+yd) - ((x/SCALE+yd)/8)*8 , (y/SCALE-1) - ((y/SCALE+getHeight())/8)*8);
         }
-        for(int yd; yd < getHeight(); yd++) {
+        for(int16_t yd; yd < getHeight(); yd++) {
           if(ColY[yd] == 1) {
             IsGroundedUp = true;
             return false;
@@ -91,10 +91,10 @@ class Object {
         }
       }
       if(Dir == -1) {
-        for(int yd; yd < getHeight(); yd++) { //yd = Y Down
+        for(int16_t yd; yd < getHeight(); yd++) { //yd = Y Down
           ColY[yd] = world.PixelInCollider((x/SCALE+yd)/8 , (y/SCALE+getHeight())/8 , (x/SCALE+yd) - ((x/SCALE+yd)/8)*8 , (y/SCALE+getHeight()) - ((y/SCALE)/8)*8);
         }
-        for(int yd; yd < getHeight(); yd++) {
+        for(int16_t yd; yd < getHeight(); yd++) {
           if(ColY[yd] == 1) {
             IsGroundedDown = true;
             return false;
@@ -107,38 +107,38 @@ class Object {
 
   void UpdateGrounding () {
     byte ColY[8];
-    for(int yd; yd < getHeight(); yd++) { //yd = Y Down
+    for(int16_t yd; yd < getHeight(); yd++) { //yd = Y Down
       ColY[yd] = world.PixelInCollider((x/SCALE+yd)/8 , (y/SCALE+getHeight())/8 , (x/SCALE+yd) - ((x/SCALE+yd)/8)*8 , (y/SCALE+getHeight()) - ((y/SCALE)/8)*8);
     }
-    for(int yd; yd < getHeight(); yd++) {
+    for(int16_t yd; yd < getHeight(); yd++) {
       if(ColY[yd] == 1) {
         IsGroundedDown = true;
       }
     }
 
-    for(int yd; yd < getHeight(); yd++) { //yd = Y Down
+    for(int16_t yd; yd < getHeight(); yd++) { //yd = Y Down
       ColY[yd] = world.PixelInCollider((x/SCALE+yd)/8 , (y/SCALE-1)/8 , (x/SCALE+yd) - ((x/SCALE+yd)/8)*8 , (y/SCALE-1) - ((y/SCALE+getHeight())/8)*8);
     }
-    for(int yd; yd < getHeight(); yd++) {
+    for(int16_t yd; yd < getHeight(); yd++) {
       if(ColY[yd] == 1) {
         IsGroundedUp = true;
       }
     }
 
     byte ColX[8];
-    for(int xd; xd < getWidth(); xd++) { //yd = Y Down
+    for(int16_t xd; xd < getWidth(); xd++) { //yd = Y Down
       ColX[xd] =  world.PixelInCollider((x/SCALE-1)/8 , (y/SCALE+xd)/8 , (x/SCALE+getWidth()-1) - ((x/SCALE-1)/8)*8 , (y/SCALE+xd) - ((y/SCALE+xd)/8)*8);
     }
-    for(int xd; xd < getWidth(); xd++) {
+    for(int16_t xd; xd < getWidth(); xd++) {
       if(ColX[xd] == 1) {
         IsGroundedLeft = true;
       }
     }
 
-    for(int xd; xd < getWidth(); xd++) { //yd = Y Down
+    for(int16_t xd; xd < getWidth(); xd++) { //yd = Y Down
       ColX[xd] = world.PixelInCollider((x/SCALE+getWidth())/8, (y/SCALE+xd)/8 , (x/SCALE) - ((x/SCALE+getWidth())/8)*8 , (y/SCALE+xd) - ((y/SCALE+xd)/8)*8);
     }
-    for(int xd; xd < getWidth(); xd++) {
+    for(int16_t xd; xd < getWidth(); xd++) {
       if(ColX[xd] == 1) {
         IsGroundedRight = true;
       }
@@ -150,10 +150,10 @@ class Object {
     y+=vy/VFORCE;
     return;
     //Finds how much pixel you need to move
-    int pxXr = vx/VFORCE; //pixel on X axis require to move
+    int16_t pxXr = vx/VFORCE; //pixel on X axis require to move
     char dirX = vx > 0 ? 1 : -1;
     
-    int pxYr = vy/VFORCE; //pixel on Y axis require to move
+    int16_t pxYr = vy/VFORCE; //pixel on Y axis require to move
     char dirY = vy >= 0 ? 1 : -1;
   
     //Finds the number of iteration needed to move everything
@@ -186,14 +186,14 @@ class Object {
               y -= pxYr;
               pxYr -= pxYr;
             } else if(getCollisionQuality()==0) {
-              y -= constrain((int)pxYr,0,1);
+              y -= constrain((int16_t)pxYr,0,1);
               pxYr -= constrain(pxYr,0,1);
             }
           }
         } else {
   
           //If something is here, stop the player from moving
-          vy = (int)(-vy*(getYBounce()/100.0F));
+          vy = (int16_t)(-vy*(getYBounce()/100.0F));
           collided = true;
           //vy = 0;
   
@@ -210,7 +210,7 @@ class Object {
   
             //Move then remove a pixel (or less) from the to-move list (By remove, I mean get closer to zero)
             if(getCollisionQuality()==1) {
-              //x -= (int)pxXr;
+              //x -= (int16_t)pxXr;
               //pxXr -= pxXr;
             } else if(getCollisionQuality()==0) {
               x -= constrain(pxXr,-1,0);
@@ -220,7 +220,7 @@ class Object {
   
             //Move then remove a pixel (or less) from the to-move list (By remove, I mean get closer to zero)
             if(getCollisionQuality()==1) {
-              //x -= (int)pxXr;
+              //x -= (int16_t)pxXr;
               //pxXr -= pxXr;
             } else if(getCollisionQuality()==0) {
               x -= constrain(pxXr,0,1);
@@ -230,7 +230,7 @@ class Object {
         } else {
           
           //If something is here, stop the object from moving
-          vx = (int)(-vx*(getXBounce()/100.0F));
+          vx = (int16_t)(-vx*(getXBounce()/100.0F));
           collided = true;
           //vx = 0;
   
@@ -250,8 +250,8 @@ class Object {
     IsGroundedUp = false;
     vy -= getGravity()/VFORCE;
     vy = constrain(vy, -127, 127);
-    vx = (int)(vx * ((1000 - getXFriction()) / 1000.0F));
-    vy = (int)(vy * ((1000 - getYFriction()) / 1000.0F));
+    vx = (int16_t)(vx * ((1000 - getXFriction()) / 1000.0F));
+    vy = (int16_t)(vy * ((1000 - getYFriction()) / 1000.0F));
     UpdateCollision();
     UpdateGrounding();
   }
