@@ -8,10 +8,10 @@ class Object {
   bool collided = false;
   
   virtual int16_t getWidth() {
-    return 8;
+    return 10;
   };
   virtual int16_t getHeight() {
-    return 8;
+    return 14;
   };
   virtual int16_t getGravity() {
     return 15;

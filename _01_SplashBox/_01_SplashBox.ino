@@ -5,8 +5,8 @@
 //#include <Gamebuino-EEPROM.h>
 #include <math.h>
 
-#define LCDWIDTH 160
-#define LCDHEIGHT 128
+#define LCDWIDTH 80
+#define LCDHEIGHT 64
 
 #define SCALE 8
 #define VFORCE 5

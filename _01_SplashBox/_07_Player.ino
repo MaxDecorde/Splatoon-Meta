@@ -332,7 +332,7 @@ class Player :
       if(isOffScreen())
         return; //skip boxes which are out of the screen
       
-      if(!IsSwiming) {
+      /*if(!IsSwiming) {
         if(vy > 5) {
           //ex: 62 to 0 is flat to normal
           if(vy > 62) {
@@ -390,7 +390,9 @@ class Player :
       x -= -LVelX*SCALE;
       y -= -LVelY*SCALE;
 
-      DrawInkHider();
+      DrawInkHider();*/
+
+      gb.display.drawImage(toScreenX(x/SCALE),toScreenY(y/SCALE),InklingF_Idle);
     }
 
     void BulletCollision () {
