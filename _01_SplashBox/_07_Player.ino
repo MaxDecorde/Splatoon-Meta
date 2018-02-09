@@ -80,7 +80,7 @@ class Player :
         DOWN_PRESSED = gb.buttons.pressed(BUTTON_DOWN);
       }
       
-      BottomInk = world.SMGetPaintValueAt(constrain((x/SCALE+4)/8,0,world.MapWidth-1),constrain((y/SCALE)/8+1,0,world.MapHeight-1),0) > 0 
+      BottomInk = world.SMGetPaintValueAt(constrain((x/SCALE+4)/8,0,world.MapWidth-1),constrain((y/SCALE)/8+2,0,world.MapHeight-1),0) > 0 
       && world.SMGetColor(constrain((x/SCALE+4)/8,0,world.MapWidth-1),constrain((y/SCALE)/8+1,0,world.MapHeight-1)) == PlayerColor;
       
       RightInk = world.SMGetPaintValueAt(constrain((x/SCALE+4)/8+1,0,world.MapWidth-1),constrain((y/SCALE+4)/8,0,world.MapHeight-1),3) > 0 
@@ -89,12 +89,12 @@ class Player :
       LeftInk = world.SMGetPaintValueAt(constrain((x/SCALE+4)/8-1,0,world.MapWidth-1),constrain((y/SCALE+4)/8,0,world.MapHeight-1),1) > 0 
       && world.SMGetColor(constrain((x/SCALE+4)/8-1,0,world.MapWidth-1),constrain((y/SCALE+4)/8,0,world.MapHeight-1)) == PlayerColor;
   
-      EBottomInk = world.SMGetPaintValueAt(constrain((x/SCALE+4)/8,0,world.MapWidth-1),constrain((y/SCALE)/8+1,0,world.MapHeight-1),0) > 0 
+      EBottomInk = world.SMGetPaintValueAt(constrain((x/SCALE+4)/8,0,world.MapWidth-1),constrain((y/SCALE)/8+2,0,world.MapHeight-1),0) > 0 
       && world.SMGetColor(constrain((x/SCALE+4)/8,0,world.MapWidth-1),constrain((y/SCALE)/8+1,0,world.MapHeight-1)) != PlayerColor;
   
       //Mouvement SlowDown
       if(!RIGHT_HOLD && !LEFT_HOLD && !B_HOLD) {
-        vx = vx * 0.6f;
+        vx = vx * 0.75f;
       }
       
       if(EBottomInk) {
@@ -215,17 +215,17 @@ class Player :
         if(EBottomInk) {
           vy = 7;
         } else {
-          vy = 66;
+          vy = 112;
         }
       }
       if(A_PRESSED && Object::IsGroundedRight && !Object::IsGroundedDown  && !B_HOLD) { 
         vx = 60;
-        vy = 56;
+        vy = 96;
         sfx(1, 0);
       }
       if(A_PRESSED && Object::IsGroundedLeft && !Object::IsGroundedDown  && !B_HOLD) { 
         vx = -60;
-        vy = 56;
+        vy = 96;
         sfx(1, 0);
       }
   
@@ -236,10 +236,10 @@ class Player :
       if(A_PRESSED && GroundPoundTime > 0 && !Object::IsGroundedDown  && !B_HOLD) {
         if(PlayerDir == 1) {
           vx = -33;
-          vy = 44;
+          vy = 56;
         } else {
           vx = 33;
-          vy = 44;
+          vy = 56;
         }
         GroundPoundTime = 0;
         sfx(8, 0);
@@ -247,19 +247,19 @@ class Player :
       if(Object::IsGroundedDown && GroundPoundTime > 0) {
         GroundPoundTime = 0;
         if(!BottomInk) {
-          vy = 26;
+          vy = 36;
         }
         sfx(3, 0);
       }
       if(GroundPoundTime > 0) {
         vx *= 0.7F;
         if(GroundPoundTime < 2) {
-          vy = 15;
+          vy = 28;
         } else if(GroundPoundTime > 3 && GroundPoundTime < 5) {
           vy = 0;
         }
         if(GroundPoundTime > 6) {
-          vy = constrain(vy - 24, -127, 127);
+          vy = constrain(vy - 45, -127, 127);
         }
         GroundPoundTime++;
       }
@@ -423,10 +423,10 @@ class Player :
 
         if(PlayerGender == 0) {
           InklingF.setFrame(playerImageID);
-          gb.display.drawImage(toScreenX(x/SCALE-8),toScreenY(y/SCALE-7),InklingF,(sizeX*PlayerDir)*0.9,(sizeY)*0.9);
+          gb.display.drawImage(toScreenX(x/SCALE-8),toScreenY(y/SCALE-7),InklingF,(sizeX*PlayerDir),(sizeY));
         } else {
           InklingM.setFrame(playerImageID);
-          gb.display.drawImage(toScreenX(x/SCALE-8),toScreenY(y/SCALE-7),InklingM,(sizeX*PlayerDir)*0.9,(sizeY)*0.9);
+          gb.display.drawImage(toScreenX(x/SCALE-8),toScreenY(y/SCALE-7),InklingM,(sizeX*PlayerDir),(sizeY));
         }
       } else {
         if(IsGroundedDown && vx == 0) {

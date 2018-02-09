@@ -14,7 +14,7 @@ class Object {
     return 8;
   };
   virtual int16_t getGravity() {
-    return 15;
+    return 45;
   };
   virtual int16_t getXFriction() {
     return 0;

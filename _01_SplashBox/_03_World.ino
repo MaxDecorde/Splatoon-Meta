@@ -124,7 +124,7 @@ class World {
     }
   }
   
-  int16_t MergeWalls (int a, int16_t b) {
+  int16_t MergeWalls (int16_t a, int16_t b) {
     return (a+b)/2;
   }
   
@@ -149,8 +149,8 @@ class World {
     int16_t yMin = cameraY / 8;
     int16_t yMax = LCDHEIGHT / 8 + cameraY / 8 + 2;
     
-    for(int y = yMin; y < yMax; y++) {
-      for(int x = xMin; x < xMax; x++ ) {
+    for(int16_t y = yMin; y < yMax; y++) {
+      for(int16_t x = xMin; x < xMax; x++ ) {
         if(getTile(x,y) == 0) {
           continue;
         }

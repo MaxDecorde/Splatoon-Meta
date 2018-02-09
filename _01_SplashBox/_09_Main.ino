@@ -1,6 +1,5 @@
 // MAIN STUFF
 ////////////////
-float aimingAngle;
 
 void ClampCamera () { //Clamp the camera in the world
   if(AnimationTimer > 0) {
@@ -67,6 +66,17 @@ void DrawCursor() {
     }
 
     if(gb.buttons.repeat(BUTTON_A,7) && !gb.buttons.pressed(BUTTON_A)) {
+      int16_t rootX = 0;
+      int16_t rootY = 0;
+      int16_t targetX = 0;
+      int16_t targetY = 0;
+      float aimingAngle = 0;
+      if(player.mainPlayer.PlayerDir == 1) {
+        //root = + 22,9 from player
+      } else if(player.mainPlayer.PlayerDir == -1) {
+        //root = + 2,9 from player
+      }
+      
       aimingAngle = atan2((toScreenY(player.mainPlayer.y/SCALE-16)-LCDHEIGHT/2)-(curY-4-LCDHEIGHT/2),(toScreenX(player.mainPlayer.x/SCALE-16)-LCDHEIGHT/2-(curX-4-LCDWIDTH/2)));
       
       bulletsManager.spawnBullet(
@@ -83,7 +93,7 @@ void DrawCursor() {
     gb.display.fillRect(curX-4,curY-5,7,9);
     gb.display.fillRect(curX-5,curY-4,9,7);
 
-    gb.display.setColor(WHITE); //WasInvert
+    gb.display.setColor(WHITE); //Was Invert
     gb.display.drawBitmap(curX-4,curY-4,Cursor);
     gb.display.drawBitmap(84-curX-4,curY-4,Cursor);
   } else {
