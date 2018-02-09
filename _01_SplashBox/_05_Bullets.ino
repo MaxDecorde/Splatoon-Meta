@@ -1,5 +1,5 @@
-int inkX = 0;
-int inkY = 0;
+int16_t inkX = 0;
+int16_t inkY = 0;
 
 #define BulletTimeLimit 300
 
@@ -41,6 +41,59 @@ class Bullets:
     void Draw () {
       if(isOffScreen())
         return; //skip boxes which are out of the screen
+
+      switch(colorGroup) {
+        case 0:
+        if(color == 0) {
+          gb.display.setColor((ColorIndex)8);
+        } else {
+          gb.display.setColor((ColorIndex)11);
+        }
+        break;
+        case 1:
+        if(color == 0) {
+          gb.display.setColor((ColorIndex)5);
+        } else {
+          gb.display.setColor((ColorIndex)9);
+        }
+        break;
+        case 2:
+        if(color == 0) {
+          gb.display.setColor((ColorIndex)7);
+        } else {
+          gb.display.setColor((ColorIndex)11);
+        }
+        break;
+        case 3:
+        if(color == 0) {
+          gb.display.setColor((ColorIndex)5);
+        } else {
+          gb.display.setColor((ColorIndex)11);
+        }
+        break;
+        case 4:
+        if(color == 0) {
+          gb.display.setColor((ColorIndex)6);
+        } else {
+          gb.display.setColor((ColorIndex)11);
+        }
+        break;
+        case 5:
+        if(color == 0) {
+          gb.display.setColor((ColorIndex)5);
+        } else {
+          gb.display.setColor((ColorIndex)7);
+        }
+        break;
+        case 6:
+        if(color == 0) {
+          gb.display.setColor((ColorIndex)9);
+        } else {
+          gb.display.setColor((ColorIndex)11);
+        }
+        break;
+      }
+      
       if(vx>0) {
         gb.display.drawBitmap(toScreenX(x/SCALE-3), toScreenY(y/SCALE-3), bulletsSprite[ClampInt(0,4,Timer/12)],0,FLIPH);
       } else {

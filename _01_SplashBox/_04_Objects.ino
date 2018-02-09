@@ -8,10 +8,10 @@ class Object {
   bool collided = false;
   
   virtual int16_t getWidth() {
-    return 10;
+    return 8;
   };
   virtual int16_t getHeight() {
-    return 14;
+    return 8;
   };
   virtual int16_t getGravity() {
     return 15;
@@ -44,12 +44,17 @@ class Object {
   
   bool CheckForCollisionX (int8_t Dir) {
     if(Dir != 0) {
-      byte ColX[8];
+      byte ColX[getHeight()];
       if(Dir == 1) {
-        for(int16_t xd = 0; xd < getWidth(); xd++) { //yd = Y Down
-          ColX[xd] =  world.PixelInCollider((x/SCALE-1)/8 , (y/SCALE+xd)/8 , (x/SCALE+getWidth()-1) - ((x/SCALE-1)/8)*8 , (y/SCALE+xd) - ((y/SCALE+xd)/8)*8);
+        for(int16_t xd = 0; xd < getHeight(); xd++) { //yd = Y Down
+          ColX[xd] = world.PixelInCollider(
+            (x/SCALE-1)/8,
+            (y/SCALE)/8,
+            (x/SCALE+getWidth()-1)%8,
+            (y/SCALE)%8+xd
+          );
         }
-        for(int16_t xd = 0; xd < getWidth(); xd++) {
+        for(int16_t xd = 0; xd < getHeight(); xd++) {
           if(ColX[xd] == 1) {
             IsGroundedLeft = true;
             return false;
@@ -57,10 +62,15 @@ class Object {
         }
       }
       if(Dir == -1) {
-        for(int16_t xd = 0; xd < getWidth(); xd++) { //yd = Y Down
-          ColX[xd] = world.PixelInCollider((x/SCALE+getWidth())/8, (y/SCALE+xd)/8 , (x/SCALE) - ((x/SCALE+getWidth())/8)*8 , (y/SCALE+xd) - ((y/SCALE+xd)/8)*8);
+        for(int16_t xd = 0; xd < getHeight(); xd++) { //yd = Y Down
+          ColX[xd] = world.PixelInCollider(
+            (x/SCALE+getWidth())/8,
+            (y/SCALE)/8,
+            (x/SCALE+getWidth())%8,
+            (y/SCALE)%8+xd
+          );
         }
-        for(int16_t xd = 0; xd < getWidth(); xd++) {
+        for(int16_t xd = 0; xd < getHeight(); xd++) {
           if(ColX[xd] == 1) {
             IsGroundedRight = true;
             return false;
@@ -73,12 +83,17 @@ class Object {
   
   bool CheckForCollisionY (int8_t Dir) {
     if(Dir != 0) {
-      byte ColY[8];
+      byte ColY[getWidth()];
       if(Dir == 1) {
-        for(int16_t yd = 0; yd < getHeight(); yd++) { //yd = Y Down
-          ColY[yd] = world.PixelInCollider((x/SCALE+yd)/8 , (y/SCALE-1)/8 , (x/SCALE+yd) - ((x/SCALE+yd)/8)*8 , (y/SCALE-1) - ((y/SCALE+getHeight())/8)*8);
+        for(int16_t yd = 0; yd < getWidth(); yd++) { //yd = Y Down
+          ColY[yd] = world.PixelInCollider(
+            (x/SCALE)/8,
+            (y/SCALE-1)/8,
+            (x/SCALE)%8+yd,
+            (y/SCALE+getHeight())%8
+          );
         }
-        for(int16_t yd = 0; yd < getHeight(); yd++) {
+        for(int16_t yd = 0; yd < getWidth(); yd++) {
           if(ColY[yd] == 1) {
             IsGroundedUp = true;
             return false;
@@ -86,10 +101,15 @@ class Object {
         }
       }
       if(Dir == -1) {
-        for(int16_t yd = 0; yd < getHeight(); yd++) { //yd = Y Down
-          ColY[yd] = world.PixelInCollider((x/SCALE+yd)/8 , (y/SCALE+getHeight())/8 , (x/SCALE+yd) - ((x/SCALE+yd)/8)*8 , (y/SCALE+getHeight()) - ((y/SCALE)/8)*8);
+        for(int16_t yd = 0; yd < getWidth(); yd++) { //yd = Y Down
+          ColY[yd] = world.PixelInCollider(
+            (x/SCALE)/8,
+            (y/SCALE+getHeight())/8,
+            (x/SCALE)%8+yd,
+            (y/SCALE+getHeight())%8
+          );
         }
-        for(int16_t yd = 0; yd < getHeight(); yd++) {
+        for(int16_t yd = 0; yd < getWidth(); yd++) {
           if(ColY[yd] == 1) {
             IsGroundedDown = true;
             return false;
@@ -101,39 +121,58 @@ class Object {
   }
 
   void UpdateGrounding () {
-    byte ColY[8];
-    for(int16_t yd = 0; yd < getHeight(); yd++) { //yd = Y Down
-      ColY[yd] = world.PixelInCollider((x/SCALE+yd)/8 , (y/SCALE+getHeight())/8 , (x/SCALE+yd) - ((x/SCALE+yd)/8)*8 , (y/SCALE+getHeight()) - ((y/SCALE)/8)*8);
+    byte ColY[getWidth()];
+    for(int16_t yd = 0; yd < getWidth(); yd++) { //yd = Y Down
+      ColY[yd] = world.PixelInCollider(
+        (x/SCALE)/8,
+        (y/SCALE-1)/8,
+        (x/SCALE)%8+yd,
+        (y/SCALE+getHeight())%8
+      );
     }
-    for(int16_t yd = 0; yd < getHeight(); yd++) {
+    for(int16_t yd = 0; yd < getWidth(); yd++) {
+      if(ColY[yd] == 1) {
+        IsGroundedUp = true;
+      }
+    }
+    
+    for(int16_t yd = 0; yd < getWidth(); yd++) { //yd = Y Down
+      ColY[yd] = world.PixelInCollider(
+        (x/SCALE)/8,
+        (y/SCALE+getHeight())/8,
+        (x/SCALE)%8+yd,
+        (y/SCALE+getHeight())%8
+      );
+    }
+    for(int16_t yd = 0; yd < getWidth(); yd++) {
       if(ColY[yd] == 1) {
         IsGroundedDown = true;
       }
     }
 
-    for(int16_t yd = 0; yd < getHeight(); yd++) { //yd = Y Down
-      ColY[yd] = world.PixelInCollider((x/SCALE+yd)/8 , (y/SCALE-1)/8 , (x/SCALE+yd) - ((x/SCALE+yd)/8)*8 , (y/SCALE-1) - ((y/SCALE+getHeight())/8)*8);
+    byte ColX[getHeight()];
+    for(int16_t xd = 0; xd < getHeight(); xd++) { //yd = Y Down
+      ColX[xd] = world.PixelInCollider(
+        (x/SCALE-1)/8,
+        (y/SCALE)/8,
+        (x/SCALE+getWidth()-1)%8,
+        (y/SCALE)%8+xd
+      );
     }
-    for(int16_t yd = 0; yd < getHeight(); yd++) {
-      if(ColY[yd] == 1) {
-        IsGroundedUp = true;
-      }
-    }
-
-    byte ColX[8];
-    for(int16_t xd = 0; xd < getWidth(); xd++) { //yd = Y Down
-      ColX[xd] =  world.PixelInCollider((x/SCALE-1)/8 , (y/SCALE+xd)/8 , (x/SCALE+getWidth()-1) - ((x/SCALE-1)/8)*8 , (y/SCALE+xd) - ((y/SCALE+xd)/8)*8);
-    }
-    for(int16_t xd = 0; xd < getWidth(); xd++) {
+    for(int16_t xd = 0; xd < getHeight(); xd++) {
       if(ColX[xd] == 1) {
         IsGroundedLeft = true;
       }
     }
-
-    for(int16_t xd = 0; xd < getWidth(); xd++) { //yd = Y Down
-      ColX[xd] = world.PixelInCollider((x/SCALE+getWidth())/8, (y/SCALE+xd)/8 , (x/SCALE) - ((x/SCALE+getWidth())/8)*8 , (y/SCALE+xd) - ((y/SCALE+xd)/8)*8);
+    for(int16_t xd = 0; xd < getHeight(); xd++) { //yd = Y Down
+      ColX[xd] = world.PixelInCollider(
+        (x/SCALE+getWidth())/8,
+        (y/SCALE)/8,
+        (x/SCALE+getWidth())%8,
+        (y/SCALE)%8+xd
+      );
     }
-    for(int16_t xd = 0; xd < getWidth(); xd++) {
+    for(int16_t xd = 0; xd < getHeight(); xd++) {
       if(ColX[xd] == 1) {
         IsGroundedRight = true;
       }

@@ -5,12 +5,17 @@ class Player :
     short Live = 100;
     short RespawnTimer = 0;
     byte PlayerCode = 0;
-  
-    char LVelX = 0;
-    char LVelY = 0;
+
+    byte PlayerGender = 0;
+    byte PlayerHaircut = 0;
+
+    bool ShootCall = false;
+    
+    int8_t LVelX = 0;
+    int8_t LVelY = 0;
     bool LastGrounded = false;
     
-    char PlayerDir = 1; //Was Going Right
+    int8_t PlayerDir = 1; //Was Going Right
     bool IsSwiming = false;
     byte blinkEye = 60;
     byte eyeSize = 2;
@@ -39,6 +44,21 @@ class Player :
     bool LEFT_HOLD;
     bool RIGHT_HOLD;
     bool DOWN_PRESSED;
+
+    virtual int16_t getWidth() {
+      if(IsSwiming) {
+        return 10;
+      } else {
+        return 10; //10
+      }
+    };
+    virtual int16_t getHeight() {
+      if(IsSwiming) {
+        return 6;
+      } else {
+        return 14; //14
+      }
+    };
 
     void MoveUpdate () {
       if(FreezePlayers) {
@@ -332,67 +352,165 @@ class Player :
       if(isOffScreen())
         return; //skip boxes which are out of the screen
       
-      /*if(!IsSwiming) {
-        if(vy > 5) {
-          //ex: 62 to 0 is flat to normal
-          if(vy > 62) {
-            SquisheVertical = 5;
-            SquisheHorizontal = 10;
+      switch(colorGroup) {
+        case 0:
+        if(PlayerColor == 0) {
+          gb.display.colorIndex = palettePYellow;
+        } else {
+          gb.display.colorIndex = palettePBlue;
+        }
+        break;
+        case 1:
+        if(PlayerColor == 0) {
+          gb.display.colorIndex = palettePMagenta;
+        } else {
+          gb.display.colorIndex = palettePGreen;
+        }
+        break;
+        case 2:
+        if(PlayerColor == 0) {
+          gb.display.colorIndex = palettePOrange;
+        } else {
+          gb.display.colorIndex = palettePBlue;
+        }
+        break;
+        case 3:
+        if(PlayerColor == 0) {
+          gb.display.colorIndex = palettePMagenta;
+        } else {
+          gb.display.colorIndex = palettePBlue;
+        }
+        break;
+        case 4:
+        if(PlayerColor == 0) {
+          gb.display.colorIndex = palettePRed;
+        } else {
+          gb.display.colorIndex = palettePBlue;
+        }
+        break;
+        case 5:
+        if(PlayerColor == 0) {
+          gb.display.colorIndex = palettePMagenta;
+        } else {
+          gb.display.colorIndex = palettePOrange;
+        }
+        break;
+        case 6:
+        if(PlayerColor == 0) {
+          gb.display.colorIndex = palettePGreen;
+        } else {
+          gb.display.colorIndex = palettePBlue;
+        }
+        break;
+      }
+      
+      int8_t sizeX = InklingF.width();
+      int8_t sizeY = InklingF.height();
+      uint8_t playerImageID = 0;
+
+      if(IsSwiming) {
+        if(!IsGroundedDown) {
+          if(vy > 75) {
+            playerImageID = 11;
+          } else if(vy < 75) {
+            playerImageID = 13;
           } else {
-            SquisheVertical = 8+(vy*BouncyMath2);
-            SquisheHorizontal = 8+(vy*BouncyMath1);
+            playerImageID = 12;
           }
-        } else if(vy < -5) {
-          //ex: 0 to -127 is normal to verticaly flat
-          SquisheVertical = 8+(vy*BouncyMath3);
-          SquisheHorizontal = 8+(vy*BouncyMath4);
-        } else if(vy == 0) {
-          SquisheVertical = 8;
-          SquisheHorizontal = 8;
-        }
-      }
-      
-      x += -LVelX*SCALE;
-      y += -LVelY*SCALE;
-
-      //gb.display.setColor(BLACK);
-      //gb.display.fillRect(toScreenX(x/SCALE),toScreenY(y/SCALE), 8, 8);
-      
-      if(PlayerDir == 1) {
-        gb.display.setColor(BLACK);
-        gb.display.drawBitmap(toScreenX(x/SCALE + (vx/VFORCE/8) - 4), toScreenY(y/SCALE - constrain( abs(min(vy/8/VFORCE,0)), 0,5) - DuckPosY - 2 - 4), hatsSprite[hat*2]);
-        gb.display.drawBitmap(toScreenX(x/SCALE + (vx/VFORCE/8) + 4), toScreenY(y/SCALE - constrain( abs(min(vy/8/VFORCE,0)), 0,5) - DuckPosY - 2 - 4), hatsSprite[hat*2+1]);
-        
-        gb.display.setColor(BLACK);
-        if(PlayerColor == 0) {
-          gb.display.fillRect(toScreenX(x/SCALE), toScreenY(y/SCALE - DuckPosY), SquisheHorizontal, SquisheVertical);
         } else {
-          gb.display.drawRect(toScreenX(x/SCALE), toScreenY(y/SCALE - DuckPosY), SquisheHorizontal, SquisheVertical);
+          playerImageID = 10;
         }
-        gb.display.setColor(WHITE);
-        gb.display.drawFastVLine(toScreenX(x/SCALE+SquisheHorizontal-2), toScreenY(y/SCALE+2 - DuckPosY), eyeSize);
-        gb.display.drawFastVLine(toScreenX(x/SCALE+SquisheHorizontal-5), toScreenY(y/SCALE+2 - DuckPosY), eyeSize);
+
+        if(PlayerGender == 0) {
+          InklingF.setFrame(playerImageID);
+          gb.display.drawImage(toScreenX(x/SCALE-8),toScreenY(y/SCALE-7),InklingF,(sizeX*PlayerDir)*0.9,(sizeY)*0.9);
+        } else {
+          InklingM.setFrame(playerImageID);
+          gb.display.drawImage(toScreenX(x/SCALE-8),toScreenY(y/SCALE-7),InklingM,(sizeX*PlayerDir)*0.9,(sizeY)*0.9);
+        }
       } else {
-        gb.display.setColor(BLACK);
-        gb.display.drawBitmap(toScreenX(x/SCALE + (vx/VFORCE/8) - 4), toScreenY(y/SCALE - constrain( abs(min(vy/8/VFORCE,0)), 0,5) - DuckPosY - 2 - 4), hatsSprite[hat*2+1], NOROT, FLIPH);
-        gb.display.drawBitmap(toScreenX(x/SCALE + (vx/VFORCE/8) + 4), toScreenY(y/SCALE - constrain( abs(min(vy/8/VFORCE,0)), 0,5) - DuckPosY - 2 - 4), hatsSprite[hat*2], NOROT, FLIPH);
-        
-        gb.display.setColor(BLACK);
-        if(PlayerColor == 0) {
-          gb.display.fillRect(toScreenX(x/SCALE), toScreenY(y/SCALE - DuckPosY), SquisheHorizontal, SquisheVertical);
-        } else {
-          gb.display.drawRect(toScreenX(x/SCALE), toScreenY(y/SCALE - DuckPosY), SquisheHorizontal, SquisheVertical);
+        if(IsGroundedDown && vx == 0) {
+          playerImageID = 0;
         }
-        gb.display.setColor(WHITE);
-        gb.display.drawFastVLine(toScreenX(x/SCALE+1), toScreenY(y/SCALE+2 - DuckPosY), eyeSize);
-        gb.display.drawFastVLine(toScreenX(x/SCALE+4), toScreenY(y/SCALE+2 - DuckPosY), eyeSize);
+        if(!IsGroundedDown && vy >= 0) {
+          playerImageID = 7;
+        }
+        if(!IsGroundedDown && vy < 0) {
+          playerImageID = 8;
+        }
+        if(IsGroundedDown && abs(vx) > 5 && abs(vx) < 120 && (RIGHT_HOLD||LEFT_HOLD)) {
+          playerImageID = 1+((blinkEye/AnimWALKSPEED)%3);
+        }
+        if(IsGroundedDown && abs(vx) > 120 && (RIGHT_HOLD||LEFT_HOLD)) {
+          playerImageID = 4+((blinkEye/AnimRUNSPEED)%3);
+        }
+
+        if(ShootCall) {
+          playerImageID = 9;
+          ShootCall = false;
+        }
+
+        if(PlayerGender == 0) {
+          switch(PlayerHaircut) {
+            case 0:
+            InklingF.setFrame(playerImageID);
+            H0InklingF.setFrame(playerImageID);
+            gb.display.drawImage(toScreenX(x/SCALE-8),toScreenY(y/SCALE-7),InklingF,sizeX*PlayerDir,sizeY);
+            gb.display.drawImage(toScreenX(x/SCALE-8),toScreenY(y/SCALE-7),H0InklingF,sizeX*PlayerDir,sizeY);
+            break;
+            case 1:
+            InklingF.setFrame(playerImageID);
+            H1InklingF.setFrame(playerImageID);
+            gb.display.drawImage(toScreenX(x/SCALE-8),toScreenY(y/SCALE-7),InklingF,sizeX*PlayerDir,sizeY);
+            gb.display.drawImage(toScreenX(x/SCALE-8),toScreenY(y/SCALE-7),H1InklingF,sizeX*PlayerDir,sizeY);
+            break;
+            case 2:
+            InklingF.setFrame(playerImageID);
+            H2InklingF.setFrame(playerImageID);
+            gb.display.drawImage(toScreenX(x/SCALE-8),toScreenY(y/SCALE-7),InklingF,sizeX*PlayerDir,sizeY);
+            gb.display.drawImage(toScreenX(x/SCALE-8),toScreenY(y/SCALE-7),H2InklingF,sizeX*PlayerDir,sizeY);
+            break;
+            case 3:
+            InklingF.setFrame(playerImageID);
+            H3InklingF.setFrame(playerImageID);
+            gb.display.drawImage(toScreenX(x/SCALE-8),toScreenY(y/SCALE-7),InklingF,sizeX*PlayerDir,sizeY);
+            gb.display.drawImage(toScreenX(x/SCALE-8),toScreenY(y/SCALE-7),H3InklingF,sizeX*PlayerDir,sizeY);
+            break;
+          }
+        } else {
+          switch(PlayerHaircut) {
+            case 0:
+            InklingM.setFrame(playerImageID);
+            H0InklingM.setFrame(playerImageID);
+            gb.display.drawImage(toScreenX(x/SCALE-8),toScreenY(y/SCALE-7),InklingM,sizeX*PlayerDir,sizeY);
+            gb.display.drawImage(toScreenX(x/SCALE-8),toScreenY(y/SCALE-7),H0InklingM,sizeX*PlayerDir,sizeY);
+            break;
+            case 1:
+            InklingM.setFrame(playerImageID);
+            H1InklingM.setFrame(playerImageID);
+            gb.display.drawImage(toScreenX(x/SCALE-8),toScreenY(y/SCALE-7),InklingM,sizeX*PlayerDir,sizeY);
+            gb.display.drawImage(toScreenX(x/SCALE-8),toScreenY(y/SCALE-7),H1InklingM,sizeX*PlayerDir,sizeY);
+            break;
+            case 2:
+            InklingM.setFrame(playerImageID);
+            H2InklingM.setFrame(playerImageID);
+            gb.display.drawImage(toScreenX(x/SCALE-8),toScreenY(y/SCALE-7),InklingM,sizeX*PlayerDir,sizeY);
+            gb.display.drawImage(toScreenX(x/SCALE-8),toScreenY(y/SCALE-7),H2InklingM,sizeX*PlayerDir,sizeY);
+            break;
+            case 3:
+            InklingM.setFrame(playerImageID);
+            H3InklingM.setFrame(playerImageID);
+            gb.display.drawImage(toScreenX(x/SCALE-8),toScreenY(y/SCALE-7),InklingM,sizeX*PlayerDir,sizeY);
+            gb.display.drawImage(toScreenX(x/SCALE-8),toScreenY(y/SCALE-7),H3InklingM,sizeX*PlayerDir,sizeY);
+            break;
+          }
+        }
       }
-      x -= -LVelX*SCALE;
-      y -= -LVelY*SCALE;
+      
+      //gb.display.setColor(BLACK);
+      //gb.display.drawRect(toScreenX(x/SCALE),toScreenY(y/SCALE),getWidth(),getHeight());
 
-      DrawInkHider();*/
-
-      gb.display.drawImage(toScreenX(x/SCALE),toScreenY(y/SCALE),InklingF_Idle);
+      gb.display.colorIndex = palette;
     }
 
     void BulletCollision () {
@@ -447,7 +565,7 @@ class Player :
     }
 };
 
-#define PLAYER_C 2
+#define PLAYER_C 6
 
 class PlayersOperator {
   public:
@@ -475,8 +593,12 @@ class PlayersOperator {
         }
 
         players[i-1].PlayerCode = i;
+        players[i-1].PlayerGender = random(0,2);
+        players[i-1].PlayerHaircut = random(0,4);
       } else {
         mainPlayer.PlayerCode = 0;
+        mainPlayer.PlayerGender = random(0,2);
+        mainPlayer.PlayerHaircut = random(0,4);
       }
     }
   }

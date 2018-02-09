@@ -48,6 +48,7 @@ void DrawCursor() {
   }
 
   if(gb.buttons.repeat(BUTTON_B,0)) {
+    player.mainPlayer.ShootCall = true;
     if(gb.buttons.repeat(BUTTON_UP,0)) {
       curY-=4;
       curY = constrain(curY, 0+5, LCDHEIGHT-4);
@@ -102,6 +103,8 @@ void DrawUI() {
 
 void setup() {
   gb.begin();
+  gb.pickRandomSeed();
+  colorGroup = random(0,7);
   gb.display.colorIndex = palette;
   PrepareMap();
 }
@@ -212,11 +215,11 @@ void loop () {
         
         AnimationTimer--;
         if(AnimationTimer <= 0) {
-            gb.display.setColor(BLACK);
-            gb.display.cursorX = 0;
-            gb.display.cursorY = 0;
-            gb.display.fontSize = 1;
-            gb.display.print(F(""));
+          gb.display.setColor(BLACK);
+          gb.display.cursorX = 0;
+          gb.display.cursorY = 0;
+          gb.display.fontSize = 1;
+          gb.display.print(F(""));
         }
       }
     }

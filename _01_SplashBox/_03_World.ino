@@ -129,7 +129,7 @@ class World {
   }
   
   int16_t PixelInCollider (byte PIMX, byte PIMY, byte PICX, byte PICY) { //PIM = Pos in map (0-255), PIC = Pos in cube (0-8)
-    switch (getTile(PIMX,PIMY) != 0) {
+    switch(getTile(PIMX+(PICX/8),PIMY+(PICY/8)) != 0) {
       case 0:
         return 0;
       case 1:
@@ -151,7 +151,6 @@ class World {
     
     for(int y = yMin; y < yMax; y++) {
       for(int x = xMin; x < xMax; x++ ) {
-        
         if(getTile(x,y) == 0) {
           continue;
         }
@@ -174,57 +173,103 @@ class World {
           V0 = SMGetPaintValueAt(x,y,6);
           V2 = SMGetPaintValueAt(x,y,7);
           
-          for(char x1 = -1; x1 < 2; x1++) {
-            for(char y1 = -1; y1 < 2; y1++) {
+          for(int8_t x1 = -1; x1 < 2; x1++) {
+            for(int8_t y1 = -1; y1 < 2; y1++) {
               if(!(x+x1<0 || x+x1>=MapWidth || y+y1<0 || y+y1>=MapHeight)) {
                 if(getTile(x+x1,y+y1)==0) {
 
                   //Ink
-                  if(cC == 1) {
-                    gb.display.setColor(WHITE);
-                  } else if(cC == 0) {
-                    gb.display.setColor(BLACK);
+                  switch(colorGroup) {
+                    case 0:
+                    if(cC == 0) {
+                      gb.display.setColor((ColorIndex)8);
+                    } else {
+                      gb.display.setColor((ColorIndex)11);
+                    }
+                    break;
+                    case 1:
+                    if(cC == 0) {
+                      gb.display.setColor((ColorIndex)5);
+                    } else {
+                      gb.display.setColor((ColorIndex)9);
+                    }
+                    break;
+                    case 2:
+                    if(cC == 0) {
+                      gb.display.setColor((ColorIndex)7);
+                    } else {
+                      gb.display.setColor((ColorIndex)11);
+                    }
+                    break;
+                    case 3:
+                    if(cC == 0) {
+                      gb.display.setColor((ColorIndex)5);
+                    } else {
+                      gb.display.setColor((ColorIndex)11);
+                    }
+                    break;
+                    case 4:
+                    if(cC == 0) {
+                      gb.display.setColor((ColorIndex)6);
+                    } else {
+                      gb.display.setColor((ColorIndex)11);
+                    }
+                    break;
+                    case 5:
+                    if(cC == 0) {
+                      gb.display.setColor((ColorIndex)5);
+                    } else {
+                      gb.display.setColor((ColorIndex)7);
+                    }
+                    break;
+                    case 6:
+                    if(cC == 0) {
+                      gb.display.setColor((ColorIndex)9);
+                    } else {
+                      gb.display.setColor((ColorIndex)11);
+                    }
+                    break;
                   }
+                }
                   
-                  if(x1<0) {
-                    if(y1<0) {
-                      if(getTile(x+-1,y+0) == 1 && getTile(x+0,y+-1) == 1) {
-                        gb.display.drawBitmap(x*8 - cameraX, y*8 - cameraY, splashes[4+V6], ROTCCW, NOFLIP); //WORKS //Kinda confirmed?
-                      }
-                    } else if(y1>0) {
-                      if(getTile(x+-1,y+0) == 1 && getTile(x+0,y+1) == 1) {
-                        gb.display.drawBitmap(x*8 - cameraX, y*8 - cameraY, splashes[4+V0], ROT180, NOFLIP); //WORKS
-                      }
-                    } else if(y1==0) {
-                      gb.display.drawBitmap(x*8 - cameraX, y*8 - cameraY, splashes[V7], ROTCCW, NOFLIP);
+                if(x1<0) {
+                  if(y1<0) {
+                    if(getTile(x+-1,y+0) == 1 && getTile(x+0,y+-1) == 1) {
+                      gb.display.drawBitmap(x*8 - cameraX, y*8 - cameraY, splashes[4+V6], ROTCCW, NOFLIP); //WORKS //Kinda confirmed?
                     }
+                  } else if(y1>0) {
+                    if(getTile(x+-1,y+0) == 1 && getTile(x+0,y+1) == 1) {
+                      gb.display.drawBitmap(x*8 - cameraX, y*8 - cameraY, splashes[4+V0], ROT180, NOFLIP); //WORKS
+                    }
+                  } else if(y1==0) {
+                    gb.display.drawBitmap(x*8 - cameraX, y*8 - cameraY, splashes[V7], ROTCCW, NOFLIP);
                   }
-                  if(x1>0) {
-                    if(y1<0) {
-                      if(getTile(x+1,y+0) == 1 && getTile(x+0,y+-1) == 1) {
-                        gb.display.drawBitmap(x*8 - cameraX, y*8 - cameraY, splashes[4+V4], NOROT, NOFLIP); //WORKS
-                      }
-                    } else if(y1>0) {
-                      if(getTile(x+0,y+1) == 1 && getTile(x+1,y+0) == 1) {
-                        gb.display.drawBitmap(x*8 - cameraX, y*8 - cameraY, splashes[4+V2], ROTCW, NOFLIP); //WORKS //Kinda confirmed?
-                      }
-                    } else if(y1==0) {
-                      gb.display.drawBitmap(x*8 - cameraX, y*8 - cameraY, splashes[V3], ROTCW, NOFLIP);
+                }
+                if(x1>0) {
+                  if(y1<0) {
+                    if(getTile(x+1,y+0) == 1 && getTile(x+0,y+-1) == 1) {
+                      gb.display.drawBitmap(x*8 - cameraX, y*8 - cameraY, splashes[4+V4], NOROT, NOFLIP); //WORKS
                     }
+                  } else if(y1>0) {
+                    if(getTile(x+0,y+1) == 1 && getTile(x+1,y+0) == 1) {
+                      gb.display.drawBitmap(x*8 - cameraX, y*8 - cameraY, splashes[4+V2], ROTCW, NOFLIP); //WORKS //Kinda confirmed?
+                    }
+                  } else if(y1==0) {
+                    gb.display.drawBitmap(x*8 - cameraX, y*8 - cameraY, splashes[V3], ROTCW, NOFLIP);
                   }
-                  if(x1==0) {
-                    if(y1<0) {
-                      gb.display.drawBitmap(x*8 - cameraX, y*8 - cameraY, splashes[V1], NOROT, NOFLIP);
-                    } else if(y1>0) {
-                      gb.display.drawBitmap(x*8 - cameraX, y*8 - cameraY, splashes[V5], ROT180, NOFLIP);
-                    }
+                }
+                if(x1==0) {
+                  if(y1<0) {
+                    gb.display.drawBitmap(x*8 - cameraX, y*8 - cameraY, splashes[V1], NOROT, NOFLIP);
+                  } else if(y1>0) {
+                    gb.display.drawBitmap(x*8 - cameraX, y*8 - cameraY, splashes[V5], ROT180, NOFLIP);
                   }
                 }
               }
             }
           }
-          for(char x1 = -1; x1 < 2; x1++) {
-            for(char y1 = -1; y1 < 2; y1++) {
+          /*for(int8_t x1 = -1; x1 < 2; x1++) {
+            for(int8_t y1 = -1; y1 < 2; y1++) {
               if(!(x+x1<0 || x+x1>=MapWidth || y+y1<0 || y+y1>=MapHeight)) {
                 if(getTile(x+x1,y+y1)==0) {
                   //Outline
@@ -265,10 +310,8 @@ class World {
                 }
               }
             }
-          }
-          
+          }*/
         }
-        
       }
     }
   }
