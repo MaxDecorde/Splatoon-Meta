@@ -442,10 +442,10 @@ class Player :
         if(!IsGroundedDown && vy < 0) {
           playerImageID = 8;
         }
-        if(IsGroundedDown && abs(vx) > 5 && abs(vx) < 120 && (RIGHT_HOLD||LEFT_HOLD)) {
+        if(IsGroundedDown && abs(vx) > 5 && abs(vx) < 72 && (RIGHT_HOLD||LEFT_HOLD)) {
           playerImageID = 1+((blinkEye/AnimWALKSPEED)%3);
         }
-        if(IsGroundedDown && abs(vx) > 120 && (RIGHT_HOLD||LEFT_HOLD)) {
+        if(IsGroundedDown && abs(vx) > 72 && (RIGHT_HOLD||LEFT_HOLD)) {
           playerImageID = 4+((blinkEye/AnimRUNSPEED)%3);
         }
 
@@ -509,6 +509,13 @@ class Player :
             break;
           }
         }
+      }
+
+      gb.display.setColor(BLACK);
+      if(PlayerDir == 1) {
+        gb.display.drawBitmap(toScreenX(x/SCALE-4)-constrain(-vx/VFORCE/3,-2,2),toScreenY(y/SCALE-8-constrain(-vy/VFORCE/3,0,5)),hatsSprite[hat],0,NOFLIP);
+      } else {
+        gb.display.drawBitmap(toScreenX(x/SCALE-4)-constrain(-vx/VFORCE/3,-2,2),toScreenY(y/SCALE-8-constrain(-vy/VFORCE/3,0,5)),hatsSprite[hat],0,FLIPH);
       }
       
       //gb.display.setColor(BLACK);

@@ -147,7 +147,7 @@ void loop () {
       if(gb.buttons.pressed(BUTTON_MENU)) {
         if(gb.buttons.repeat(BUTTON_B, 0)) {
           player.mainPlayer.hat++;
-          if(player.mainPlayer.hat > 6) {
+          if(player.mainPlayer.hat > 7) {
             player.mainPlayer.hat = 0;
           }
         } else if(gb.buttons.repeat(BUTTON_A, 0)) {
