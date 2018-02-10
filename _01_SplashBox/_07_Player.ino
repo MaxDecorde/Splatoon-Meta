@@ -511,11 +511,12 @@ class Player :
         }
       }
 
-      gb.display.setColor(BLACK);
-      if(PlayerDir == 1) {
-        gb.display.drawBitmap(toScreenX(x/SCALE-4)-constrain(-vx/VFORCE/3,-2,2),toScreenY(y/SCALE-8-constrain(-vy/VFORCE/3,0,5)),hatsSprite[hat],0,NOFLIP);
-      } else {
-        gb.display.drawBitmap(toScreenX(x/SCALE-4)-constrain(-vx/VFORCE/3,-2,2),toScreenY(y/SCALE-8-constrain(-vy/VFORCE/3,0,5)),hatsSprite[hat],0,FLIPH);
+      if(!IsSwiming) {
+        if(PlayerDir == 1) {
+          gb.display.drawImage(toScreenX(x/SCALE-4)+HatOffset[playerImageID*2],toScreenY(y/SCALE-8)-HatOffset[playerImageID*2+1],*HeadgearSprites[hat],16,16);
+        } else {
+          gb.display.drawImage(toScreenX(x/SCALE-4)-HatOffset[playerImageID*2],toScreenY(y/SCALE-8)-HatOffset[playerImageID*2+1],*HeadgearSprites[hat],-16,16);
+        }
       }
       
       //gb.display.setColor(BLACK);
