@@ -9,14 +9,14 @@ void ClampCamera () { //Clamp the camera in the world
   if(world.MapWidth < 11) {
     cameraX = (LCDWIDTH - world.MapWidth*8)/2;
   } else {
-    cameraX = ClampInt(0,world.MapWidth*8-LCDWIDTH,player.mainPlayer.x/SCALE+4-(LCDWIDTH/2));
+    cameraX = ClampInt(0,world.MapWidth*8-LCDWIDTH,cameraX);
   }
-  cameraY = ClampInt(0,world.MapHeight*8-LCDHEIGHT,player.mainPlayer.y/SCALE+4-(LCDHEIGHT/2));
+  cameraY = ClampInt(0,world.MapHeight*8-LCDHEIGHT,cameraY);
 }
 
 void PrepareMap () {
   world.CurrentLoadedMap = 0;
-  player.mainPlayer.x = 8*pgm_read_byte(GetMap[world.CurrentLoadedMap] + 2)*SCALE;
+  player.mainPlayer.x = (8*pgm_read_byte(GetMap[world.CurrentLoadedMap] + 2)-4)*SCALE;
   player.mainPlayer.y = 8*pgm_read_byte(GetMap[world.CurrentLoadedMap] + 3)*SCALE;
   world.MapWidth = pgm_read_byte(GetMap[world.CurrentLoadedMap] + 0);
   world.MapHeight = pgm_read_byte(GetMap[world.CurrentLoadedMap] + 1);
@@ -32,6 +32,10 @@ void PrepareMap () {
 }
 
 void DrawCursor() {
+  if(player.mainPlayer.RespawnTimer > 0) {
+    return;
+  }
+  
   if(gb.buttons.repeat(BUTTON_RIGHT,0) && !gb.buttons.repeat(BUTTON_B,0)) {
     if(!LastDirection && curX<48) {
       curX = 84 - curX;
@@ -65,24 +69,35 @@ void DrawCursor() {
       curY = constrain(curY, 0+5, LCDHEIGHT-4);
     }
 
-    if(gb.buttons.repeat(BUTTON_A,7) && !gb.buttons.pressed(BUTTON_A)) {
-      int16_t rootX = 0;
-      int16_t rootY = 0;
-      int16_t targetX = 0;
-      int16_t targetY = 0;
+    if((gb.buttons.repeat(BUTTON_A,5) && !gb.buttons.pressed(BUTTON_A)) || (gb.buttons.held(BUTTON_A,2) && !gb.buttons.pressed(BUTTON_A))) {
+      int16_t rootX = player.mainPlayer.x/SCALE;
+      int16_t rootY = player.mainPlayer.y/SCALE;
+      int16_t targetX = cameraX+curX;
+      int16_t targetY = cameraY+curY;
       float aimingAngle = 0;
       if(player.mainPlayer.PlayerDir == 1) {
         //root = + 22,9 from player
+        rootX+=14;
+        rootY+=5;
       } else if(player.mainPlayer.PlayerDir == -1) {
         //root = + 2,9 from player
+        rootX-=7;
+        rootY+=5;
+      }
+
+      gb.display.setColor(BLACK);
+      gb.display.drawLine(toScreenX(rootX),toScreenY(rootY),toScreenX(targetX),toScreenY(targetY));
+
+      if(player.mainPlayer.PlayerDir == 1) {
+        aimingAngle = constrain(atan2(rootX-targetX,rootY-targetY),-PI,0)+1.5708F+(random(-10,11)/50.0F); //In radians
+      } else {
+        aimingAngle = constrain(atan2(rootX-targetX,rootY-targetY),0,PI)+1.5708F+(random(-10,11)/50.0F); //In radians
       }
       
-      aimingAngle = atan2((toScreenY(player.mainPlayer.y/SCALE-16)-LCDHEIGHT/2)-(curY-4-LCDHEIGHT/2),(toScreenX(player.mainPlayer.x/SCALE-16)-LCDHEIGHT/2-(curX-4-LCDWIDTH/2)));
-      
       bulletsManager.spawnBullet(
-        player.mainPlayer.x+4,
-        player.mainPlayer.y+4,
-        (int16_t)(cos(aimingAngle)*110.0F),
+        rootX*SCALE+(2*SCALE),
+        rootY*SCALE+(2*SCALE),
+        -(int16_t)(cos(aimingAngle)*110.0F),
         (int16_t)(sin(aimingAngle)*110.0F),
         player.mainPlayer.PlayerColor,
         0
@@ -168,14 +183,17 @@ void loop () {
         
         bulletsManager.Update();
         DrawCursor();
-  
-        ClampCamera();
+
+        cameraX = (cameraX*5+(player.mainPlayer.x/SCALE+4-(LCDWIDTH/2) + ((curX-LCDWIDTH/2)/3)*2 + (-player.mainPlayer.vx/10)))/6;
+        cameraY = (cameraY*5+(player.mainPlayer.y/SCALE+4-(LCDHEIGHT/2) + (curY-LCDWIDTH/2)/2 + (-player.mainPlayer.vy/10)))/6;
         
         if(shakeTimeLeft > 0) {
           shakeTimeLeft--;
           cameraX += random(-1, 2) * shakeAmplitude;
           cameraY += random(-1, 2) * shakeAmplitude;
         }
+
+        ClampCamera();
 
         if(AnimationTimer<=0) {
           DrawUI();

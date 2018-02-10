@@ -1,8 +1,6 @@
 int16_t inkX = 0;
 int16_t inkY = 0;
 
-#define BulletTimeLimit 300
-
 class Bullets:
   public Object {
   public:
@@ -10,6 +8,8 @@ class Bullets:
     bool IsDead = true;
     byte color = 0;
     byte Owner = 0;
+    byte Damage = 7;
+    uint16_t BulletTimeLimit = 300;
     virtual int16_t getWidth() {
       return 3;
     };
@@ -17,7 +17,7 @@ class Bullets:
       return 3;
     };
     virtual int16_t getGravity() {
-      return 10;
+      return 5;
     };
     virtual int16_t getXFriction() {
       return 0;
@@ -32,10 +32,7 @@ class Bullets:
       return 10;
     };
     virtual byte getCollisionQuality() {
-      return 1;
-    };
-    virtual int16_t getDamage() {
-      return 30;
+      return 0;
     };
 
     void Draw () {
@@ -94,7 +91,7 @@ class Bullets:
         break;
       }
       
-      if(vx>0) {
+      if(/*vx>0*/true) {
         gb.display.drawBitmap(toScreenX(x/SCALE-3), toScreenY(y/SCALE-3), bulletsSprite[ClampInt(0,4,Timer/12)],0,FLIPH);
       } else {
         gb.display.drawBitmap(toScreenX(x/SCALE-3), toScreenY(y/SCALE-3), bulletsSprite[ClampInt(0,4,Timer/12)],0,NOFLIP);
@@ -126,9 +123,9 @@ class Bullets:
         if(IsGroundedDown) {
           inkY+=1;
         } else if(IsGroundedUp) {
-          inkY+=-1;
+          inkY-=1;
         } else if(IsGroundedLeft) {
-          inkX+=-1;
+          inkX-=1;
         } else if(IsGroundedRight) {
           inkX+=1;
         }
@@ -167,6 +164,9 @@ class Bullets:
           constrain(inkY,0,world.MapHeight-1),
           color
         );
+
+        //gb.display.setColor(RED);
+        //gb.display.fillRect(toScreenX(inkX*8),toScreenY(inkY*8),8,8);
         
         Die();
       }
@@ -190,7 +190,7 @@ class BulletsManager {
   public:
   Bullets bullets[BCOUNT];
 
-  void spawnBullet (int x, int16_t y, int16_t vx, int16_t vy, byte color, byte owner) {
+  void spawnBullet (int16_t x, int16_t y, int16_t vx, int16_t vy, byte color, byte owner) {
     for(byte i = 0; i < BCOUNT; i++) {
       if(bullets[i].IsDead) {
         bullets[i].Recreate();

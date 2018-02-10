@@ -14,10 +14,10 @@ class Object {
     return 8;
   };
   virtual int16_t getGravity() {
-    return 45;
+    return 55;
   };
   virtual int16_t getXFriction() {
-    return 0;
+    return 62;
   };
   virtual int16_t getYFriction() {
     return 0;
@@ -241,7 +241,7 @@ class Object {
   
             //Move then remove a pixel (or less) from the to-move list (By remove, I mean get closer to zero)
             if(getCollisionQuality()==1) {
-              x += pxXr;
+              x -= pxXr;
               pxXr = 0;
             } else if(getCollisionQuality()==0) {
               x -= constrain(pxXr,-1,0);
@@ -251,7 +251,7 @@ class Object {
   
             //Move then remove a pixel (or less) from the to-move list (By remove, I mean get closer to zero)
             if(getCollisionQuality()==1) {
-              x += pxXr;
+              x -= pxXr;
               pxXr = 0;
             } else if(getCollisionQuality()==0) {
               x -= constrain(pxXr,0,1);

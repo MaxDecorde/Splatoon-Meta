@@ -81,16 +81,16 @@ class Player :
       }
       
       BottomInk = world.SMGetPaintValueAt(constrain((x/SCALE+4)/8,0,world.MapWidth-1),constrain((y/SCALE)/8+2,0,world.MapHeight-1),0) > 0 
-      && world.SMGetColor(constrain((x/SCALE+4)/8,0,world.MapWidth-1),constrain((y/SCALE)/8+1,0,world.MapHeight-1)) == PlayerColor;
+      && world.SMGetColor(constrain((x/SCALE+4)/8,0,world.MapWidth-1),constrain((y/SCALE)/8+1,0,world.MapHeight-1)) != revertColors;
       
       RightInk = world.SMGetPaintValueAt(constrain((x/SCALE+4)/8+1,0,world.MapWidth-1),constrain((y/SCALE+4)/8,0,world.MapHeight-1),3) > 0 
-      && world.SMGetColor(constrain((x/SCALE+4)/8+1,0,world.MapWidth-1),constrain((y/SCALE+4)/8,0,world.MapHeight-1)) == PlayerColor;
+      && world.SMGetColor(constrain((x/SCALE+4)/8+1,0,world.MapWidth-1),constrain((y/SCALE+4)/8,0,world.MapHeight-1)) != revertColors;
       
       LeftInk = world.SMGetPaintValueAt(constrain((x/SCALE+4)/8-1,0,world.MapWidth-1),constrain((y/SCALE+4)/8,0,world.MapHeight-1),1) > 0 
-      && world.SMGetColor(constrain((x/SCALE+4)/8-1,0,world.MapWidth-1),constrain((y/SCALE+4)/8,0,world.MapHeight-1)) == PlayerColor;
+      && world.SMGetColor(constrain((x/SCALE+4)/8-1,0,world.MapWidth-1),constrain((y/SCALE+4)/8,0,world.MapHeight-1)) != revertColors;
   
       EBottomInk = world.SMGetPaintValueAt(constrain((x/SCALE+4)/8,0,world.MapWidth-1),constrain((y/SCALE)/8+2,0,world.MapHeight-1),0) > 0 
-      && world.SMGetColor(constrain((x/SCALE+4)/8,0,world.MapWidth-1),constrain((y/SCALE)/8+1,0,world.MapHeight-1)) != PlayerColor;
+      && world.SMGetColor(constrain((x/SCALE+4)/8,0,world.MapWidth-1),constrain((y/SCALE)/8+1,0,world.MapHeight-1)) == revertColors;
   
       //Mouvement SlowDown
       if(!RIGHT_HOLD && !LEFT_HOLD && !B_HOLD) {
@@ -105,11 +105,11 @@ class Player :
       if(UP_HOLD) {
         vy = max(vy-3,-22);
       }
-  
-      //Swimming
+
+      //Swim PhysX
+      ////////////
       DuckPosY = 0;
       IsSwiming = false;
-      
       if(DOWN_HOLD && ((Object::IsGroundedRight && RightInk) || (BottomInk && Object::IsGroundedDown) || (Object::IsGroundedLeft && LeftInk)) && !B_HOLD) {
         IsSwiming = true;
         DuckPosY = 1;
@@ -117,7 +117,7 @@ class Player :
         SquisheHorizontal = constrain(abs(vx/VFORCE),7,10);
         
         LVelY = max(LVelY-1,-8);
-  
+
         if(PlayerDir == -1 && Object::IsGroundedLeft && LeftInk) {
           LVelX = min(LVelX+1,7);
   
@@ -148,20 +148,23 @@ class Player :
           }
         }
   
-        //Mouvement
+        //Slowdowns
         if(RIGHT_HOLD && !B_HOLD) {
-          if(vx - 9 > -82) {
-            vx -= 9;
+          if(vx - 15 > -96) {
+            vx -= 15;
           }
           PlayerDir = 1;
         }
         if(LEFT_HOLD && !B_HOLD) {
-          if(vx + 9 < 82) {
-            vx += 9;
+          if(vx + 15 < 96) {
+            vx += 15;
           }
           PlayerDir = -1;
         }
       } else {
+        //NORMAL PhysX
+        //////////////
+        
         if(LVelY < 0) {
           LVelY++;
         } else if(LVelY > 0) {
@@ -173,15 +176,16 @@ class Player :
         } else if(LVelX > 0) {
           LVelX--;
         }
-        
+
+        //MOVING
         if(RIGHT_HOLD && !B_HOLD) {
           if(EBottomInk) {
             if(vx - 3 > -9) {
               vx -= 3;
             }
           } else {
-            if(vx - 5 > -56) {
-              vx -= 5;
+            if(vx - 7 > -76) {
+              vx -= 7;
             }
           }
           PlayerDir = 1;
@@ -192,8 +196,8 @@ class Player :
               vx += 3;
             }
           } else {
-            if(vx + 5 < 56) {
-              vx += 5;
+            if(vx + 7 < 76) {
+              vx += 7;
             }
           }
           PlayerDir = -1;
@@ -213,19 +217,19 @@ class Player :
       if(A_PRESSED && Object::IsGroundedDown  && !B_HOLD) {
         sfx(0, 0);
         if(EBottomInk) {
-          vy = 7;
+          vy = 26;
         } else {
-          vy = 112;
+          vy = 132;
         }
       }
       if(A_PRESSED && Object::IsGroundedRight && !Object::IsGroundedDown  && !B_HOLD) { 
         vx = 60;
-        vy = 96;
+        vy = 104;
         sfx(1, 0);
       }
       if(A_PRESSED && Object::IsGroundedLeft && !Object::IsGroundedDown  && !B_HOLD) { 
         vx = -60;
-        vy = 96;
+        vy = 104;
         sfx(1, 0);
       }
   
@@ -236,10 +240,10 @@ class Player :
       if(A_PRESSED && GroundPoundTime > 0 && !Object::IsGroundedDown  && !B_HOLD) {
         if(PlayerDir == 1) {
           vx = -33;
-          vy = 56;
+          vy = 76;
         } else {
           vx = 33;
-          vy = 56;
+          vy = 76;
         }
         GroundPoundTime = 0;
         sfx(8, 0);
@@ -515,9 +519,9 @@ class Player :
 
     void BulletCollision () {
       for(byte i = 0; i < BCOUNT; i++) {
-        if(gb.collidePointRect(bulletsManager.bullets[i].x,bulletsManager.bullets[i].y,x,y,getWidth(),getHeight())) {
+        if(gb.collidePointRect(bulletsManager.bullets[i].x/SCALE,bulletsManager.bullets[i].y/SCALE,x/SCALE,y/SCALE,getWidth(),getHeight())) {
           if(bulletsManager.bullets[i].color != PlayerColor) {
-            Live-=bulletsManager.bullets[i].getDamage();
+            Live-=bulletsManager.bullets[i].Damage;
           }
           if(bulletsManager.bullets[i].Owner != PlayerCode) {
             bulletsManager.bullets[i].Die();
@@ -532,8 +536,8 @@ class Player :
       } else if(RespawnTimer > 0) {
         RespawnTimer--;
         if(RespawnTimer == 0) {
-          if(PlayerColor == 0) {
-            x = 8*pgm_read_byte(GetMap[world.CurrentLoadedMap] + 2)*SCALE;
+          if(PlayerColor == revertColors) {
+            x = (8*pgm_read_byte(GetMap[world.CurrentLoadedMap] + 2)-4)*SCALE;
             y = 8*pgm_read_byte(GetMap[world.CurrentLoadedMap] + 3)*SCALE;
           } else {
             x = 8*pgm_read_byte(GetMap[world.CurrentLoadedMap] + 0)*SCALE - 8*pgm_read_byte(GetMap[world.CurrentLoadedMap] + 2)*SCALE - 8*SCALE;
@@ -560,7 +564,7 @@ class Player :
     }
 
     void Die () {
-      RespawnTimer = 230;
+      RespawnTimer = 80;
       Live = 100;
     }
 };
@@ -571,23 +575,23 @@ class PlayersOperator {
   public:
   Player mainPlayer;
   Player players[PLAYER_C-1];
-  
 
   void Initialize () {
+    revertColors = random(0,2);
     mainPlayer.InputControl = true;
-    for(int16_t i = 0; i < PLAYER_C; i++) {
+    for(uint8_t i = 0; i < PLAYER_C; i++) {
       if(i != 0) {
         players[i-1].blinkEye = random(60);
         players[i-1].InputControl = false;
 
         if(i < PLAYER_C/2) {
           players[i-1].PlayerDir = 1;
-          players[i-1].PlayerColor = 0;
-          players[i-1].x = 8*pgm_read_byte(GetMap[world.CurrentLoadedMap] + 2)*SCALE;
+          players[i-1].PlayerColor = revertColors;
+          players[i-1].x = (8*pgm_read_byte(GetMap[world.CurrentLoadedMap] + 2)-4)*SCALE;
           players[i-1].y = 8*pgm_read_byte(GetMap[world.CurrentLoadedMap] + 3)*SCALE;
         } else {
           players[i-1].PlayerDir = -1;
-          players[i-1].PlayerColor = 1;
+          players[i-1].PlayerColor = 1-revertColors;
           players[i-1].x = 8*pgm_read_byte(GetMap[world.CurrentLoadedMap] + 0)*SCALE - 8*pgm_read_byte(GetMap[world.CurrentLoadedMap] + 2)*SCALE - 8*SCALE;
           players[i-1].y = 8*pgm_read_byte(GetMap[world.CurrentLoadedMap] + 3)*SCALE;
         }
@@ -596,6 +600,7 @@ class PlayersOperator {
         players[i-1].PlayerGender = random(0,2);
         players[i-1].PlayerHaircut = random(0,4);
       } else {
+        mainPlayer.PlayerColor = revertColors;
         mainPlayer.PlayerCode = 0;
         mainPlayer.PlayerGender = random(0,2);
         mainPlayer.PlayerHaircut = random(0,4);

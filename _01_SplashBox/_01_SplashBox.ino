@@ -23,6 +23,7 @@
 #define BouncyMath3 -0.0393700f//7874
 #define BouncyMath4 0.0236220f//4724
 
+byte revertColors = 0;
 int16_t colorGroup = 1;
 
 int16_t cameraX, cameraY, shakeTimeLeft, shakeAmplitude;
@@ -179,3 +180,58 @@ Color palettePGreen[] = {
   (Color)0xf62f, //(Color)0xf62f Beige (Light Skin)
   (Color)0xcc47  //(Color)0xcc47 Brown (Dark Skin)
 };
+
+void setColorToGroup (byte cC) {
+  switch(colorGroup) {
+    case 0:
+    if(cC == 0) {
+      gb.display.setColor((ColorIndex)8);
+    } else {
+      gb.display.setColor((ColorIndex)11);
+    }
+    break;
+    case 1:
+    if(cC == 0) {
+      gb.display.setColor((ColorIndex)5);
+    } else {
+      gb.display.setColor((ColorIndex)9);
+    }
+    break;
+    case 2:
+    if(cC == 0) {
+      gb.display.setColor((ColorIndex)7);
+    } else {
+      gb.display.setColor((ColorIndex)11);
+    }
+    break;
+    case 3:
+    if(cC == 0) {
+      gb.display.setColor((ColorIndex)5);
+    } else {
+      gb.display.setColor((ColorIndex)11);
+    }
+    break;
+    case 4:
+    if(cC == 0) {
+      gb.display.setColor((ColorIndex)6);
+    } else {
+      gb.display.setColor((ColorIndex)11);
+    }
+    break;
+    case 5:
+    if(cC == 0) {
+      gb.display.setColor((ColorIndex)5);
+    } else {
+      gb.display.setColor((ColorIndex)7);
+    }
+    break;
+    case 6:
+    if(cC == 0) {
+      gb.display.setColor((ColorIndex)9);
+    } else {
+      gb.display.setColor((ColorIndex)11);
+    }
+    break;
+  }
+}
+
