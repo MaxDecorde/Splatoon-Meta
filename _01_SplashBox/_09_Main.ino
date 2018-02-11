@@ -90,28 +90,29 @@ void DrawCursor() {
       break;
       case 3: //--Rush attack weapons
       if(gb.buttons.held(BUTTON_B,Weapons[mainWeapon][5])) {
-        int16_t rootX = player.mainPlayer.x/SCALE;
-        int16_t rootY = player.mainPlayer.y/SCALE;
         float aimingAngle = 0;
-        for(uint8_t b = 0; b < Weapons[mainWeapon][7]; b++) {
+        for(uint8_t b = 0; b < Weapons[mainWeapon][8]; b++) {
+          int16_t rootX = player.mainPlayer.x/SCALE;
+          int16_t rootY = player.mainPlayer.y/SCALE;
+          
           if(player.mainPlayer.PlayerDir == 1) {
             //root = + 22,9 from player
             rootX+=14;
             rootY+=5;
     
-            aimingAngle = -PI/2+(random(-Weapons[mainWeapon][4],Weapons[mainWeapon][4])/50.0F);
+            aimingAngle = (0)+(random(-Weapons[mainWeapon][4],Weapons[mainWeapon][4])/50.0F);
           } else if(player.mainPlayer.PlayerDir == -1) {
             //root = + 2,9 from player
             rootX-=7;
             rootY+=5;
     
-            aimingAngle = PI/2+(random(-Weapons[mainWeapon][4],Weapons[mainWeapon][4])/50.0F);
+            aimingAngle = (PI)+(random(-Weapons[mainWeapon][4],Weapons[mainWeapon][4])/50.0F);
           }
           int8_t bulletID = bulletsManager.spawnBullet(
             rootX*SCALE+(2*SCALE),
             rootY*SCALE+(2*SCALE),
-            -(int16_t)(cos(aimingAngle)*(Weapons[mainWeapon][1]+random(-Weapons[mainWeapon][2],Weapons[mainWeapon][2]))),
-            (int16_t)(sin(aimingAngle)*(Weapons[mainWeapon][1]+random(-Weapons[mainWeapon][2],Weapons[mainWeapon][2]))),
+            -(int16_t)(cos(aimingAngle)*(Weapons[mainWeapon][1]+random(-Weapons[mainWeapon][2]*10,Weapons[mainWeapon][2]*10)/10.0F))+-Weapons[mainWeapon][11],
+            (int16_t)(sin(aimingAngle)*(Weapons[mainWeapon][1]+random(-Weapons[mainWeapon][2]*10,Weapons[mainWeapon][2]*10)/10.0F)),
             player.mainPlayer.PlayerColor,
             0
           );
@@ -141,23 +142,38 @@ void DrawCursor() {
         rootY+=5;
       }
 
-      gb.display.setColor(BLACK);
-      gb.display.drawLine(toScreenX(rootX),toScreenY(rootY),toScreenX(targetX),toScreenY(targetY));
-
       if(player.mainPlayer.PlayerDir == 1) {
         aimingAngle = constrain(atan2(rootX-targetX,rootY-targetY),-PI,0)+1.5708F+(random(-10,11)/50.0F); //In radians
       } else {
         aimingAngle = constrain(atan2(rootX-targetX,rootY-targetY),0,PI)+1.5708F+(random(-10,11)/50.0F); //In radians
       }
-      
-      int8_t bulletID = bulletsManager.spawnBullet(
-        rootX*SCALE+(2*SCALE),
-        rootY*SCALE+(2*SCALE),
-        -(int16_t)(cos(aimingAngle)*110.0F),
-        (int16_t)(sin(aimingAngle)*110.0F),
-        player.mainPlayer.PlayerColor,
-        0
-      );
+
+      bool shoot = true;
+      if(player.mainPlayer.PlayerDir == 1) {
+        if(aimingAngle-1.5708F != constrain(aimingAngle-1.5708F,-PI,0)) {
+          //Don't shoot
+          shoot = false;
+        }
+      } else {
+        if(aimingAngle-1.5708F != constrain(aimingAngle-1.5708F,0,PI)) {
+          //Don't shoot
+          shoot = false;
+        }
+      }
+
+      if(shoot) {
+        gb.display.setColor(BLACK);
+        gb.display.drawLine(toScreenX(rootX),toScreenY(rootY),toScreenX(targetX),toScreenY(targetY));
+        
+        int8_t bulletID = bulletsManager.spawnBullet(
+          rootX*SCALE+(2*SCALE),
+          rootY*SCALE+(2*SCALE),
+          -(int16_t)(cos(aimingAngle)*110.0F),
+          (int16_t)(sin(aimingAngle)*110.0F),
+          player.mainPlayer.PlayerColor,
+          0
+        );
+      }
     }*/
 
     gb.display.setColor(BLACK);
@@ -179,7 +195,8 @@ void DrawUI() {
   
   gb.display.setColor(BLACK);
   gb.display.setCursor(0,0);
-  gb.display.print(gb.getFreeRam());
+  //gb.display.print(gb.getFreeRam());
+  gb.display.print(player.mainPlayer.Live);
 }
 
 void setup() {

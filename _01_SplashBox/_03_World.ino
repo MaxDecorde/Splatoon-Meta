@@ -60,11 +60,11 @@ class World {
   
   void SMSetPaintValue (byte Paint0, byte Paint1, byte Paint2, byte Paint3, byte setX, byte setY, byte color) {
     //TODO: instead of resetting value to 0, reduce the value each call and change the color once the values reach 0
-    if(SMGetColor(setX,setY)!=color) {
+    /*if(SMGetColor(setX,setY)!=color) {
       SMSetPaintValueNoColor(0,0,0,0,setX,setY);
       SMSetColor(setX, setY, color);
       return;
-    }
+    }*/
     
     SMSetColor(setX, setY, color);
     
@@ -87,7 +87,7 @@ class World {
   }
   
   byte SMGetColor (byte getX, byte getY) {
-    int16_t offset = (getX + (getY * MaxMapW)) / 8;
+    uint16_t offset = (getX + (getY * MaxMapW)) / 8;
     byte i = (getX + (getY * MaxMapW)) % 8;
     return ((splashMemoryColor[offset] >> i) & B00000001);
   }

@@ -4,7 +4,7 @@ int16_t inkY = 0;
 class Bullets:
   public Object {
   public:
-    short Timer = 0;
+    uint16_t Timer = 0;
     bool IsDead = true;
     byte color = 0;
     byte Owner = 0;
@@ -91,11 +91,13 @@ class Bullets:
         }
         break;
       }
-      
-      if(/*vx>0*/true) {
-        gb.display.drawBitmap(toScreenX(x/SCALE-3), toScreenY(y/SCALE-3), bulletsSprite[ClampInt(0,4,Timer/12)],0,FLIPH);
-      } else {
-        gb.display.drawBitmap(toScreenX(x/SCALE-3), toScreenY(y/SCALE-3), bulletsSprite[ClampInt(0,4,Timer/12)],0,NOFLIP);
+
+      if(Timer != 0) {
+        if(/*vx>0*/true) {
+          gb.display.drawBitmap(toScreenX(x/SCALE-3), toScreenY(y/SCALE-3), bulletsSprite[ClampInt(0,4,Timer/(BulletTimeLimit/4))],0,FLIPH);
+        } else {
+          gb.display.drawBitmap(toScreenX(x/SCALE-3), toScreenY(y/SCALE-3), bulletsSprite[ClampInt(0,4,Timer/(BulletTimeLimit/4))],0,NOFLIP);
+        }
       }
     }
 

@@ -1559,7 +1559,9 @@ const uint16_t Template[] = {
   1, //BulletsPerAttack
 
   //OTHER PARAMETERS
-  0 //AttackLenght 0-Instant/25-OneSecond
+  0, //AttackLenght 0-Instant/25-OneSecond
+  0, //Ink Consumed
+  0, //Bullet Vertical Force
 };
 
 const uint16_t Aerospray[] = {
@@ -1577,7 +1579,9 @@ const uint16_t Aerospray[] = {
   1, //BulletsPerAttack
 
   //OTHER PARAMETERS
-  0 //AttackLenght 0-Instant/25-OneSecond
+  0, //AttackLenght 0-Instant/25-OneSecond
+  0, //Ink Consumed
+  0, //Bullet Vertical Force
 };
 
 const uint16_t Octobrush[] = {
@@ -1585,17 +1589,19 @@ const uint16_t Octobrush[] = {
   3, //Type: 0-Classic/1-Roller/2-Sniper/3-Brush'n'Buckets
 
   //BULLET PARAMETERS
-  34, //Force: 0-NoForce/220-HighForce
+  96, //Force: 0-NoForce/220-HighForce
   10, //ForceSpray: 0-NoVariation/50-HighVariation
-  30, //Gravity: 0-NoGravity/55-HighGravity
+  50, //Gravity: 0-NoGravity/55-HighGravity
   40, //DirectionSpray: 0-NoVariation/50-HighVariation
   2, //ShootingInterval or Charging Lenght: 1-Minimum/11-Long
-  14, //Damage: 0-NoDamage/100-OneShootKill
-  130, //Timer 30-ExtremlyShort/330-ExtremlyLong
+  5, //Damage: 0-NoDamage/100-OneShootKill
+  10, //Timer 30-ExtremlyShort/330-ExtremlyLong
   5, //BulletsPerAttack
 
   //OTHER PARAMETERS
-  0 //AttackLenght 0-Instant/25-OneSecond
+  0, //AttackLenght 0-Instant/25-OneSecond
+  0, //Ink Consumed
+  0, //Bullet Vertical Force
 };
 
 const uint16_t SplatCharger[] = {
@@ -1613,7 +1619,9 @@ const uint16_t SplatCharger[] = {
   1, //BulletsPerAttack
 
   //OTHER PARAMETERS
-  0 //AttackLenght 0-Instant/25-OneSecond
+  0, //AttackLenght 0-Instant/25-OneSecond
+  0, //Ink Consumed
+  0, //Bullet Vertical Force
 };
 
 const uint16_t* Weapons[] {
