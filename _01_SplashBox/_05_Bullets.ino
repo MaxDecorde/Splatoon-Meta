@@ -10,6 +10,7 @@ class Bullets:
     byte Owner = 0;
     byte Damage = 7;
     uint16_t BulletTimeLimit = 300;
+    int16_t gravity = 0;
     virtual int16_t getWidth() {
       return 3;
     };
@@ -17,7 +18,7 @@ class Bullets:
       return 3;
     };
     virtual int16_t getGravity() {
-      return 5;
+      return gravity;
     };
     virtual int16_t getXFriction() {
       return 0;
@@ -133,23 +134,23 @@ class Bullets:
         inkX = constrain(inkX,0,world.MapWidth-1);
         inkY = constrain(inkY,0,world.MapHeight-1);
         
-        if(IsGroundedRight) {
+        if(world.getTile((x/SCALE+4)/8,(y/SCALE+0)/8)) {
           V0 = constrain(world.SMGetPaintValueAt(inkX,inkY,0), 0, 3);
           V1 = constrain(world.SMGetPaintValueAt(inkX,inkY,1), 0, 3);
           V2 = constrain(world.SMGetPaintValueAt(inkX,inkY,2), 0, 3);
-          V3 = constrain(world.SMGetPaintValueAt(inkX,inkY,3)+1, 0, 3);
-        } else if(IsGroundedLeft) {
+          V3 = constrain(world.SMGetPaintValueAt(inkX,inkY,3)+1+IsGroundedRight, 0, 3);
+        } else if(world.getTile((x/SCALE-4)/8,(y/SCALE+0)/8)) {
           V0 = constrain(world.SMGetPaintValueAt(inkX,inkY,0), 0, 3);
-          V1 = constrain(world.SMGetPaintValueAt(inkX,inkY,1)+1, 0, 3);
+          V1 = constrain(world.SMGetPaintValueAt(inkX,inkY,1)+1+IsGroundedLeft, 0, 3);
           V2 = constrain(world.SMGetPaintValueAt(inkX,inkY,2), 0, 3);
           V3 = constrain(world.SMGetPaintValueAt(inkX,inkY,3), 0, 3);
-        } else if(IsGroundedUp) {
+        } else if(world.getTile((x/SCALE+0)/8,(y/SCALE-4)/8)) {
           V0 = constrain(world.SMGetPaintValueAt(inkX,inkY,0), 0, 3); 
           V1 = constrain(world.SMGetPaintValueAt(inkX,inkY,1), 0, 3); 
-          V2 = constrain(world.SMGetPaintValueAt(inkX,inkY,2)+1, 0, 3); 
+          V2 = constrain(world.SMGetPaintValueAt(inkX,inkY,2)+1+IsGroundedUp, 0, 3); 
           V3 = constrain(world.SMGetPaintValueAt(inkX,inkY,3), 0, 3);
-        } else if(IsGroundedDown) {
-          V0 = constrain(world.SMGetPaintValueAt(inkX,inkY,0)+1, 0, 3);
+        } else if(world.getTile((x/SCALE+0)/8,(y/SCALE+4)/8)) {
+          V0 = constrain(world.SMGetPaintValueAt(inkX,inkY,0)+1+IsGroundedDown, 0, 3);
           V1 = constrain(world.SMGetPaintValueAt(inkX,inkY,1), 0, 3);
           V2 = constrain(world.SMGetPaintValueAt(inkX,inkY,2), 0, 3);
           V3 = constrain(world.SMGetPaintValueAt(inkX,inkY,3), 0, 3);
@@ -190,7 +191,7 @@ class BulletsManager {
   public:
   Bullets bullets[BCOUNT];
 
-  void spawnBullet (int16_t x, int16_t y, int16_t vx, int16_t vy, byte color, byte owner) {
+  int8_t spawnBullet (int16_t x, int16_t y, int16_t vx, int16_t vy, byte color, byte owner) {
     for(byte i = 0; i < BCOUNT; i++) {
       if(bullets[i].IsDead) {
         bullets[i].Recreate();
@@ -200,9 +201,10 @@ class BulletsManager {
         bullets[i].vy = vy;
         bullets[i].color = color;
         bullets[i].Owner = owner;
-        break;
+        return i;
       }
     }
+    return -1;
   }
 
   void Update () {

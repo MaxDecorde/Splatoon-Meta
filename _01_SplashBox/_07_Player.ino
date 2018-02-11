@@ -511,18 +511,18 @@ class Player :
         }
       }
 
+      gb.display.colorIndex = palette;
+
       if(!IsSwiming) {
         if(PlayerDir == 1) {
-          gb.display.drawImage(toScreenX(x/SCALE-4)+HatOffset[playerImageID*2],toScreenY(y/SCALE-8)-HatOffset[playerImageID*2+1],*HeadgearSprites[hat],16,16);
+          gb.display.drawImage(toScreenX(x/SCALE-5)+HatOffset[playerImageID*2],toScreenY(y/SCALE-10)-HatOffset[playerImageID*2+1],HeadgearSprites[hat],16,16);
         } else {
-          gb.display.drawImage(toScreenX(x/SCALE-4)-HatOffset[playerImageID*2],toScreenY(y/SCALE-8)-HatOffset[playerImageID*2+1],*HeadgearSprites[hat],-16,16);
+          gb.display.drawImage(toScreenX(x/SCALE-3)-HatOffset[playerImageID*2],toScreenY(y/SCALE-10)-HatOffset[playerImageID*2+1],HeadgearSprites[hat],-16,16);
         }
       }
       
       //gb.display.setColor(BLACK);
       //gb.display.drawRect(toScreenX(x/SCALE),toScreenY(y/SCALE),getWidth(),getHeight());
-
-      gb.display.colorIndex = palette;
     }
 
     void BulletCollision () {
