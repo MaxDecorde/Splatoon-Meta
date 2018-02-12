@@ -1540,7 +1540,7 @@ const byte* GetMap[] {
   Map0
 };
 
-#define mainWeapon 1
+#define mainWeapon 3
 
 //WEAPON
 ///////////
@@ -1624,8 +1624,29 @@ const uint16_t SplatCharger[] = {
   0, //Bullet Vertical Force
 };
 
+const uint16_t CarbonRoller[] = {
+  //MAIN PARAMETERS
+  1, //Type: 0-Classic/1-Roller/2-Sniper/3-Brush'n'Buckets
+
+  //BULLET PARAMETERS
+  70, //Force: 0-NoForce/220-HighForce
+  18, //ForceSpray: 0-NoVariation/50-HighVariation
+  50, //Gravity: 0-NoGravity/55-HighGravity
+  25, //DirectionSpray: 0-NoVariation/50-HighVariation
+  5, //ShootingInterval or Charging Lenght: 1-Minimum/11-Long
+  10, //Damage: 0-NoDamage/100-OneShootKill
+  30, //Timer 30-ExtremlyShort/330-ExtremlyLong
+  4, //BulletsPerAttack
+
+  //OTHER PARAMETERS
+  6, //AttackLenght 0-Instant/25-OneSecond
+  0, //Ink Consumed
+  -57, //Bullet Vertical Force
+};
+
 const uint16_t* Weapons[] {
   Aerospray,
   Octobrush,
-  SplatCharger
+  SplatCharger,
+  CarbonRoller
 };

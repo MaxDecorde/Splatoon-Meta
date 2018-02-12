@@ -2,8 +2,8 @@ class Player :
   public Object {
   public:
     bool InputControl = true;
-    short Live = 100;
-    short RespawnTimer = 0;
+    int8_t Live = 100;
+    uint16_t RespawnTimer = 0;
     byte PlayerCode = 0;
 
     byte PlayerGender = 0;
@@ -69,19 +69,25 @@ class Player :
         ControlUpdate();
       } else {
         A_HOLD = gb.buttons.repeat(BUTTON_A,0);
-        B_HOLD = gb.buttons.repeat(BUTTON_B,0);
+        if(Weapons[mainWeapon][0] != 1) {
+          B_HOLD = gb.buttons.repeat(BUTTON_B,0);
+          DOWN_HOLD = gb.buttons.repeat(BUTTON_DOWN,0);
+          IsSwiming
+        } else {
+          B_HOLD = false;
+          DOWN_HOLD = false;
+        }
         A_PRESSED = gb.buttons.pressed(BUTTON_A);
         B_PRESSED = gb.buttons.pressed(BUTTON_B);
 
         UP_HOLD = gb.buttons.repeat(BUTTON_UP,0);
-        DOWN_HOLD = gb.buttons.repeat(BUTTON_DOWN,0);
         LEFT_HOLD = gb.buttons.repeat(BUTTON_LEFT,0);
         RIGHT_HOLD = gb.buttons.repeat(BUTTON_RIGHT,0);
         DOWN_PRESSED = gb.buttons.pressed(BUTTON_DOWN);
       }
       
-      BottomInk = world.SMGetPaintValueAt(constrain((x/SCALE+4)/8,0,world.MapWidth-1),constrain((y/SCALE+8)/8+2,0,world.MapHeight-1),0) > 0 
-      && world.SMGetColor(constrain((x/SCALE+4)/8,0,world.MapWidth-1),constrain((y/SCALE)/8+1,0,world.MapHeight-1)) == PlayerColor;
+      BottomInk = world.SMGetPaintValueAt(constrain((x/SCALE+4)/8,0,world.MapWidth-1),constrain((y/SCALE)/8+2,0,world.MapHeight-1),0) > 0 
+      && world.SMGetColor(constrain((x/SCALE+4)/8,0,world.MapWidth-1),constrain((y/SCALE)/8+2,0,world.MapHeight-1)) == PlayerColor;
       
       RightInk = world.SMGetPaintValueAt(constrain((x/SCALE+4)/8+1,0,world.MapWidth-1),constrain((y/SCALE+4)/8,0,world.MapHeight-1),3) > 0 
       && world.SMGetColor(constrain((x/SCALE+4)/8+1,0,world.MapWidth-1),constrain((y/SCALE+4)/8,0,world.MapHeight-1)) == PlayerColor;
@@ -89,14 +95,42 @@ class Player :
       LeftInk = world.SMGetPaintValueAt(constrain((x/SCALE+4)/8-1,0,world.MapWidth-1),constrain((y/SCALE+4)/8,0,world.MapHeight-1),1) > 0 
       && world.SMGetColor(constrain((x/SCALE+4)/8-1,0,world.MapWidth-1),constrain((y/SCALE+4)/8,0,world.MapHeight-1)) == PlayerColor;
   
-      EBottomInk = world.SMGetPaintValueAt(constrain((x/SCALE+4)/8,0,world.MapWidth-1),constrain((y/SCALE+8)/8+2,0,world.MapHeight-1),0) > 0 
-      && world.SMGetColor(constrain((x/SCALE+4)/8,0,world.MapWidth-1),constrain((y/SCALE)/8+1,0,world.MapHeight-1)) != PlayerColor;
+      EBottomInk = world.SMGetPaintValueAt(constrain((x/SCALE+4)/8,0,world.MapWidth-1),constrain((y/SCALE)/8+2,0,world.MapHeight-1),0) > 0 
+      && world.SMGetColor(constrain((x/SCALE+4)/8,0,world.MapWidth-1),constrain((y/SCALE)/8+2,0,world.MapHeight-1)) != PlayerColor;
 
-      if() {
+      //Put ink under player when shooting
+      if(ShootCall) {
+        gb.display.setColor(RED);
+        gb.display.fill();
         
+        inkX = (x/SCALE/8);
+        inkY = (y/SCALE/8);
+        
+        inkX = constrain(inkX,0,world.MapWidth-1);
+        inkY = constrain(inkY,0,world.MapHeight-1);
+
+        if(world.SMGetPaintValueAt(inkX,inkY+2,0) <= 0) {
+          V0 = constrain(world.SMGetPaintValueAt(inkX,inkY+2,0)+1, 0, 3);
+        } else {
+          V0 = constrain(world.SMGetPaintValueAt(inkX,inkY+2,0), 0, 3);
+        }
+        V1 = constrain(world.SMGetPaintValueAt(inkX,inkY+2,1), 0, 3);
+        V2 = constrain(world.SMGetPaintValueAt(inkX,inkY+2,2), 0, 3);
+        V3 = constrain(world.SMGetPaintValueAt(inkX,inkY+2,3), 0, 3);
+
+        world.SMSetPaintValue(
+          constrain(V0, 0, 3),
+          constrain(V1, 0, 3),
+          constrain(V2, 0, 3),
+          constrain(V3, 0, 3),
+          constrain(inkX,0,world.MapWidth-1),
+          constrain(inkY+2,0,world.MapHeight-1),
+          PlayerColor
+        );
       }
-      setColorToGroup(world.SMGetColor(constrain((x/SCALE+4)/8,0,world.MapWidth-1),constrain((y/SCALE)/8+1,0,world.MapHeight-1)));
-      gb.display.fillRect(toScreenX(constrain((x/SCALE+4)/8,0,world.MapWidth-1)*8),toScreenY(constrain((y/SCALE+8)/8+2,0,world.MapHeight-1)*8),8,8);
+      
+      //setColorToGroup(world.SMGetColor(constrain((x/SCALE+4)/8,0,world.MapWidth-1),constrain((y/SCALE)/8+2,0,world.MapHeight-1)));
+      //gb.display.fillRect(toScreenX(constrain((x/SCALE+4)/8,0,world.MapWidth-1)*8),toScreenY(constrain((y/SCALE)/8+2,0,world.MapHeight-1)*8),8,8);
   
       //Mouvement SlowDown
       if(!RIGHT_HOLD && !LEFT_HOLD && !B_HOLD) {
@@ -533,13 +567,15 @@ class Player :
 
     void BulletCollision () {
       for(byte i = 0; i < BCOUNT; i++) {
-        if(gb.collidePointRect(bulletsManager.bullets[i].x/SCALE,bulletsManager.bullets[i].y/SCALE,x/SCALE,y/SCALE,getWidth(),getHeight())) {
-          if(bulletsManager.bullets[i].color != PlayerColor) {
-            Live-=bulletsManager.bullets[i].Damage;
-            bulletsManager.bullets[i].Die();
-          }
-          if(bulletsManager.bullets[i].Owner != PlayerCode) {
-            bulletsManager.bullets[i].Die();
+        if(!bulletsManager.bullets[i].IsDead) {
+          if(gb.collidePointRect(bulletsManager.bullets[i].x/SCALE,bulletsManager.bullets[i].y/SCALE,x/SCALE,y/SCALE,getWidth(),getHeight())) {
+            if(bulletsManager.bullets[i].color != PlayerColor) {
+              Live-=bulletsManager.bullets[i].Damage;
+              bulletsManager.bullets[i].Die();
+            }
+            if(bulletsManager.bullets[i].Owner != PlayerCode) {
+              bulletsManager.bullets[i].Die();
+            }
           }
         }
       }
@@ -570,7 +606,7 @@ class Player :
       BulletCollision();
 
       if(EBottomInk) {
-        Live = constrain(Live, 0, 90);
+        Live = constrain(Live, -1, 80);
       }
 
       A_PRESSED = false;
