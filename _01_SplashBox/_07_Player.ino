@@ -72,7 +72,6 @@ class Player :
         if(Weapons[mainWeapon][0] != 1) {
           B_HOLD = gb.buttons.repeat(BUTTON_B,0);
           DOWN_HOLD = gb.buttons.repeat(BUTTON_DOWN,0);
-          IsSwiming
         } else {
           B_HOLD = false;
           DOWN_HOLD = false;
@@ -100,9 +99,6 @@ class Player :
 
       //Put ink under player when shooting
       if(ShootCall) {
-        gb.display.setColor(RED);
-        gb.display.fill();
-        
         inkX = (x/SCALE/8);
         inkY = (y/SCALE/8);
         

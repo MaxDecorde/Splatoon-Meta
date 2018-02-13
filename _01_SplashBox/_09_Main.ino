@@ -1,6 +1,8 @@
 // MAIN STUFF
 ////////////////
 
+bool WeaponRecharged = false;
+
 void ClampCamera () { //Clamp the camera in the world
   if(AnimationTimer > 0) {
     return;
@@ -197,8 +199,86 @@ void DrawCursor() {
       }
       break;
       case 2: //--Chargers
-      if(gb.buttons.timeHeld(BUTTON_A) > Weapons[mainWeapon][5] && gb.buttons.released(BUTTON_A)) { //Held for a certain length then released
+      if(gb.buttons.timeHeld(BUTTON_B) > Weapons[mainWeapon][5]) { //Recharge Indicator
+        int16_t rootX = player.mainPlayer.x/SCALE;
+        int16_t rootY = player.mainPlayer.y/SCALE;
+        int16_t targetX = cameraX+curX;
+        int16_t targetY = cameraY+curY;
+        if(player.mainPlayer.PlayerDir == 1) {
+          //root = + 22,9 from player
+          rootX+=14;
+          rootY+=5;
+        } else if(player.mainPlayer.PlayerDir == -1) {
+          //root = + 2,9 from player
+          rootX-=7;
+          rootY+=5;
+        }
+
+        gb.display.setColor((ColorIndex)3);
+        gb.display.drawLine(toScreenX(rootX),toScreenY(rootY),toScreenX(targetX),toScreenY(targetY));
+        WeaponRecharged = true;
+      }
+      if(WeaponRecharged && gb.buttons.released(BUTTON_B)) { //Held for a certain length then released
         
+        WeaponRecharged = false;
+        float aimingAngle = 0;
+        float driftX = 0;
+        float driftY = 0;
+        int16_t rootX = player.mainPlayer.x/SCALE;
+        int16_t rootY = player.mainPlayer.y/SCALE;
+        int16_t targetX = cameraX+curX;
+        int16_t targetY = cameraY+curY;
+        if(player.mainPlayer.PlayerDir == 1) {
+          //root = + 22,9 from player
+          rootX+=14;
+          rootY+=5;
+        } else if(player.mainPlayer.PlayerDir == -1) {
+          //root = + 2,9 from player
+          rootX-=7;
+          rootY+=5;
+        }
+        for(uint8_t b = 0; b < Weapons[mainWeapon][8]; b++) {
+          if(player.mainPlayer.PlayerDir == 1) {
+            aimingAngle = atan2(rootX-targetX,rootY-targetY)+1.5708F+(random(-Weapons[mainWeapon][4],Weapons[mainWeapon][4])/50.0F); //In radians
+          } else {
+            aimingAngle = atan2(rootX-targetX,rootY-targetY)+1.5708F+(random(-Weapons[mainWeapon][4],Weapons[mainWeapon][4])/50.0F); //In radians
+          }
+          bool shoot = true;
+          if(player.mainPlayer.PlayerDir == 1) {
+            if(aimingAngle-1.5708F != constrain(aimingAngle-1.5708F,-PI,0)) {
+              shoot = false;
+            }
+          } else {
+            if(aimingAngle-1.5708F != constrain(aimingAngle-1.5708F,0,PI)) {
+              shoot = false;
+            }
+          }
+
+          if(shoot) {
+            gb.display.setColor((ColorIndex)0);
+            gb.display.drawLine(toScreenX(rootX),toScreenY(rootY),toScreenX(targetX),toScreenY(targetY));
+
+            driftX += cos(aimingAngle)*(Weapons[mainWeapon][1]/25.0F);
+            driftY += sin(aimingAngle)*(Weapons[mainWeapon][1]/25.0F);
+            
+            int8_t bulletID = bulletsManager.spawnBullet(
+              rootX*SCALE+(2*SCALE)+(int16_t)driftX,
+              rootY*SCALE+(2*SCALE)+(int16_t)driftY,
+              0,
+              0,
+              player.mainPlayer.PlayerColor,
+              0
+            );
+            if(bulletID!=-1) {
+              bulletsManager.bullets[bulletID].gravity = Weapons[mainWeapon][3];
+              bulletsManager.bullets[bulletID].Damage = Weapons[mainWeapon][6];
+              bulletsManager.bullets[bulletID].BulletTimeLimit = Weapons[mainWeapon][7];
+            }
+          }
+        }
+      }
+      if(!gb.buttons.repeat(BUTTON_B,0)) {
+        WeaponRecharged = false;
       }
       break;
       case 3: //--Rush attack weapons
@@ -321,8 +401,8 @@ void loop () {
         DrawCursor();
 
         if((Weapons[mainWeapon][0]) == 2 && gb.buttons.repeat(BUTTON_B,0)) {
-          cameraX = (cameraX*5+(player.mainPlayer.x/SCALE+4-(LCDWIDTH/2) + ((curX-LCDWIDTH/2)/6)*8 + (-player.mainPlayer.vx/5)))/6;
-          cameraY = (cameraY*4+(player.mainPlayer.y/SCALE+4-(LCDHEIGHT/2) + ((curY-LCDWIDTH/2)/6)*7 + (-player.mainPlayer.vy/5)))/5;
+          cameraX = (cameraX*5+(player.mainPlayer.x/SCALE+4-(LCDWIDTH/2) + ((curX-LCDWIDTH/2)/6)*10 + (-player.mainPlayer.vx/5)))/6;
+          cameraY = (cameraY*4+(player.mainPlayer.y/SCALE+4-(LCDHEIGHT/2) + ((curY-LCDWIDTH/2)/6)*12 + (-player.mainPlayer.vy/5)))/5;
         } else {
           cameraX = (cameraX*5+(player.mainPlayer.x/SCALE+4-(LCDWIDTH/2) + ((curX-LCDWIDTH/2)/4)*3 + (-player.mainPlayer.vx/5)))/6;
           cameraY = (cameraY*4+(player.mainPlayer.y/SCALE+4-(LCDHEIGHT/2) + ((curY-LCDWIDTH/2)/6)*4 + (-player.mainPlayer.vy/5)))/5;
