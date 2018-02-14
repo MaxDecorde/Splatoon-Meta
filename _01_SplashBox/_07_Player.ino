@@ -134,6 +134,11 @@ class Player :
       }
       
       if(EBottomInk) {
+        if(PlayerCode == 0) {
+          shakeTimeLeft = 1;
+          shakeAmplitude = 1;
+        }
+        
         vx = constrain(vx,-9,9);
       }
   
@@ -568,6 +573,10 @@ class Player :
             if(bulletsManager.bullets[i].color != PlayerColor) {
               Live-=bulletsManager.bullets[i].Damage;
               bulletsManager.bullets[i].Die();
+              if(PlayerCode == 0) {
+                shakeTimeLeft += 3;
+                shakeAmplitude += 1;
+              }
             }
             if(bulletsManager.bullets[i].Owner != PlayerCode) {
               bulletsManager.bullets[i].Die();
@@ -646,11 +655,13 @@ class PlayersOperator {
         players[i-1].PlayerCode = i;
         players[i-1].PlayerGender = random(0,2);
         players[i-1].PlayerHaircut = random(0,4);
+        players[i-1].hat = random(0,HEADGEARCount+1);
       } else {
         mainPlayer.PlayerColor = revertColors;
         mainPlayer.PlayerCode = 0;
         mainPlayer.PlayerGender = random(0,2);
         mainPlayer.PlayerHaircut = random(0,4);
+        mainPlayer.hat = random(0,HEADGEARCount+1);
       }
     }
   }

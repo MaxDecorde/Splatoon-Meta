@@ -14,7 +14,7 @@
 #define SCALE 8
 #define VFORCE 5
 
-#define BCOUNT 8 //14
+#define BCOUNT 16 //14
 
 #define STARTLENGHT 40 //110
 
