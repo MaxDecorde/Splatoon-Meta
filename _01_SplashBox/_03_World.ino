@@ -39,7 +39,7 @@ int ClampInt (int minv, int16_t maxv, int16_t value) {
 // WORLD MANAGER
 /////////////////
 
-#define MaxMapW 48 //64
+#define MaxMapW 88 //64
 #define MaxMapH 32 //64
 
 class World {
@@ -140,7 +140,7 @@ class World {
   }
 
   byte getTile(byte x, byte y){
-    return GetMap[CurrentLoadedMap][4 + (x+y*MapWidth)];
+    return GetMap[CurrentLoadedMap][MapHeader + (x+y*MapWidth)];
   }
 
   void Draw () {
@@ -157,8 +157,10 @@ class World {
 
         //gb.display.setColor(WHITE);
         //gb.display.fillRect(CPosX + x*8, CPosY + y*8, 8, 8);
-        gb.display.setColor(BLACK);
-        gb.display.drawBitmap(x*8 - cameraX, y*8 - cameraY, mapTiles[getTile(x,y)]);
+        //gb.display.setColor(BLACK);
+        //gb.display.drawBitmap(x*8 - cameraX, y*8 - cameraY, mapTiles[getTile(x,y)]);
+        Tiles.setFrame(getTile(x,y));
+        gb.display.drawImage(x*8 - cameraX, y*8 - cameraY,Tiles);
         
         if(getTile(x,y) != 0) {
           //V = DebugBytes;

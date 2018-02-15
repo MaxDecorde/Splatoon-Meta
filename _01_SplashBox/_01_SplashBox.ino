@@ -23,6 +23,8 @@
 #define BouncyMath3 -0.0393700f//7874
 #define BouncyMath4 0.0236220f//4724
 
+#define MapHeader 4
+
 byte revertColors = 0;
 int16_t colorGroup = 1;
 
