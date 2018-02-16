@@ -369,6 +369,7 @@ void loop () {
   if(gb.update()) {
     gb.display.setColor((ColorIndex)12);
     gb.display.fill();
+    //gb.display.drawImage(0,8,BackGCity0);
     //gb.display.drawImage(-cameraX/5,(world.MapHeight*2-cameraY)/5,BackGCity0);
     //gb.display.setColor((ColorIndex)13);
     //gb.display.fillRect(-cameraX/5,((world.MapHeight*2-cameraY)+BackGCity0.height()*4)/5,BackGCity0.width(),BackGCity0.height());

@@ -129,13 +129,13 @@ class World {
   }
   
   int16_t PixelInCollider (byte PIMX, byte PIMY, byte PICX, byte PICY) { //PIM = Pos in map (0-255), PIC = Pos in cube (0-8)
-    switch(getTile(PIMX+(PICX/8),PIMY+(PICY/8)) != 0) {
+    switch(getTile(PIMX+(PICX/8),PIMY+(PICY/8))) {
       case 0:
         return 0;
       case 1:
         return 1;
       default:
-        return 0;
+        return gb.display.getBitmapPixel(Colliders[TilesParams_Array[getTile(PIMX+(PICX/8),PIMY+(PICY/8))*TileParamsCount+0]],PICX%8,PICY%8);
     }
   }
 

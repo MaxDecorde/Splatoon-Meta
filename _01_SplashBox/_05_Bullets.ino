@@ -119,8 +119,8 @@ class Bullets:
       }
       
       if(collided && !IsDead) {
-        inkX = (x/SCALE/8);//+(vx>=0?1:-1)
-        inkY = (y/SCALE/8);//+(vy>=0?1:-1)
+        inkX = (x/SCALE);//+(vx>=0?1:-1)
+        inkY = (y/SCALE);//+(vy>=0?1:-1)
 
         //UpdateGrounding();
         /*if(IsGroundedDown) {
@@ -133,47 +133,47 @@ class Bullets:
           inkX+=1;
         }*/
         
-        inkX = constrain(inkX,0,world.MapWidth-1);
-        inkY = constrain(inkY,0,world.MapHeight-1);
+        inkX = constrain(inkX,0,(world.MapWidth-1)*8);
+        inkY = constrain(inkY,0,(world.MapHeight-1)*8);
 
         for(int8_t x = -1; x < 2; x++) {
           for(int8_t y = -1; y < 2; y++) {
-            if((inkX+x == constrain(inkX+x,0,world.MapWidth-1))&&(inkY+y == constrain(inkY+y,0,world.MapWidth-1))) {
-              V0 = constrain(world.SMGetPaintValueAt(inkX+x,inkY+y,0), 0, 3);
-              V1 = constrain(world.SMGetPaintValueAt(inkX+x,inkY+y,1), 0, 3);
-              V2 = constrain(world.SMGetPaintValueAt(inkX+x,inkY+y,2), 0, 3);
-              V3 = constrain(world.SMGetPaintValueAt(inkX+x,inkY+y,3), 0, 3);
+            if((inkX+x == constrain((inkX+x*4)/8,0,world.MapWidth-1))&&((inkY+y*4)/8 == constrain(inkY+y,0,world.MapWidth-1))) {
+              V0 = constrain(world.SMGetPaintValueAt((inkX+x*4)/8,(inkY+y*4)/8,0), 0, 3);
+              V1 = constrain(world.SMGetPaintValueAt((inkX+x*4)/8,(inkY+y*4)/8,1), 0, 3);
+              V2 = constrain(world.SMGetPaintValueAt((inkX+x*4)/8,(inkY+y*4)/8,2), 0, 3);
+              V3 = constrain(world.SMGetPaintValueAt((inkX+x*4)/8,(inkY+y*4)/8,3), 0, 3);
               
               if(x==-1 && y==0) {
-                if(world.getTile((x/SCALE-8)/8,(y/SCALE+0)/8) != 0) {
-                  V0 = constrain(world.SMGetPaintValueAt(inkX-1,inkY,0), 0, 3);
-                  V1 = constrain(world.SMGetPaintValueAt(inkX-1,inkY,1)+1+IsGroundedLeft, 0, 3);
-                  V2 = constrain(world.SMGetPaintValueAt(inkX-1,inkY,2), 0, 3);
-                  V3 = constrain(world.SMGetPaintValueAt(inkX-1,inkY,3), 0, 3);
+                if(world.getTile((x/SCALE-4)/8,(y/SCALE+0)/8) != 0) {
+                  V0 = constrain(world.SMGetPaintValueAt((inkX-4)/8,inkY,0), 0, 3);
+                  V1 = constrain(world.SMGetPaintValueAt((inkX-4)/8,inkY,1)+1+IsGroundedLeft, 0, 3);
+                  V2 = constrain(world.SMGetPaintValueAt((inkX-4)/8,inkY,2), 0, 3);
+                  V3 = constrain(world.SMGetPaintValueAt((inkX-4)/8,inkY,3), 0, 3);
                 }
               }
               if(x==1 && y==0) {
-                if(world.getTile((x/SCALE+8)/8,(y/SCALE+0)/8) != 0) {
-                  V0 = constrain(world.SMGetPaintValueAt(inkX-1,inkY,0), 0, 3);
-                  V1 = constrain(world.SMGetPaintValueAt(inkX-1,inkY,1), 0, 3);
-                  V2 = constrain(world.SMGetPaintValueAt(inkX-1,inkY,2), 0, 3);
-                  V3 = constrain(world.SMGetPaintValueAt(inkX-1,inkY,3)+1+IsGroundedRight, 0, 3);
+                if(world.getTile((x/SCALE+4)/8,(y/SCALE+0)/8) != 0) {
+                  V0 = constrain(world.SMGetPaintValueAt((inkX+4)/8,inkY,0), 0, 3);
+                  V1 = constrain(world.SMGetPaintValueAt((inkX+4)/8,inkY,1), 0, 3);
+                  V2 = constrain(world.SMGetPaintValueAt((inkX+4)/8,inkY,2), 0, 3);
+                  V3 = constrain(world.SMGetPaintValueAt((inkX+4)/8,inkY,3)+1+IsGroundedRight, 0, 3);
                 }
               }
               if(y==1 && x==0) {
-                if(world.getTile((x/SCALE+0)/8,(y/SCALE+8)/8) != 0) {
-                  V0 = constrain(world.SMGetPaintValueAt(inkX,inkY+1,0)+1+IsGroundedDown, 0, 3);
-                  V1 = constrain(world.SMGetPaintValueAt(inkX,inkY+1,1), 0, 3);
-                  V2 = constrain(world.SMGetPaintValueAt(inkX,inkY+1,2), 0, 3);
-                  V3 = constrain(world.SMGetPaintValueAt(inkX,inkY+1,3), 0, 3);
+                if(world.getTile((x/SCALE+0)/8,(y/SCALE+4)/8) != 0) {
+                  V0 = constrain(world.SMGetPaintValueAt(inkX,(inkY+4)/8,0)+1+IsGroundedDown, 0, 3);
+                  V1 = constrain(world.SMGetPaintValueAt(inkX,(inkY+4)/8,1), 0, 3);
+                  V2 = constrain(world.SMGetPaintValueAt(inkX,(inkY+4)/8,2), 0, 3);
+                  V3 = constrain(world.SMGetPaintValueAt(inkX,(inkY+4)/8,3), 0, 3);
                 }
               }
               if(y==-1 && x==0) {
-                if(world.getTile((x/SCALE+0)/8,(y/SCALE-8)/8) != 0) {
-                  V0 = constrain(world.SMGetPaintValueAt(inkX,inkY-1,0), 0, 3); 
-                  V1 = constrain(world.SMGetPaintValueAt(inkX,inkY-1,1), 0, 3); 
-                  V2 = constrain(world.SMGetPaintValueAt(inkX,inkY-1,2)+1+IsGroundedUp, 0, 3); 
-                  V3 = constrain(world.SMGetPaintValueAt(inkX,inkY-1,3), 0, 3);
+                if(world.getTile((x/SCALE+0)/8,(y/SCALE-4)/8) != 0) {
+                  V0 = constrain(world.SMGetPaintValueAt(inkX,(inkY-4)/8,0), 0, 3); 
+                  V1 = constrain(world.SMGetPaintValueAt(inkX,(inkY-4)/8,1), 0, 3); 
+                  V2 = constrain(world.SMGetPaintValueAt(inkX,(inkY-4)/8,2)+1+IsGroundedUp, 0, 3); 
+                  V3 = constrain(world.SMGetPaintValueAt(inkX,(inkY-4)/8,3), 0, 3);
                 }
               }
 
@@ -182,8 +182,8 @@ class Bullets:
                 constrain(V1, 0, 3),
                 constrain(V2, 0, 3),
                 constrain(V3, 0, 3),
-                constrain(inkX+x,0,world.MapWidth-1),
-                constrain(inkY+y,0,world.MapHeight-1),
+                constrain((inkX+x*4)/8,0,world.MapWidth-1),
+                constrain((inkY+y*4)/8,0,world.MapHeight-1),
                 color
               );
             }
