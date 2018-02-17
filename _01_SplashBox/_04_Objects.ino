@@ -224,7 +224,9 @@ class Object {
         } else {
   
           //If something is here, stop the player from moving
-          vy = (int16_t)(-vy*(getYBounce()/100.0F));
+          if(getCollisionQuality()==0) {
+            vy = -(vy*getYBounce())/100;
+          }
           collided = true;
           //vy = 0;
   
@@ -261,7 +263,9 @@ class Object {
         } else {
           
           //If something is here, stop the object from moving
-          vx = (int16_t)(-vx*(getXBounce()/100.0F));
+          if(getCollisionQuality()==0) {
+            vx = (-vx*getXBounce())/100;
+          }
           collided = true;
           //vx = 0;
   
@@ -281,8 +285,10 @@ class Object {
     IsGroundedUp = false;
     vy -= getGravity()/VFORCE;
     vy = constrain(vy, -127, 127);
-    vx = (int16_t)(vx * ((1000 - getXFriction()) / 1000.0F));
-    vy = (int16_t)(vy * ((1000 - getYFriction()) / 1000.0F));
+    if(getCollisionQuality()==0) {
+      vx = (vx * (1000 - getXFriction())) / 1000;
+      vy = (vy * (1000 - getYFriction())) / 1000;
+    }
     UpdateCollision();
     //UpdateGrounding();
   }

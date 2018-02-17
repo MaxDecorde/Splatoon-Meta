@@ -33,7 +33,7 @@ class Bullets:
       return 10;
     };
     virtual byte getCollisionQuality() {
-      return 0;
+      return 1;
     };
 
     void Draw () {

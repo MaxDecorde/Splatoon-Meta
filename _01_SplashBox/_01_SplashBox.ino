@@ -30,6 +30,9 @@ int16_t colorGroup = 1;
 
 int16_t cameraX, cameraY, shakeTimeLeft, shakeAmplitude;
 
+uint8_t cpuLoad = 0;
+uint8_t lastLoad[8];
+
 bool IsPlaying = false;
 bool FreezePlayers = true;
 

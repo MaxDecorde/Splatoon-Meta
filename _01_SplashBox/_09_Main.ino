@@ -350,7 +350,18 @@ void DrawUI() {
   gb.display.setCursor(0,0);
   //gb.display.print(gb.getFreeRam());
   //gb.display.print(player.mainPlayer.Live);
-  gb.display.print(gb.getCpuLoad());
+  gb.display.print(cpuLoad);
+
+  lastLoad[0] = lastLoad[1];
+  lastLoad[1] = lastLoad[2];
+  lastLoad[2] = lastLoad[3];
+  lastLoad[3] = lastLoad[4];
+  lastLoad[4] = lastLoad[5];
+  lastLoad[5] = lastLoad[6];
+  lastLoad[6] = lastLoad[7];
+  lastLoad[7] = gb.getCpuLoad();
+  
+  cpuLoad = Div8(lastLoad[0]+lastLoad[1]+lastLoad[2]+lastLoad[3]+lastLoad[4]+lastLoad[5]+lastLoad[6]+lastLoad[7]);
 }
 
 void setup() {

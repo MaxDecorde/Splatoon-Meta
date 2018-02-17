@@ -172,6 +172,9 @@ class Player :
       if(DOWN_HOLD && !B_HOLD) {
         bool BottomInkSquid = world.SMGetPaintValueAt(constrain(Div8(x/SCALE+4),0,world.MapWidth-1),constrain(Div8(y/SCALE)+1,0,world.MapHeight-1),0) > 0 
         && world.SMGetColor(constrain(Div8(x/SCALE+4),0,world.MapWidth-1),constrain(Div8(y/SCALE)+1,0,world.MapHeight-1)) == PlayerColor;
+
+        bool BottomEInkSquid = world.SMGetPaintValueAt(constrain(Div8(x/SCALE+4),0,world.MapWidth-1),constrain(Div8(y/SCALE)+1,0,world.MapHeight-1),0) > 0 
+        && world.SMGetColor(constrain(Div8(x/SCALE+4),0,world.MapWidth-1),constrain(Div8(y/SCALE)+1,0,world.MapHeight-1)) != PlayerColor;
         
         ShootCall = false;
         IsSwiming = true;
@@ -179,6 +182,10 @@ class Player :
           if(BottomInkSquid) {
             if(vx - 15 > -112) {
               vx -= 15;
+            }
+          } else if(BottomEInkSquid) {
+            if(vx - 3 > -34) {
+              vx -= 3;
             }
           } else {
             if(vx - 7 > -78) {
@@ -194,6 +201,10 @@ class Player :
           if(BottomInkSquid) {
             if(vx + 15 < 112) {
               vx += 15;
+            }
+          } else if(BottomEInkSquid) {
+            if(vx + 3 < 34) {
+              vx += 3;
             }
           } else {
             if(vx + 7 < 78) {
@@ -610,7 +621,7 @@ class Player :
 
       gb.display.colorIndex = palette;
 
-      if(!IsSwiming) {
+      if(!IsSwiming && (cpuLoad < 100 && PlayerCode != 0)) {
         if(PlayerDir == 1) {
           gb.display.drawImage(toScreenX(x/SCALE-5)+HatOffset[playerImageID*2],toScreenY(y/SCALE-10)-HatOffset[playerImageID*2+1],HeadgearSprites[hat],16,16);
         } else {
@@ -681,7 +692,7 @@ class Player :
     }
 };
 
-#define PLAYER_C 6
+#define PLAYER_C 4
 
 class PlayersOperator {
   public:

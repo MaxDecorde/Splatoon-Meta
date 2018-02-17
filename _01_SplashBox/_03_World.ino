@@ -129,14 +129,10 @@ class World {
   }
   
   int16_t PixelInCollider (byte PIMX, byte PIMY, byte PICX, byte PICY) { //PIM = Pos in map (0-255), PIC = Pos in cube (0-8)
-    switch(getTile(PIMX+Div8(PICX),PIMY+Div8(PICY))) {
-      case 0:
-        return 0;
-      case 1:
-        return 1;
-      default:
-        return gb.display.getBitmapPixel(Colliders[TilesParams_Array[getTile(PIMX+Div8(PICX),PIMY+Div8(PICY))*TileParamsCount+0]],PICX%8,PICY%8);
-    }
+    byte gt = getTile(PIMX+Div8(PICX),PIMY+Div8(PICY));
+    if(gt == 0) return 0;
+    if(gt == 1) return 1;
+    if(gt > 1) return gb.display.getBitmapPixel(Colliders[TilesParams_Array[gt*TileParamsCount+0]],PICX%8,PICY%8);
   }
 
   byte getTile(byte x, byte y){
@@ -148,10 +144,16 @@ class World {
     int16_t xMax = Div8(LCDWIDTH) + Div8(cameraX) + 2;
     int16_t yMin = Div8(cameraY);
     int16_t yMax = Div8(LCDHEIGHT) + Div8(cameraY) + 2;
+    if(cpuLoad > 95) {
+      yMin++;
+      yMax--;
+      xMax--;
+    }
     
     for(int16_t y = yMin; y < yMax; y++) {
       for(int16_t x = xMin; x < xMax; x++ ) {
-        if(getTile(x,y) == 0) {
+        byte gt = getTile(x,y);
+        if(gt == 0) {
           continue;
         }
 
@@ -162,7 +164,7 @@ class World {
         Tiles.setFrame(getTile(x,y));
         gb.display.drawImage(Mul8(x) - cameraX, Mul8(y) - cameraY,Tiles);
         
-        if(getTile(x,y) != 0) {
+        if(TilesParams_Array[gt*TileParamsCount+0] == 1) {
           //V = DebugBytes;
           cC = SMGetColor(x,y);
           V1 = SMGetPaintValueAt(x,y,0);
@@ -170,14 +172,17 @@ class World {
           V5 = SMGetPaintValueAt(x,y,2);
           V7 = SMGetPaintValueAt(x,y,3);
           
-          V4 = SMGetPaintValueAt(x,y,4);
-          V6 = SMGetPaintValueAt(x,y,5);
-          V0 = SMGetPaintValueAt(x,y,6);
-          V2 = SMGetPaintValueAt(x,y,7);
+          //V4 = SMGetPaintValueAt(x,y,4);
+          //V6 = SMGetPaintValueAt(x,y,5);
+          //V0 = SMGetPaintValueAt(x,y,6);
+          //V2 = SMGetPaintValueAt(x,y,7);
           
           for(int8_t x1 = -1; x1 < 2; x1++) {
             for(int8_t y1 = -1; y1 < 2; y1++) {
               if(!(x+x1<0 || x+x1>=MapWidth || y+y1<0 || y+y1>=MapHeight)) {
+                if(abs(x1)+abs(y1) > 1) {
+                  continue;
+                } 
                 if(getTile(x+x1,y+y1)==0) {
 
                   //Ink
@@ -185,26 +190,26 @@ class World {
 
                   if(x1<0) {
                     if(y1<0) {
-                      if(getTile(x+-1,y+0) != 0 && getTile(x+0,y+-1) != 0) {
+                      /*if(getTile(x+-1,y+0) != 0 && getTile(x+0,y+-1) != 0) {
                         gb.display.drawBitmap(Mul8(x) - cameraX, Mul8(y) - cameraY, splashes[4+V6], ROTCCW, NOFLIP); //WORKS //Kinda confirmed?
-                      }
+                      }*/
                     } else if(y1>0) {
-                      if(getTile(x+-1,y+0) != 0 && getTile(x+0,y+1) != 0) {
+                      /*if(getTile(x+-1,y+0) != 0 && getTile(x+0,y+1) != 0) {
                         gb.display.drawBitmap(Mul8(x) - cameraX, Mul8(y) - cameraY, splashes[4+V0], ROT180, NOFLIP); //WORKS
-                      }
+                      }*/
                     } else if(y1==0) {
                       gb.display.drawBitmap(Mul8(x) - cameraX, Mul8(y) - cameraY, splashes[V7], ROTCCW, NOFLIP);
                     }
                   }
                   if(x1>0) {
                     if(y1<0) {
-                      if(getTile(x+1,y+0) != 0 && getTile(x+0,y+-1) != 0) {
+                      /*if(getTile(x+1,y+0) != 0 && getTile(x+0,y+-1) != 0) {
                         gb.display.drawBitmap(Mul8(x) - cameraX, Mul8(y) - cameraY, splashes[4+V4], NOROT, NOFLIP); //WORKS
-                      }
+                      }*/
                     } else if(y1>0) {
-                      if(getTile(x+0,y+1) != 0 && getTile(x+1,y+0) != 0) {
+                      /*if(getTile(x+0,y+1) != 0 && getTile(x+1,y+0) != 0) {
                         gb.display.drawBitmap(Mul8(x) - cameraX, Mul8(y) - cameraY, splashes[4+V2], ROTCW, NOFLIP); //WORKS //Kinda confirmed?
-                      }
+                      }*/
                     } else if(y1==0) {
                       gb.display.drawBitmap(Mul8(x) - cameraX, Mul8(y) - cameraY, splashes[V3], ROTCW, NOFLIP);
                     }
