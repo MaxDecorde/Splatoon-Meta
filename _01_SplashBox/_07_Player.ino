@@ -6,6 +6,8 @@ class Player :
     uint16_t RespawnTimer = 0;
     byte PlayerCode = 0;
 
+    int8_t Kid2SquidFrames = 0;
+    
     byte PlayerGender = 0;
     byte PlayerHaircut = 0;
 
@@ -45,6 +47,8 @@ class Player :
     bool RIGHT_HOLD;
     bool DOWN_PRESSED;
 
+    bool Last_DOWN_HOLD;
+
     virtual int16_t getWidth() {
       if(IsSwiming) {
         return 10;
@@ -73,8 +77,10 @@ class Player :
           B_HOLD = gb.buttons.repeat(BUTTON_B,0);
           DOWN_HOLD = gb.buttons.repeat(BUTTON_DOWN,0);
         } else {
-          B_HOLD = false;
-          DOWN_HOLD = false;
+          B_HOLD = gb.buttons.repeat(BUTTON_B,0);
+          if(B_HOLD) {
+            DOWN_HOLD = false;
+          }
         }
         A_PRESSED = gb.buttons.pressed(BUTTON_A);
         B_PRESSED = gb.buttons.pressed(BUTTON_B);
@@ -96,6 +102,16 @@ class Player :
   
       EBottomInk = world.SMGetPaintValueAt(constrain((x/SCALE+4)/8,0,world.MapWidth-1),constrain((y/SCALE)/8+2,0,world.MapHeight-1),0) > 0 
       && world.SMGetColor(constrain((x/SCALE+4)/8,0,world.MapWidth-1),constrain((y/SCALE)/8+2,0,world.MapHeight-1)) != PlayerColor;
+
+      //Kid to Squid to Kid collision
+      if(DOWN_HOLD && !Last_DOWN_HOLD && !B_HOLD) {
+        Kid2SquidFrames = 0;
+        y+=8*SCALE;
+      }
+      if(!DOWN_HOLD && Last_DOWN_HOLD && !B_HOLD) {
+        Kid2SquidFrames = 0;
+        y-=8*SCALE;
+      }
 
       //Put ink under player when shooting
       if(ShootCall) {
@@ -124,6 +140,87 @@ class Player :
           PlayerColor
         );
       }
+
+      //Stairs and slopes handeling
+      if(LEFT_HOLD) {
+        IsSwiming = true;
+        byte col = TilesParams_Array[world.getTile((x/SCALE-1)/8,(y/SCALE+11)/8)*TileParamsCount+0];
+        if(col == 7) {
+          x -= 1*SCALE;
+          y -= 1*SCALE;
+        } else if(col == 0) {
+          col = TilesParams_Array[world.getTile((x/SCALE+4)/8,(y/SCALE+16)/8)*TileParamsCount+0];
+          if(col == 7) {
+            x -= 1*SCALE;
+            y -= 1*SCALE;
+          }
+        }
+      }
+      if(RIGHT_HOLD) {
+        byte col = TilesParams_Array[world.getTile((x/SCALE+12)/8,(y/SCALE+11)/8)*TileParamsCount+0];
+        if(col == 6) {
+          x += 1*SCALE;
+          y -= 1*SCALE;
+        } else if(col == 0) {
+          col = TilesParams_Array[world.getTile((x/SCALE+4)/8,(y/SCALE+16)/8)*TileParamsCount+0];
+          if(col == 6) {
+            x += 1*SCALE;
+            y -= 1*SCALE;
+          }
+        }
+      }
+
+      //Swim PhysX
+      ////////////
+      if(DOWN_HOLD && !B_HOLD) {
+        bool BottomInkSquid = world.SMGetPaintValueAt(constrain((x/SCALE+4)/8,0,world.MapWidth-1),constrain((y/SCALE)/8+1,0,world.MapHeight-1),0) > 0 
+        && world.SMGetColor(constrain((x/SCALE+4)/8,0,world.MapWidth-1),constrain((y/SCALE)/8+1,0,world.MapHeight-1)) == PlayerColor;
+        
+        ShootCall = false;
+        IsSwiming = true;
+        if(RIGHT_HOLD && !IsGroundedRight) {
+          if(BottomInkSquid) {
+            if(vx - 15 > -112) {
+              vx -= 15;
+            }
+          } else {
+            if(vx - 7 > -78) {
+              vx -= 7;
+            }
+          }
+          PlayerDir = 1;
+        } else if(RIGHT_HOLD && IsGroundedRight && RightInk) {
+          vy = 90;
+          PlayerDir = 1;
+        }
+        if(LEFT_HOLD && !IsGroundedLeft) {
+          if(BottomInkSquid) {
+            if(vx + 15 < 112) {
+              vx += 15;
+            }
+          } else {
+            if(vx + 7 < 78) {
+              vx += 7;
+            }
+          }
+          PlayerDir = -1;
+        } else if(LEFT_HOLD && IsGroundedLeft && LeftInk) {
+          vy = 90;
+          PlayerDir = -1;
+        }
+        if((IsGroundedRight&&RightInk) || (IsGroundedLeft&&LeftInk)) {
+          vy = max(vy-3,-18);
+        }
+        if(IsGroundedDown && gb.buttons.pressed(BUTTON_A)) {
+          vy = 110;
+        }
+        if(!RIGHT_HOLD && !LEFT_HOLD) {
+          vx = vx * 0.75f;
+        }
+        return;
+      } else {
+        IsSwiming = false;
+      }
       
       //setColorToGroup(world.SMGetColor(constrain((x/SCALE+4)/8,0,world.MapWidth-1),constrain((y/SCALE)/8+2,0,world.MapHeight-1)));
       //gb.display.fillRect(toScreenX(constrain((x/SCALE+4)/8,0,world.MapWidth-1)*8),toScreenY(constrain((y/SCALE)/8+2,0,world.MapHeight-1)*8),8,8);
@@ -147,62 +244,7 @@ class Player :
         vy = max(vy-3,-22);
       }
 
-      //Swim PhysX
-      ////////////
-      DuckPosY = 0;
-      IsSwiming = false;
-      if(DOWN_HOLD && ((Object::IsGroundedRight && RightInk) || (BottomInk && Object::IsGroundedDown) || (Object::IsGroundedLeft && LeftInk)) && !B_HOLD) {
-        IsSwiming = true;
-        DuckPosY = 1;
-        SquisheVertical = 5;
-        SquisheHorizontal = constrain(abs(vx/VFORCE),7,10);
-        
-        LVelY = max(LVelY-1,-8);
-
-        if(PlayerDir == -1 && Object::IsGroundedLeft && LeftInk) {
-          LVelX = min(LVelX+1,7);
-  
-          SquisheVertical = 5;
-          SquisheHorizontal = 5;
-          if(LEFT_HOLD) {
-            vy = 52;
-            vx = 22;
-          }
-        } else if(PlayerDir == 1 && Object::IsGroundedRight && RightInk) {
-          LVelX = max(LVelX-1,-7);
-  
-          SquisheVertical = 5;
-          SquisheHorizontal = 5;
-          if(RIGHT_HOLD) {
-            vy = 52;
-            vx = -22;
-          }
-        } else {
-          if(LVelX < 0) {
-            LVelX++;
-          } else if(LVelX > 0) {
-            LVelX--;
-          }
-  
-          if((Object::IsGroundedLeft && LEFT_HOLD) || (Object::IsGroundedRight && RIGHT_HOLD)) {
-            vy = -25;
-          }
-        }
-  
-        //Slowdowns
-        if(RIGHT_HOLD && !B_HOLD) {
-          if(vx - 15 > -96) {
-            vx -= 15;
-          }
-          PlayerDir = 1;
-        }
-        if(LEFT_HOLD && !B_HOLD) {
-          if(vx + 15 < 96) {
-            vx += 15;
-          }
-          PlayerDir = -1;
-        }
-      } else {
+      if(true) {
         //NORMAL PhysX
         //////////////
         
@@ -454,10 +496,23 @@ class Player :
       uint8_t playerImageID = 0;
 
       if(IsSwiming) {
-        if(!IsGroundedDown) {
-          if(vy > 75) {
+        if(Kid2SquidFrames < 2) {
+          switch(Kid2SquidFrames) {
+            case 0:
+            playerImageID = 14;
+            break;
+            case 1:
+            playerImageID = 15;
+            break;
+            case 2:
+            playerImageID = 13;
+            break;
+          }
+          Kid2SquidFrames++;
+        } else if(!IsGroundedDown) {
+          if(vy > 70) {
             playerImageID = 11;
-          } else if(vy < 75) {
+          } else if(vy < -70) {
             playerImageID = 13;
           } else {
             playerImageID = 12;
@@ -468,12 +523,38 @@ class Player :
 
         if(PlayerGender == 0) {
           InklingF.setFrame(playerImageID);
-          gb.display.drawImage(toScreenX(x/SCALE-8),toScreenY(y/SCALE-7),InklingF,(sizeX*PlayerDir),(sizeY));
+          gb.display.drawImage(toScreenX(x/SCALE-8),toScreenY(y/SCALE-7-8),InklingF,(sizeX*PlayerDir),(sizeY));
         } else {
           InklingM.setFrame(playerImageID);
-          gb.display.drawImage(toScreenX(x/SCALE-8),toScreenY(y/SCALE-7),InklingM,(sizeX*PlayerDir),(sizeY));
+          gb.display.drawImage(toScreenX(x/SCALE-8),toScreenY(y/SCALE-7-8),InklingM,(sizeX*PlayerDir),(sizeY));
         }
       } else {
+        if(Kid2SquidFrames < 2) {
+          switch(Kid2SquidFrames) {
+            case 0:
+            playerImageID = 13;
+            break;
+            case 1:
+            playerImageID = 15;
+            break;
+            case 2:
+            playerImageID = 14;
+            break;
+          }
+          Kid2SquidFrames++;
+
+          if(PlayerGender == 0) {
+          InklingF.setFrame(playerImageID);
+            gb.display.drawImage(toScreenX(x/SCALE-8),toScreenY(y/SCALE-7),InklingF,(sizeX*PlayerDir),(sizeY));
+          } else {
+            InklingM.setFrame(playerImageID);
+            gb.display.drawImage(toScreenX(x/SCALE-8),toScreenY(y/SCALE-7),InklingM,(sizeX*PlayerDir),(sizeY));
+          }
+
+          gb.display.colorIndex = palette;
+          return;
+        }
+        
         if(IsGroundedDown && vx == 0) {
           playerImageID = 0;
         }
@@ -617,6 +698,7 @@ class Player :
       A_PRESSED = false;
       B_PRESSED = false;
       DOWN_PRESSED = false;
+      Last_DOWN_HOLD = DOWN_HOLD;
     }
 
     void Die () {
