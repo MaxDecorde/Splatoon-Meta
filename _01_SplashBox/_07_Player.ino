@@ -175,6 +175,22 @@ class Player :
 
         bool BottomEInkSquid = world.SMGetPaintValueAt(constrain(Div8(x/SCALE+4),0,world.MapWidth-1),constrain(Div8(y/SCALE)+1,0,world.MapHeight-1),0) > 0 
         && world.SMGetColor(constrain(Div8(x/SCALE+4),0,world.MapWidth-1),constrain(Div8(y/SCALE)+1,0,world.MapHeight-1)) != PlayerColor;
+
+        if(BottomInkSquid&&IsGroundedDown) {
+          LVelY = constrain(LVelY+1, -5, 5);
+        } else {
+          if(LVelY > 0) LVelY = constrain(LVelY-2, 0, 5);
+          if(LVelY < 0) LVelY = constrain(LVelY+2, -5, 0);
+        }
+
+        if(LeftInk&&LEFT_HOLD) {
+          LVelX = constrain(LVelX-1, -4, 4);
+        } else if(RightInk&&RIGHT_HOLD) {
+          LVelX = constrain(LVelX+1, -4, 4);
+        } else {
+          if(LVelX > 0) LVelX = constrain(LVelX-2, 0, 4);
+          if(LVelX < 0) LVelX = constrain(LVelX+2, -4, 0);
+        }
         
         ShootCall = false;
         IsSwiming = true;
@@ -184,7 +200,7 @@ class Player :
               vx -= 15;
             }
           } else if(BottomEInkSquid) {
-            if(vx - 3 > -34) {
+            if(vx - 3 > -14) {
               vx -= 3;
             }
           } else {
@@ -203,7 +219,7 @@ class Player :
               vx += 15;
             }
           } else if(BottomEInkSquid) {
-            if(vx + 3 < 34) {
+            if(vx + 3 < 14) {
               vx += 3;
             }
           } else {
@@ -220,7 +236,11 @@ class Player :
           vy = max(vy-3,-18);
         }
         if(IsGroundedDown && gb.buttons.pressed(BUTTON_A)) {
-          vy = 110;
+          if(BottomEInkSquid) {
+            vy = 46;
+          } else {
+            vy = 110;
+          }
         }
         if(!RIGHT_HOLD && !LEFT_HOLD) {
           vx = vx * 0.75f;
@@ -507,12 +527,32 @@ class Player :
           playerImageID = 10;
         }
 
-        if(PlayerGender == 0) {
-          InklingF.setFrame(playerImageID);
-          gb.display.drawImage(toScreenX(x/SCALE-8),toScreenY(y/SCALE-7-8),InklingF,(sizeX*PlayerDir),(sizeY));
+        if(abs(LVelX) > 1) {
+          if(PlayerDir == 1) {
+            if(PlayerGender == 0) {
+              InklingF.setFrame(playerImageID);
+              gb.display.drawImage(toScreenX(x/SCALE-8+LVelX+(sizeX-((sizeX*PlayerDir)/3*(4-abs(LVelX))))),toScreenY(y/SCALE-7-8+LVelY),InklingF,(sizeX*PlayerDir)/3*(4-abs(LVelX)),(sizeY));
+            } else {
+              InklingM.setFrame(playerImageID);
+              gb.display.drawImage(toScreenX(x/SCALE-8+LVelX+(sizeX-((sizeX*PlayerDir)/3*(4-abs(LVelX))))),toScreenY(y/SCALE-7-8+LVelY),InklingM,(sizeX*PlayerDir)/3*(4-abs(LVelX)),(sizeY));
+            }
+          } else {
+            if(PlayerGender == 0) {
+              InklingF.setFrame(playerImageID);
+              gb.display.drawImage(toScreenX(x/SCALE-8+LVelX),toScreenY(y/SCALE-7-8+LVelY),InklingF,(sizeX*PlayerDir)/3*(4-abs(LVelX)),(sizeY));
+            } else {
+              InklingM.setFrame(playerImageID);
+              gb.display.drawImage(toScreenX(x/SCALE-8+LVelX),toScreenY(y/SCALE-7-8+LVelY),InklingM,(sizeX*PlayerDir)/3*(4-abs(LVelX)),(sizeY));
+            }
+          }
         } else {
-          InklingM.setFrame(playerImageID);
-          gb.display.drawImage(toScreenX(x/SCALE-8),toScreenY(y/SCALE-7-8),InklingM,(sizeX*PlayerDir),(sizeY));
+          if(PlayerGender == 0) {
+            InklingF.setFrame(playerImageID);
+            gb.display.drawImage(toScreenX(x/SCALE-8+LVelX),toScreenY(y/SCALE-7-8+LVelY),InklingF,(sizeX*PlayerDir),(sizeY));
+          } else {
+            InklingM.setFrame(playerImageID);
+            gb.display.drawImage(toScreenX(x/SCALE-8+LVelX),toScreenY(y/SCALE-7-8+LVelY),InklingM,(sizeX*PlayerDir),(sizeY));
+          }
         }
       } else {
         if(Kid2SquidFrames < 2) {
