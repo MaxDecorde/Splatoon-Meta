@@ -75,7 +75,7 @@ class World {
   }
   
   void SMSetColor (byte setX, byte setY, byte Color) {
-    int16_t offset = (setX + (setY * MaxMapW)) / 8;
+    int16_t offset = Div8(setX + (setY * MaxMapW));
     byte i = (setX + (setY * MaxMapW)) % 8;
   
     byte mask = 1 << i;
@@ -87,7 +87,7 @@ class World {
   }
   
   byte SMGetColor (byte getX, byte getY) {
-    uint16_t offset = (getX + (getY * MaxMapW)) / 8;
+    uint16_t offset = Div8(getX + (getY * MaxMapW));
     byte i = (getX + (getY * MaxMapW)) % 8;
     return ((splashMemoryColor[offset] >> i) & B00000001);
   }
@@ -129,13 +129,13 @@ class World {
   }
   
   int16_t PixelInCollider (byte PIMX, byte PIMY, byte PICX, byte PICY) { //PIM = Pos in map (0-255), PIC = Pos in cube (0-8)
-    switch(getTile(PIMX+(PICX/8),PIMY+(PICY/8))) {
+    switch(getTile(PIMX+Div8(PICX),PIMY+Div8(PICY))) {
       case 0:
         return 0;
       case 1:
         return 1;
       default:
-        return gb.display.getBitmapPixel(Colliders[TilesParams_Array[getTile(PIMX+(PICX/8),PIMY+(PICY/8))*TileParamsCount+0]],PICX%8,PICY%8);
+        return gb.display.getBitmapPixel(Colliders[TilesParams_Array[getTile(PIMX+Div8(PICX),PIMY+Div8(PICY))*TileParamsCount+0]],PICX%8,PICY%8);
     }
   }
 
@@ -144,10 +144,10 @@ class World {
   }
 
   void Draw () {
-    int16_t xMin = cameraX / 8;
-    int16_t xMax = LCDWIDTH / 8 + cameraX / 8 + 2;
-    int16_t yMin = cameraY / 8;
-    int16_t yMax = LCDHEIGHT / 8 + cameraY / 8 + 2;
+    int16_t xMin = Div8(cameraX);
+    int16_t xMax = Div8(LCDWIDTH) + Div8(cameraX) + 2;
+    int16_t yMin = Div8(cameraY);
+    int16_t yMax = Div8(LCDHEIGHT) + Div8(cameraY) + 2;
     
     for(int16_t y = yMin; y < yMax; y++) {
       for(int16_t x = xMin; x < xMax; x++ ) {
@@ -160,7 +160,7 @@ class World {
         //gb.display.setColor(BLACK);
         //gb.display.drawBitmap(x*8 - cameraX, y*8 - cameraY, mapTiles[getTile(x,y)]);
         Tiles.setFrame(getTile(x,y));
-        gb.display.drawImage(x*8 - cameraX, y*8 - cameraY,Tiles);
+        gb.display.drawImage(Mul8(x) - cameraX, Mul8(y) - cameraY,Tiles);
         
         if(getTile(x,y) != 0) {
           //V = DebugBytes;
@@ -186,34 +186,34 @@ class World {
                   if(x1<0) {
                     if(y1<0) {
                       if(getTile(x+-1,y+0) != 0 && getTile(x+0,y+-1) != 0) {
-                        gb.display.drawBitmap(x*8 - cameraX, y*8 - cameraY, splashes[4+V6], ROTCCW, NOFLIP); //WORKS //Kinda confirmed?
+                        gb.display.drawBitmap(Mul8(x) - cameraX, Mul8(y) - cameraY, splashes[4+V6], ROTCCW, NOFLIP); //WORKS //Kinda confirmed?
                       }
                     } else if(y1>0) {
                       if(getTile(x+-1,y+0) != 0 && getTile(x+0,y+1) != 0) {
-                        gb.display.drawBitmap(x*8 - cameraX, y*8 - cameraY, splashes[4+V0], ROT180, NOFLIP); //WORKS
+                        gb.display.drawBitmap(Mul8(x) - cameraX, Mul8(y) - cameraY, splashes[4+V0], ROT180, NOFLIP); //WORKS
                       }
                     } else if(y1==0) {
-                      gb.display.drawBitmap(x*8 - cameraX, y*8 - cameraY, splashes[V7], ROTCCW, NOFLIP);
+                      gb.display.drawBitmap(Mul8(x) - cameraX, Mul8(y) - cameraY, splashes[V7], ROTCCW, NOFLIP);
                     }
                   }
                   if(x1>0) {
                     if(y1<0) {
                       if(getTile(x+1,y+0) != 0 && getTile(x+0,y+-1) != 0) {
-                        gb.display.drawBitmap(x*8 - cameraX, y*8 - cameraY, splashes[4+V4], NOROT, NOFLIP); //WORKS
+                        gb.display.drawBitmap(Mul8(x) - cameraX, Mul8(y) - cameraY, splashes[4+V4], NOROT, NOFLIP); //WORKS
                       }
                     } else if(y1>0) {
                       if(getTile(x+0,y+1) != 0 && getTile(x+1,y+0) != 0) {
-                        gb.display.drawBitmap(x*8 - cameraX, y*8 - cameraY, splashes[4+V2], ROTCW, NOFLIP); //WORKS //Kinda confirmed?
+                        gb.display.drawBitmap(Mul8(x) - cameraX, Mul8(y) - cameraY, splashes[4+V2], ROTCW, NOFLIP); //WORKS //Kinda confirmed?
                       }
                     } else if(y1==0) {
-                      gb.display.drawBitmap(x*8 - cameraX, y*8 - cameraY, splashes[V3], ROTCW, NOFLIP);
+                      gb.display.drawBitmap(Mul8(x) - cameraX, Mul8(y) - cameraY, splashes[V3], ROTCW, NOFLIP);
                     }
                   }
                   if(x1==0) {
                     if(y1<0) {
-                      gb.display.drawBitmap(x*8 - cameraX, y*8 - cameraY, splashes[V1], NOROT, NOFLIP);
+                      gb.display.drawBitmap(Mul8(x) - cameraX, Mul8(y) - cameraY, splashes[V1], NOROT, NOFLIP);
                     } else if(y1>0) {
-                      gb.display.drawBitmap(x*8 - cameraX, y*8 - cameraY, splashes[V5], ROT180, NOFLIP);
+                      gb.display.drawBitmap(Mul8(x) - cameraX, Mul8(y) - cameraY, splashes[V5], ROT180, NOFLIP);
                     }
                   }
                 }

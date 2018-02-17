@@ -24,9 +24,6 @@ class Player :
     byte hat = 0;
     byte DuckPosY = 0;
 
-    byte SquisheVertical = 8;      //Player squishness :)
-    byte SquisheHorizontal = 8;
-
     byte PlayerColor = 0;
     short GroundPoundTime = 0;
     
@@ -91,32 +88,32 @@ class Player :
         DOWN_PRESSED = gb.buttons.pressed(BUTTON_DOWN);
       }
       
-      BottomInk = world.SMGetPaintValueAt(constrain((x/SCALE+4)/8,0,world.MapWidth-1),constrain((y/SCALE)/8+2,0,world.MapHeight-1),0) > 0 
-      && world.SMGetColor(constrain((x/SCALE+4)/8,0,world.MapWidth-1),constrain((y/SCALE)/8+2,0,world.MapHeight-1)) == PlayerColor;
+      BottomInk = world.SMGetPaintValueAt(constrain(Div8(x/SCALE+4),0,world.MapWidth-1),constrain(Div8(y/SCALE)+2,0,world.MapHeight-1),0) > 0 
+      && world.SMGetColor(constrain(Div8(x/SCALE+4),0,world.MapWidth-1),constrain(Div8(y/SCALE)+2,0,world.MapHeight-1)) == PlayerColor;
       
-      RightInk = world.SMGetPaintValueAt(constrain((x/SCALE+4)/8+1,0,world.MapWidth-1),constrain((y/SCALE+4)/8,0,world.MapHeight-1),3) > 0 
-      && world.SMGetColor(constrain((x/SCALE+4)/8+1,0,world.MapWidth-1),constrain((y/SCALE+4)/8,0,world.MapHeight-1)) == PlayerColor;
+      RightInk = world.SMGetPaintValueAt(constrain(Div8(x/SCALE+4)+1,0,world.MapWidth-1),constrain(Div8(y/SCALE+4),0,world.MapHeight-1),3) > 0 
+      && world.SMGetColor(constrain(Div8(x/SCALE+4)+1,0,world.MapWidth-1),constrain(Div8(y/SCALE+4),0,world.MapHeight-1)) == PlayerColor;
       
-      LeftInk = world.SMGetPaintValueAt(constrain((x/SCALE+4)/8-1,0,world.MapWidth-1),constrain((y/SCALE+4)/8,0,world.MapHeight-1),1) > 0 
-      && world.SMGetColor(constrain((x/SCALE+4)/8-1,0,world.MapWidth-1),constrain((y/SCALE+4)/8,0,world.MapHeight-1)) == PlayerColor;
+      LeftInk = world.SMGetPaintValueAt(constrain(Div8(x/SCALE+4)-1,0,world.MapWidth-1),constrain(Div8(y/SCALE+4),0,world.MapHeight-1),1) > 0 
+      && world.SMGetColor(constrain(Div8(x/SCALE+4)-1,0,world.MapWidth-1),constrain(Div8(y/SCALE+4),0,world.MapHeight-1)) == PlayerColor;
   
-      EBottomInk = world.SMGetPaintValueAt(constrain((x/SCALE+4)/8,0,world.MapWidth-1),constrain((y/SCALE)/8+2,0,world.MapHeight-1),0) > 0 
-      && world.SMGetColor(constrain((x/SCALE+4)/8,0,world.MapWidth-1),constrain((y/SCALE)/8+2,0,world.MapHeight-1)) != PlayerColor;
+      EBottomInk = world.SMGetPaintValueAt(constrain(Div8(x/SCALE+4),0,world.MapWidth-1),constrain(Div8(y/SCALE)+2,0,world.MapHeight-1),0) > 0 
+      && world.SMGetColor(constrain(Div8(x/SCALE+4),0,world.MapWidth-1),constrain(Div8(y/SCALE)+2,0,world.MapHeight-1)) != PlayerColor;
 
       //Kid to Squid to Kid collision
       if(DOWN_HOLD && !Last_DOWN_HOLD && !B_HOLD) {
         Kid2SquidFrames = 0;
-        y+=8*SCALE;
+        y+=Mul8(SCALE);
       }
       if(!DOWN_HOLD && Last_DOWN_HOLD && !B_HOLD) {
         Kid2SquidFrames = 0;
-        y-=8*SCALE;
+        y-=Mul8(SCALE);
       }
 
       //Put ink under player when shooting
       if(ShootCall) {
-        inkX = (x/SCALE/8);
-        inkY = (y/SCALE/8);
+        inkX = Div8(x/SCALE);
+        inkY = Div8(y/SCALE);
         
         inkX = constrain(inkX,0,world.MapWidth-1);
         inkY = constrain(inkY,0,world.MapHeight-1);
@@ -144,12 +141,12 @@ class Player :
       //Stairs and slopes handeling
       if(LEFT_HOLD) {
         IsSwiming = true;
-        byte col = TilesParams_Array[world.getTile((x/SCALE-1)/8,(y/SCALE+11)/8)*TileParamsCount+0];
+        byte col = TilesParams_Array[world.getTile(Div8(x/SCALE-1),Div8(y/SCALE+11))*TileParamsCount+0];
         if(col == 7) {
           x -= 1*SCALE;
           y -= 1*SCALE;
         } else if(col == 0) {
-          col = TilesParams_Array[world.getTile((x/SCALE+4)/8,(y/SCALE+16)/8)*TileParamsCount+0];
+          col = TilesParams_Array[world.getTile(Div8(x/SCALE+4),Div8(y/SCALE+16))*TileParamsCount+0];
           if(col == 7) {
             x -= 1*SCALE;
             y -= 1*SCALE;
@@ -157,12 +154,12 @@ class Player :
         }
       }
       if(RIGHT_HOLD) {
-        byte col = TilesParams_Array[world.getTile((x/SCALE+12)/8,(y/SCALE+11)/8)*TileParamsCount+0];
+        byte col = TilesParams_Array[world.getTile(Div8(x/SCALE+12),Div8(y/SCALE+11))*TileParamsCount+0];
         if(col == 6) {
           x += 1*SCALE;
           y -= 1*SCALE;
         } else if(col == 0) {
-          col = TilesParams_Array[world.getTile((x/SCALE+4)/8,(y/SCALE+16)/8)*TileParamsCount+0];
+          col = TilesParams_Array[world.getTile(Div8(x/SCALE+4),Div8(y/SCALE+16))*TileParamsCount+0];
           if(col == 6) {
             x += 1*SCALE;
             y -= 1*SCALE;
@@ -173,8 +170,8 @@ class Player :
       //Swim PhysX
       ////////////
       if(DOWN_HOLD && !B_HOLD) {
-        bool BottomInkSquid = world.SMGetPaintValueAt(constrain((x/SCALE+4)/8,0,world.MapWidth-1),constrain((y/SCALE)/8+1,0,world.MapHeight-1),0) > 0 
-        && world.SMGetColor(constrain((x/SCALE+4)/8,0,world.MapWidth-1),constrain((y/SCALE)/8+1,0,world.MapHeight-1)) == PlayerColor;
+        bool BottomInkSquid = world.SMGetPaintValueAt(constrain(Div8(x/SCALE+4),0,world.MapWidth-1),constrain(Div8(y/SCALE)+1,0,world.MapHeight-1),0) > 0 
+        && world.SMGetColor(constrain(Div8(x/SCALE+4),0,world.MapWidth-1),constrain(Div8(y/SCALE)+1,0,world.MapHeight-1)) == PlayerColor;
         
         ShootCall = false;
         IsSwiming = true;
@@ -410,28 +407,6 @@ class Player :
         eyeSize = 1;
       } else {
         eyeSize = 2;
-      }
-    }
-
-    void DrawInkHider() {
-      if(abs(LVelX) == 0 && abs(LVelY) == 0) {
-        return;
-      }
-      
-      if(world.getTile((x/SCALE+4)/8+1,y/SCALE/8+1) != 0) {
-        gb.display.setColor(WHITE);
-        gb.display.fillRect(toScreenX(((x/SCALE+4)/8+1)*8), toScreenY((y/SCALE/8+1)*8), 8, 8);
-        gb.display.setColor(BLACK);
-      }
-      if(world.getTile((x/SCALE+4)/8,y/SCALE/8+1) != 0) {
-        gb.display.setColor(WHITE);
-        gb.display.fillRect(toScreenX(((x/SCALE+4)/8)*8), toScreenY((y/SCALE/8+1)*8), 8, 8);
-        gb.display.setColor(BLACK);
-      }
-      if(world.getTile((x/SCALE+4)/8-1,y/SCALE/8+1) != 0) {
-        gb.display.setColor(WHITE);
-        gb.display.fillRect(toScreenX(((x/SCALE+4)/8-1)*8), toScreenY((y/SCALE/8+1)*8), 8, 8);
-        gb.display.setColor(BLACK);
       }
     }
 
@@ -674,11 +649,11 @@ class Player :
         RespawnTimer--;
         if(RespawnTimer == 0) {
           if(PlayerColor == revertColors) {
-            x = (8*pgm_read_byte(GetMap[world.CurrentLoadedMap] + 2)-4)*SCALE;
-            y = 8*pgm_read_byte(GetMap[world.CurrentLoadedMap] + 3)*SCALE;
+            x = ((GetMap[world.CurrentLoadedMap][2]*8)-4)*SCALE;
+            y = (GetMap[world.CurrentLoadedMap][3]*8)*SCALE;
           } else {
-            x = 8*pgm_read_byte(GetMap[world.CurrentLoadedMap] + 0)*SCALE - 8*pgm_read_byte(GetMap[world.CurrentLoadedMap] + 2)*SCALE - 8*SCALE;
-            y = 8*pgm_read_byte(GetMap[world.CurrentLoadedMap] + 3)*SCALE;
+            x = (GetMap[world.CurrentLoadedMap][0]*8)*SCALE - Mul8(GetMap[world.CurrentLoadedMap][2])*SCALE - Mul8(SCALE);
+            y = (GetMap[world.CurrentLoadedMap][3]*8)*SCALE;
           }
         }
         return;
@@ -688,7 +663,6 @@ class Player :
       Object::Update();
       BlinkingUpdate();
       Draw();
-      DrawInkHider();
       BulletCollision();
 
       if(EBottomInk) {
@@ -725,13 +699,13 @@ class PlayersOperator {
         if(i < PLAYER_C/2) {
           players[i-1].PlayerDir = 1;
           players[i-1].PlayerColor = revertColors;
-          players[i-1].x = (8*pgm_read_byte(GetMap[world.CurrentLoadedMap] + 2)-4)*SCALE;
-          players[i-1].y = 8*pgm_read_byte(GetMap[world.CurrentLoadedMap] + 3)*SCALE;
+          players[i-1].x = ((GetMap[world.CurrentLoadedMap][2]*8)-4)*SCALE;
+          players[i-1].y = (GetMap[world.CurrentLoadedMap][3]*8)*SCALE;
         } else {
           players[i-1].PlayerDir = -1;
           players[i-1].PlayerColor = 1-revertColors;
-          players[i-1].x = 8*pgm_read_byte(GetMap[world.CurrentLoadedMap] + 0)*SCALE - 8*pgm_read_byte(GetMap[world.CurrentLoadedMap] + 2)*SCALE - 8*SCALE;
-          players[i-1].y = 8*pgm_read_byte(GetMap[world.CurrentLoadedMap] + 3)*SCALE;
+          players[i-1].x = (GetMap[world.CurrentLoadedMap][0]*8)*SCALE - (GetMap[world.CurrentLoadedMap][2]*8)*SCALE - (SCALE*8);
+          players[i-1].y = (GetMap[world.CurrentLoadedMap][3]*8)*SCALE;
         }
 
         players[i-1].PlayerCode = i;

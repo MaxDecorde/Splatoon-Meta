@@ -237,3 +237,12 @@ void setColorToGroup (byte cC) {
   }
 }
 
+template<typename T> T Mul8 (T v) {
+    return v << 3;
+    //return v*8;
+}
+
+template<typename T> T Div8(T v) {
+    return v >> 3;
+    //return v/8;
+}

@@ -48,8 +48,8 @@ class Object {
       if(Dir == 1) {
         for(int16_t xd = 0; xd < getHeight(); xd++) { //yd = Y Down
           ColX[xd] = world.PixelInCollider(
-            (x/SCALE-1)/8,
-            (y/SCALE)/8,
+            Div8(x/SCALE-1),
+            Div8(y/SCALE),
             (x/SCALE+getWidth()-1)%8,
             (y/SCALE)%8+xd
           );
@@ -64,8 +64,8 @@ class Object {
       if(Dir == -1) {
         for(int16_t xd = 0; xd < getHeight(); xd++) { //yd = Y Down
           ColX[xd] = world.PixelInCollider(
-            (x/SCALE+getWidth())/8,
-            (y/SCALE)/8,
+            Div8(x/SCALE+getWidth()),
+            Div8(y/SCALE),
             (x/SCALE+getWidth())%8,
             (y/SCALE)%8+xd
           );
@@ -87,8 +87,8 @@ class Object {
       if(Dir == 1) {
         for(int16_t yd = 0; yd < getWidth(); yd++) { //yd = Y Down
           ColY[yd] = world.PixelInCollider(
-            (x/SCALE)/8,
-            (y/SCALE-1)/8,
+            Div8(x/SCALE),
+            Div8(y/SCALE-1),
             (x/SCALE)%8+yd,
             (y/SCALE+getHeight())%8
           );
@@ -103,8 +103,8 @@ class Object {
       if(Dir == -1) {
         for(int16_t yd = 0; yd < getWidth(); yd++) { //yd = Y Down
           ColY[yd] = world.PixelInCollider(
-            (x/SCALE)/8,
-            (y/SCALE+getHeight())/8,
+            Div8(x/SCALE),
+            Div8(y/SCALE+getHeight()),
             (x/SCALE)%8+yd,
             (y/SCALE+getHeight())%8
           );
@@ -124,8 +124,8 @@ class Object {
     byte ColY[getWidth()];
     for(int16_t yd = 0; yd < getWidth(); yd++) { //yd = Y Down
       ColY[yd] = world.PixelInCollider(
-        (x/SCALE)/8,
-        (y/SCALE-1)/8,
+        Div8(x/SCALE),
+        Div8(y/SCALE-1),
         (x/SCALE)%8+yd,
         (y/SCALE+getHeight())%8
       );
@@ -138,8 +138,8 @@ class Object {
     
     for(int16_t yd = 0; yd < getWidth(); yd++) { //yd = Y Down
       ColY[yd] = world.PixelInCollider(
-        (x/SCALE)/8,
-        (y/SCALE+getHeight())/8,
+        Div8(x/SCALE),
+        Div8(y/SCALE+getHeight()),
         (x/SCALE)%8+yd,
         (y/SCALE+getHeight())%8
       );
@@ -153,8 +153,8 @@ class Object {
     byte ColX[getHeight()];
     for(int16_t xd = 0; xd < getHeight(); xd++) { //yd = Y Down
       ColX[xd] = world.PixelInCollider(
-        (x/SCALE-1)/8,
-        (y/SCALE)/8,
+        Div8(x/SCALE-1),
+        Div8(y/SCALE),
         (x/SCALE+getWidth()-1)%8,
         (y/SCALE)%8+xd
       );
@@ -166,8 +166,8 @@ class Object {
     }
     for(int16_t xd = 0; xd < getHeight(); xd++) { //yd = Y Down
       ColX[xd] = world.PixelInCollider(
-        (x/SCALE+getWidth())/8,
-        (y/SCALE)/8,
+        Div8(x/SCALE+getWidth()),
+        Div8(y/SCALE),
         (x/SCALE+getWidth())%8,
         (y/SCALE)%8+xd
       );
@@ -284,6 +284,6 @@ class Object {
     vx = (int16_t)(vx * ((1000 - getXFriction()) / 1000.0F));
     vy = (int16_t)(vy * ((1000 - getYFriction()) / 1000.0F));
     UpdateCollision();
-    UpdateGrounding();
+    //UpdateGrounding();
   }
 };

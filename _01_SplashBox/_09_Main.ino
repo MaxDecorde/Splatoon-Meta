@@ -10,19 +10,19 @@ void ClampCamera () { //Clamp the camera in the world
   } 
   
   if(world.MapWidth < 11) {
-    cameraX = (LCDWIDTH - world.MapWidth*8)/2;
+    cameraX = (LCDWIDTH - Mul8(world.MapWidth))/2;
   } else {
-    cameraX = ClampInt(0,world.MapWidth*8-LCDWIDTH,cameraX);
+    cameraX = ClampInt(0,(world.MapWidth*8)-LCDWIDTH,cameraX);
   }
-  cameraY = ClampInt(0,world.MapHeight*8-LCDHEIGHT,cameraY);
+  cameraY = ClampInt(0,(world.MapHeight*8)-LCDHEIGHT,cameraY);
 }
 
 void PrepareMap () {
   world.CurrentLoadedMap = 0;
-  player.mainPlayer.x = (8*pgm_read_byte(GetMap[world.CurrentLoadedMap] + 2)-4)*SCALE;
-  player.mainPlayer.y = 8*pgm_read_byte(GetMap[world.CurrentLoadedMap] + 3)*SCALE;
-  world.MapWidth = pgm_read_byte(GetMap[world.CurrentLoadedMap] + 0);
-  world.MapHeight = pgm_read_byte(GetMap[world.CurrentLoadedMap] + 1);
+  player.mainPlayer.x = ((GetMap[world.CurrentLoadedMap][2]*8)-4)*SCALE;
+  player.mainPlayer.y = (GetMap[world.CurrentLoadedMap][3]*8)*SCALE;
+  world.MapWidth = GetMap[world.CurrentLoadedMap][0];
+  world.MapHeight = GetMap[world.CurrentLoadedMap][1];
   
   player.mainPlayer.vx = 0;
   player.mainPlayer.vy = 0;
@@ -422,6 +422,19 @@ void loop () {
           cameraX = (cameraX*5+(player.mainPlayer.x/SCALE+4-(LCDWIDTH/2) + ((curX-LCDWIDTH/2)/4)*3 + (-player.mainPlayer.vx/5)))/6;
           cameraY = (cameraY*4+(player.mainPlayer.y/SCALE+4-(LCDHEIGHT/2) + ((curY-LCDWIDTH/2)/6)*4 + (-player.mainPlayer.vy/5)))/5;
         }
+
+        /*if(gb.buttons.repeat(BUTTON_UP,0)) {
+          cameraY+=1;
+        }
+        if(gb.buttons.repeat(BUTTON_DOWN,0)) {
+          cameraY-=1;
+        }
+        if(gb.buttons.repeat(BUTTON_LEFT,0)) {
+          cameraX-=1;
+        }
+        if(gb.buttons.repeat(BUTTON_RIGHT,0)) {
+          cameraX+=1;
+        }*/
         
         if(shakeTimeLeft > 0) {
           shakeTimeLeft--;
@@ -455,15 +468,15 @@ void loop () {
 
       if(AnimationTimer > 0) {
         if(AnimationTimer > STARTLENGHT/3*2) {
-          cameraX = ClampInt(0,world.MapWidth*8-LCDWIDTH,8*pgm_read_byte(GetMap[world.CurrentLoadedMap] + 2)+4-(LCDWIDTH/2));
-          cameraY = ClampInt(0,world.MapHeight*8-LCDHEIGHT,8*pgm_read_byte(GetMap[world.CurrentLoadedMap] + 3)+4-(LCDHEIGHT/2));
+          cameraX = ClampInt(0,(world.MapWidth*8)-LCDWIDTH,(GetMap[world.CurrentLoadedMap][2]*8)+4-(LCDWIDTH/2));
+          cameraY = ClampInt(0,(world.MapHeight*8)-LCDHEIGHT,(GetMap[world.CurrentLoadedMap][3])+4-(LCDHEIGHT/2));
         } else if(AnimationTimer > STARTLENGHT/3) {
-          cameraX = ClampInt(0,world.MapWidth*8-LCDWIDTH,8*pgm_read_byte(GetMap[world.CurrentLoadedMap] + 0) - 8*pgm_read_byte(GetMap[world.CurrentLoadedMap] + 2)+4-(LCDWIDTH/2));
-          cameraY = ClampInt(0,world.MapHeight*8-LCDHEIGHT,8*pgm_read_byte(GetMap[world.CurrentLoadedMap] + 3)+4-(LCDHEIGHT/2));
+          cameraX = ClampInt(0,(world.MapWidth*8)-LCDWIDTH,(GetMap[world.CurrentLoadedMap][0]*8) - 8*pgm_read_byte(GetMap[world.CurrentLoadedMap] + 2)+4-(LCDWIDTH/2));
+          cameraY = ClampInt(0,(world.MapHeight*8)-LCDHEIGHT,(GetMap[world.CurrentLoadedMap][3])+4-(LCDHEIGHT/2));
         } else {
           if(AnimationTimer > (STARTLENGHT/3/2)) {
-            cameraX = ClampInt(0,world.MapWidth*8-LCDWIDTH,8*pgm_read_byte(GetMap[world.CurrentLoadedMap] + 2)+4-(LCDWIDTH/2));
-            cameraY = ClampInt(0,world.MapHeight*8-LCDHEIGHT,8*pgm_read_byte(GetMap[world.CurrentLoadedMap] + 3)+4-(LCDHEIGHT/2));
+            cameraX = ClampInt(0,(world.MapWidth*8)-LCDWIDTH,(GetMap[world.CurrentLoadedMap][2]*8)+4-(LCDWIDTH/2));
+            cameraY = ClampInt(0,(world.MapHeight*8)-LCDHEIGHT,(GetMap[world.CurrentLoadedMap][3]*8)+4-(LCDHEIGHT/2));
             gb.display.setColor(BLACK);
             gb.display.cursorX = 12;
             gb.display.cursorY = 24;
