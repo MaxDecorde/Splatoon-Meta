@@ -29,7 +29,7 @@ void PrepareMap () {
 
   player.Initialize();
 
-  IsPlaying = true;
+  IsPlaying = false;
 
   AnimationTimer = STARTLENGHT;
 }
@@ -378,14 +378,40 @@ long r2 = 0;
 
 void loop () {
   if(gb.update()) {
-    gb.display.setColor((ColorIndex)12);
-    gb.display.fill();
-    //gb.display.drawImage(0,8,BackGCity0);
-    //gb.display.drawImage(-cameraX/5,(world.MapHeight*2-cameraY)/5,BackGCity0);
-    //gb.display.setColor((ColorIndex)13);
-    //gb.display.fillRect(-cameraX/5,((world.MapHeight*2-cameraY)+BackGCity0.height()*4)/5,BackGCity0.width(),BackGCity0.height());
-    
-    if(IsPlaying) {
+    if(!IsPlaying) {
+      if(GameState == 0) {
+        gb.display.setColor((ColorIndex)3);
+        gb.display.fill();
+        gb.display.drawImage(-2,6,Title);
+        if(gb.buttons.repeat(BUTTON_A,0)) {
+          ButtonPressIcon.setFrame(1);
+        } else {
+          ButtonPressIcon.setFrame(0);
+        }
+        gb.display.drawImage(0,LCDHEIGHT-15,ButtonPressIcon);
+
+        if(AnimationTimer < 0) {
+          
+        }
+        if(gb.buttons.released(BUTTON_A)) {
+          AnimationTimer = 0;
+          GameState = 7;
+        }
+      }
+      if(GameState == 7) {
+        gb.display.setColor((ColorIndex)0);
+        gb.display.fill();
+      }
+    }
+    if(IsPlaying && GameState == 0) {
+      gb.display.setColor((ColorIndex)12);
+      gb.display.fill();
+
+      //gb.display.drawImage(0,8,BackGCity0);
+      //gb.display.drawImage(-cameraX/5,(world.MapHeight*2-cameraY)/5,BackGCity0);
+      //gb.display.setColor((ColorIndex)13);
+      //gb.display.fillRect(-cameraX/5,((world.MapHeight*2-cameraY)+BackGCity0.height()*4)/5,BackGCity0.width(),BackGCity0.height());
+      
       if(gb.buttons.pressed(BUTTON_MENU)) {
         if(gb.buttons.repeat(BUTTON_B, 0)) {
           mainWeapon++;

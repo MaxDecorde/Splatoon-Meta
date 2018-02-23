@@ -33,7 +33,9 @@ int16_t cameraX, cameraY, shakeTimeLeft, shakeAmplitude;
 uint8_t cpuLoad = 0;
 uint8_t lastLoad[8];
 
-bool IsPlaying = false;
+//UI and Screen parameters
+bool IsPlaying = false; //Starts game (GameState define mode, 0:Classic, 1:Rainmaker, 2:Zones, 3:Tower, 4:Clam, 5:SalmonRun)
+uint8_t GameState = 0; //0: TitleScreen, //1: Inkopolis, //2: WeaponShop, //3: HatShop, //4: GearSelect, //5: PlaySelection, //6: SalmonRunSelection, //7: CharSelect
 bool FreezePlayers = true;
 
 int16_t AnimationTimer;
