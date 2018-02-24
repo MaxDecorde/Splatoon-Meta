@@ -37,8 +37,14 @@ uint8_t lastLoad[8];
 bool IsPlaying = false; //Starts game (GameState define mode, 0:Classic, 1:Rainmaker, 2:Zones, 3:Tower, 4:Clam, 5:SalmonRun)
 uint8_t GameState = 0; //0: TitleScreen, //1: Inkopolis, //2: WeaponShop, //3: HatShop, //4: GearSelect, //5: PlaySelection, //6: SalmonRunSelection, //7: CharSelect
 bool FreezePlayers = true;
-
 int16_t AnimationTimer;
+int32_t AnimationTimer2;
+int32_t AnimationTimer3;
+int32_t AnimationTimer4;
+int32_t AnimationTimer5;
+
+byte SelectedGender = 2; //0: F, 1: M, 2: N/A
+byte SelectedHaircut = 4; //4: N/A
 
 bool LastDirection = true;
 byte curX = 48;
@@ -240,6 +246,60 @@ void setColorToGroup (byte cC) {
     }
     break;
   }
+}
+
+void setPaletteToColorGroup (byte Color, byte Group) {
+  switch(Group) {
+    case 0:
+    if(Color == 0) {
+      gb.display.colorIndex = palettePYellow;
+    } else {
+      gb.display.colorIndex = palettePBlue;
+    }
+    break;
+    case 1:
+    if(Color == 0) {
+      gb.display.colorIndex = palettePMagenta;
+    } else {
+      gb.display.colorIndex = palettePGreen;
+    }
+    break;
+    case 2:
+    if(Color == 0) {
+      gb.display.colorIndex = palettePOrange;
+    } else {
+      gb.display.colorIndex = palettePBlue;
+    }
+    break;
+    case 3:
+    if(Color == 0) {
+      gb.display.colorIndex = palettePMagenta;
+    } else {
+      gb.display.colorIndex = palettePBlue;
+    }
+    break;
+    case 4:
+    if(Color == 0) {
+      gb.display.colorIndex = palettePRed;
+    } else {
+      gb.display.colorIndex = palettePBlue;
+    }
+    break;
+    case 5:
+    if(Color == 0) {
+      gb.display.colorIndex = palettePMagenta;
+    } else {
+      gb.display.colorIndex = palettePOrange;
+    }
+    break;
+    case 6:
+    if(Color == 0) {
+      gb.display.colorIndex = palettePGreen;
+    } else {
+      gb.display.colorIndex = palettePBlue;
+    }
+    break;
+  }  
 }
 
 template<typename T> T Mul8 (T v) {

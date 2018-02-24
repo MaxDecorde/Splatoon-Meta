@@ -293,3 +293,37 @@ class Object {
     //UpdateGrounding();
   }
 };
+
+class UISplash {
+  public:
+  byte x,y;
+  byte sizev;
+  byte timer = 0;
+  byte cgroup = 0;
+  byte cside = 0;
+
+  void Init (byte nx, byte ny, byte nsizev, byte ncgroup, byte ncside) {
+    x = nx;
+    y = ny;
+    sizev = nsizev;
+    cgroup = ncgroup;
+    cside = ncside;
+  }
+
+  void Draw () {
+    setPaletteToColorGroup(cside,cgroup);
+    byte s = (int)(sizev/3.0F*timer);
+    gb.display.drawImage(x-(s/2),y-(s/2),SplashUI,s,s);
+    gb.display.colorIndex = palette;
+  }
+
+  void Update () {
+    Draw();
+    if(timer < 3) {
+      timer++;
+    }
+  }
+};
+
+UISplash uiSplashes[5];
+

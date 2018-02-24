@@ -379,10 +379,35 @@ long r2 = 0;
 void loop () {
   if(gb.update()) {
     if(!IsPlaying) {
+
+
+
+
+      //Menu screen
+      /////////////
       if(GameState == 0) {
         gb.display.setColor((ColorIndex)3);
         gb.display.fill();
-        gb.display.drawImage(-2,6,Title);
+
+        if(AnimationTimer2 < 50) {
+          if(AnimationTimer2%10==0) {
+            for(int i = 0; i < 5+1; i++) {
+              if(uiSplashes[i].sizev == 0) {
+                uiSplashes[i].Init(random(0,LCDWIDTH),random(0,LCDHEIGHT),random(12,32),random(0,2),random(0,7));
+                break;
+              }
+            }
+          }
+          AnimationTimer2++;
+        }
+
+        for(int i = 0; i < 5; i++) {
+          if(uiSplashes[i].sizev != 0) {
+            uiSplashes[i].Update();
+          }
+        }
+
+        gb.display.drawImage(-2+(sin(AnimationTimer/3.4F)*2.0F),6+(cos(AnimationTimer/1.7F)*2.0F),Title);
         if(gb.buttons.repeat(BUTTON_A,0)) {
           ButtonPressIcon.setFrame(1);
         } else {
@@ -390,18 +415,90 @@ void loop () {
         }
         gb.display.drawImage(0,LCDHEIGHT-15,ButtonPressIcon);
 
-        if(AnimationTimer < 0) {
-          
+        AnimationTimer++;
+        if(AnimationTimer > 236) {
+          AnimationTimer = 0;
         }
         if(gb.buttons.released(BUTTON_A)) {
           AnimationTimer = 0;
+          AnimationTimer2 = 0;
+          AnimationTimer3 = 0;
           GameState = 7;
         }
       }
+
+
+
+      //Player Selection
+      //////////////////
       if(GameState == 7) {
-        gb.display.setColor((ColorIndex)0);
+        gb.display.setColor((ColorIndex)12);
         gb.display.fill();
+        //gb.display.drawImage(0,16,BackGCity0);
+
+        gb.display.setColor((ColorIndex)13);
+        
+        gb.display.fillRect(0,0,80,8);
+        gb.display.drawImage(0,1,GenderIcon);
+
+        int8_t sizeX = InklingF.width();
+        int8_t sizeY = InklingF.height();
+        setPaletteToColorGroup(0,1);
+        InklingF.setFrame((AnimationTimer2!=0)*7);
+        H1InklingF.setFrame((AnimationTimer2!=0)*7);
+        gb.display.drawImage(-5,LCDHEIGHT-42-(sin(AnimationTimer2/55.0F*PI)*12.0F),InklingF,sizeX*1*2,sizeY*2);
+        gb.display.drawImage(-5,LCDHEIGHT-42-(sin(AnimationTimer2/55.0F*PI)*12.0F),H1InklingF,sizeX*1*2,sizeY*2);
+        gb.display.colorIndex = palette;
+        if(AnimationTimer == 0) {
+          gb.display.setColor((ColorIndex)0);
+          gb.display.drawBitmap(12,LCDHEIGHT-44-(sin(AnimationTimer2/55.0F*PI)*12.0F),ArrowOutlineUI);
+          gb.display.setColor((ColorIndex)(!gb.buttons.repeat(BUTTON_A,0)*3));
+          gb.display.drawBitmap(12,LCDHEIGHT-44-(sin(AnimationTimer2/55.0F*PI)*12.0F),ArrowUI);
+        }
+
+        setPaletteToColorGroup(1,1);
+        InklingM.setFrame((AnimationTimer3!=0)*7);
+        H3InklingM.setFrame((AnimationTimer3!=0)*7);
+        gb.display.drawImage(LCDWIDTH-48,LCDHEIGHT-42-(sin(AnimationTimer3/55.0F*PI)*12.0F),InklingM,sizeX*-1*2,sizeY*2);
+        gb.display.drawImage(LCDWIDTH-48,LCDHEIGHT-42-(sin(AnimationTimer3/55.0F*PI)*12.0F),H3InklingM,sizeX*-1*2,sizeY*2);
+        gb.display.colorIndex = palette;
+        if(AnimationTimer == 1) {
+          gb.display.setColor((ColorIndex)0);
+          gb.display.drawBitmap(LCDWIDTH-24,LCDHEIGHT-44-(sin(AnimationTimer3/55.0F*PI)*12.0F),ArrowOutlineUI);
+          gb.display.setColor((ColorIndex)(!gb.buttons.repeat(BUTTON_A,0)*3));
+          gb.display.drawBitmap(LCDWIDTH-24,LCDHEIGHT-44-(sin(AnimationTimer3/55.0F*PI)*12.0F),ArrowUI);
+        }
+
+        if(gb.buttons.pressed(BUTTON_LEFT)) {
+          AnimationTimer = 0;
+          if(AnimationTimer2 == 0) {
+            AnimationTimer2 = 55;
+          }
+        }
+        if(gb.buttons.pressed(BUTTON_RIGHT)) {
+          AnimationTimer = 1;
+          if(AnimationTimer3 == 0) {
+            AnimationTimer3 = 55;
+          }
+        }
+        
+        if(AnimationTimer2 > 0) {
+          AnimationTimer2 -= 9;
+        }
+        AnimationTimer2 = constrain(AnimationTimer2,0,255);
+        
+        if(AnimationTimer3 > 0) {
+          AnimationTimer3 -= 9;
+        }
+        AnimationTimer3 = constrain(AnimationTimer3,0,255);
+
+        //DrawUI();
       }
+
+
+
+
+      
     }
     if(IsPlaying && GameState == 0) {
       gb.display.setColor((ColorIndex)12);
