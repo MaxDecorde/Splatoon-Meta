@@ -2,7 +2,6 @@
 /////////////////
 
 #include <Gamebuino-Meta.h>
-//#include <Gamebuino-EEPROM.h>
 #include <math.h>
 
 #define LCDWIDTH 80
@@ -14,16 +13,14 @@
 #define SCALE 8
 #define VFORCE 5
 
-#define BCOUNT 16 //14
+#define BCOUNT 16
 
-#define STARTLENGHT 40 //110
-
-#define BouncyMath1 0.0322580//6452
-#define BouncyMath2 -0.0483870f//9677
-#define BouncyMath3 -0.0393700f//7874
-#define BouncyMath4 0.0236220f//4724
+#define STARTLENGHT 70
+#define STARTLENGHT2 130
 
 #define MapHeader 4
+
+byte cinematicSkip = 0;
 
 byte revertColors = 0;
 int16_t colorGroup = 1;

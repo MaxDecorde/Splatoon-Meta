@@ -139,7 +139,7 @@ class World {
     return GetMap[CurrentLoadedMap][MapHeader + (x+y*MapWidth)];
   }
 
-  void Draw () {
+  void Draw (uint8_t RenderMode) {
     int16_t xMin = Div8(cameraX);
     int16_t xMax = Div8(LCDWIDTH) + Div8(cameraX) + 2;
     int16_t yMin = Div8(cameraY);
@@ -163,6 +163,10 @@ class World {
         //gb.display.drawBitmap(x*8 - cameraX, y*8 - cameraY, mapTiles[getTile(x,y)]);
         Tiles.setFrame(getTile(x,y));
         gb.display.drawImage(Mul8(x) - cameraX, Mul8(y) - cameraY,Tiles);
+
+        if(RenderMode == 1) {
+          continue;
+        }
         
         if(TilesParams_Array[gt*TileParamsCount+0] == 1) {
           //V = DebugBytes;
@@ -273,8 +277,8 @@ class World {
     }
   }
 
-  void Update () {
-    Draw();
+  void Update (uint8_t RenderMode) {
+    Draw(RenderMode);
   }
 };
 

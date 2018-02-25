@@ -45,6 +45,7 @@ class Player :
     bool DOWN_PRESSED;
 
     bool Last_DOWN_HOLD;
+    bool Last_B_HOLD;
 
     virtual int16_t getWidth() {
       if(IsSwiming) {
@@ -64,6 +65,32 @@ class Player :
     void MoveUpdate () {
       if(FreezePlayers) {
         return;
+      }
+
+      if(gb.buttons.pressed(BUTTON_UP)) {
+        byte doorCode = TilesParams_Array[world.getTile(x/SCALE/8,y/SCALE/8+1)*5+1];
+        if(doorCode == 12) {
+          AnimationTimer = 0;
+          AnimationTimer2 = 0;
+          AnimationTimer3 = 0;
+          AnimationTimer4 = 0;
+          AnimationTimer5 = 0;
+          GameState = 5;
+        } else if(doorCode == 13) {
+          AnimationTimer = 0;
+          AnimationTimer2 = 0;
+          AnimationTimer3 = 0;
+          AnimationTimer4 = 0;
+          AnimationTimer5 = 0;
+          GameState = 2;
+        } else if(doorCode == 14) {
+          AnimationTimer = 0;
+          AnimationTimer2 = 0;
+          AnimationTimer3 = 0;
+          AnimationTimer4 = 0;
+          AnimationTimer5 = 0;
+          GameState = 3;
+        }
       }
       
       if(!InputControl) {
@@ -101,11 +128,15 @@ class Player :
       && world.SMGetColor(constrain(Div8(x/SCALE+4),0,world.MapWidth-1),constrain(Div8(y/SCALE)+2,0,world.MapHeight-1)) != PlayerColor;
 
       //Kid to Squid to Kid collision
-      if(DOWN_HOLD && !Last_DOWN_HOLD && !B_HOLD) {
+      if(DOWN_HOLD && !Last_DOWN_HOLD && (!B_HOLD || (B_HOLD&&!Last_B_HOLD))) {
         Kid2SquidFrames = 0;
         y+=Mul8(SCALE);
       }
       if(!DOWN_HOLD && Last_DOWN_HOLD && !B_HOLD) {
+        Kid2SquidFrames = 0;
+        y-=Mul8(SCALE);
+      }
+      if(B_HOLD&&!Last_B_HOLD && Last_DOWN_HOLD) {
         Kid2SquidFrames = 0;
         y-=Mul8(SCALE);
       }
@@ -724,6 +755,7 @@ class Player :
       B_PRESSED = false;
       DOWN_PRESSED = false;
       Last_DOWN_HOLD = DOWN_HOLD;
+      Last_B_HOLD = B_HOLD;
     }
 
     void Die () {
@@ -766,9 +798,6 @@ class PlayersOperator {
       } else {
         mainPlayer.PlayerColor = revertColors;
         mainPlayer.PlayerCode = 0;
-        mainPlayer.PlayerGender = random(0,2);
-        mainPlayer.PlayerHaircut = random(0,4);
-        mainPlayer.hat = random(0,HEADGEARCount+1);
       }
     }
   }
@@ -781,6 +810,10 @@ class PlayersOperator {
         players[i-1].Update();
       }
     }
+  }
+
+  void UpdateMain () {
+    mainPlayer.Update();
   }
 };
 

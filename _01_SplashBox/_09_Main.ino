@@ -5,10 +5,6 @@ bool WeaponRecharged = false;
 uint32_t WeaponResetTimer = 0;
 
 void ClampCamera () { //Clamp the camera in the world
-  if(AnimationTimer > 0) {
-    return;
-  } 
-  
   if(world.MapWidth < 11) {
     cameraX = (LCDWIDTH - Mul8(world.MapWidth))/2;
   } else {
@@ -17,12 +13,15 @@ void ClampCamera () { //Clamp the camera in the world
   cameraY = ClampInt(0,(world.MapHeight*8)-LCDHEIGHT,cameraY);
 }
 
-void PrepareMap () {
-  world.CurrentLoadedMap = 0;
+void PrepareMap (uint8_t mapID) {
+  world.CurrentLoadedMap = mapID;
   player.mainPlayer.x = ((GetMap[world.CurrentLoadedMap][2]*8)-4)*SCALE;
   player.mainPlayer.y = (GetMap[world.CurrentLoadedMap][3]*8)*SCALE;
   world.MapWidth = GetMap[world.CurrentLoadedMap][0];
   world.MapHeight = GetMap[world.CurrentLoadedMap][1];
+
+  cameraX = world.MapWidth*8/2-LCDWIDTH/2+8;
+  cameraY = 0;
   
   player.mainPlayer.vx = 0;
   player.mainPlayer.vy = 0;
@@ -31,7 +30,11 @@ void PrepareMap () {
 
   IsPlaying = false;
 
-  AnimationTimer = STARTLENGHT;
+  if(mapID != 0) {
+    AnimationTimer = STARTLENGHT;
+  } else {
+    AnimationTimer = STARTLENGHT2;
+  }
 }
 
 void DrawCursor() {
@@ -54,7 +57,7 @@ void DrawCursor() {
   }
 
   if(gb.buttons.repeat(BUTTON_B,0) || gb.buttons.released(BUTTON_B)) {
-    player.mainPlayer.ShootCall = true;
+    player.mainPlayer.ShootCall = IsPlaying;
     if(gb.buttons.repeat(BUTTON_UP,0)) {
       curY-=4;
       curY = constrain(curY, 0+5, LCDHEIGHT-4);
@@ -71,52 +74,92 @@ void DrawCursor() {
       curY+=4;
       curY = constrain(curY, 0+5, LCDHEIGHT-4);
     }
-    
-    switch(Weapons[mainWeapon][0]) {
-      case 0: //--Classic Shooters
-      if(gb.buttons.repeat(BUTTON_A,Weapons[mainWeapon][5]) && !gb.buttons.pressed(BUTTON_A)) {
-        float aimingAngle = 0;
-        for(uint8_t b = 0; b < Weapons[mainWeapon][8]; b++) {
-          int16_t rootX = player.mainPlayer.x/SCALE;
-          int16_t rootY = player.mainPlayer.y/SCALE;
-          int16_t targetX = cameraX+curX;
-          int16_t targetY = cameraY+curY;
 
-          if(player.mainPlayer.PlayerDir == 1) {
-            //root = + 22,9 from player
-            rootX+=14;
-            rootY+=5;
-          } else if(player.mainPlayer.PlayerDir == -1) {
-            //root = + 2,9 from player
-            rootX-=7;
-            rootY+=5;
-          }
-
-          if(player.mainPlayer.PlayerDir == 1) {
-            aimingAngle = atan2(rootX-targetX,rootY-targetY)+1.5708F+(random(-Weapons[mainWeapon][4],Weapons[mainWeapon][4])/50.0F);; //In radians
-          } else {
-            aimingAngle = atan2(rootX-targetX,rootY-targetY)+1.5708F+(random(-Weapons[mainWeapon][4],Weapons[mainWeapon][4])/50.0F);; //In radians
-          }
-          bool shoot = true;
-          if(player.mainPlayer.PlayerDir == 1) {
-            if(aimingAngle-1.5708F != constrain(aimingAngle-1.5708F,-PI,0)) {
-              shoot = false;
+    if(IsPlaying) {
+      switch(Weapons[mainWeapon][0]) {
+        case 0: //--Classic Shooters
+        if(gb.buttons.repeat(BUTTON_A,Weapons[mainWeapon][5]) && !gb.buttons.pressed(BUTTON_A)) {
+          float aimingAngle = 0;
+          for(uint8_t b = 0; b < Weapons[mainWeapon][8]; b++) {
+            int16_t rootX = player.mainPlayer.x/SCALE;
+            int16_t rootY = player.mainPlayer.y/SCALE;
+            int16_t targetX = cameraX+curX;
+            int16_t targetY = cameraY+curY;
+  
+            if(player.mainPlayer.PlayerDir == 1) {
+              //root = + 22,9 from player
+              rootX+=14;
+              rootY+=5;
+            } else if(player.mainPlayer.PlayerDir == -1) {
+              //root = + 2,9 from player
+              rootX-=7;
+              rootY+=5;
             }
-          } else {
-            if(aimingAngle-1.5708F != constrain(aimingAngle-1.5708F,0,PI)) {
-              shoot = false;
+  
+            if(player.mainPlayer.PlayerDir == 1) {
+              aimingAngle = atan2(rootX-targetX,rootY-targetY)+1.5708F+(random(-Weapons[mainWeapon][4],Weapons[mainWeapon][4])/50.0F); //In radians
+            } else {
+              aimingAngle = atan2(rootX-targetX,rootY-targetY)+1.5708F+(random(-Weapons[mainWeapon][4],Weapons[mainWeapon][4])/50.0F); //In radians
+            }
+            bool shoot = true;
+            if(player.mainPlayer.PlayerDir == 1) {
+              if(aimingAngle-1.5708F != constrain(aimingAngle-1.5708F,-PI,0)) {
+                shoot = false;
+              }
+            } else {
+              if(aimingAngle-1.5708F != constrain(aimingAngle-1.5708F,0,PI)) {
+                shoot = false;
+              }
+            }
+  
+            if(shoot) {
+              gb.display.setColor(BLACK);
+              gb.display.drawLine(toScreenX(rootX),toScreenY(rootY),toScreenX(targetX),toScreenY(targetY));
+              
+              int8_t bulletID = bulletsManager.spawnBullet(
+                rootX*SCALE+(2*SCALE),
+                rootY*SCALE+(2*SCALE),
+                -(int16_t)(cos(aimingAngle)*Weapons[mainWeapon][1]+random(-Weapons[mainWeapon][2]*10,Weapons[mainWeapon][2]*10)/10.0F),
+                (int16_t)(sin(aimingAngle)*Weapons[mainWeapon][1]+random(-Weapons[mainWeapon][2]*10,Weapons[mainWeapon][2]*10)/10.0F),
+                player.mainPlayer.PlayerColor,
+                0
+              );
+              if(bulletID!=-1) {
+                bulletsManager.bullets[bulletID].gravity = Weapons[mainWeapon][3];
+                bulletsManager.bullets[bulletID].Damage = Weapons[mainWeapon][6];
+                bulletsManager.bullets[bulletID].BulletTimeLimit = Weapons[mainWeapon][7];
+              }
             }
           }
-
-          if(shoot) {
-            gb.display.setColor(BLACK);
-            gb.display.drawLine(toScreenX(rootX),toScreenY(rootY),toScreenX(targetX),toScreenY(targetY));
+        }
+        break;
+        case 1: //--Rollers
+        if(gb.buttons.held(BUTTON_B,Weapons[mainWeapon][5]) && !(gb.buttons.timeHeld(BUTTON_B) > Weapons[mainWeapon][5]+Weapons[mainWeapon][9])) { //Attack (If not rolling)
+          float aimingAngle = 0;
+          shakeTimeLeft += 3;
+          shakeAmplitude += 2;
+          for(uint8_t b = 0; b < Weapons[mainWeapon][8]; b++) {
+            int16_t rootX = player.mainPlayer.x/SCALE;
+            int16_t rootY = player.mainPlayer.y/SCALE;
             
+            if(player.mainPlayer.PlayerDir == 1) {
+              //root = + 22,9 from player
+              rootX+=14;
+              rootY+=5;
+      
+              aimingAngle = (0)+(random(-Weapons[mainWeapon][4],Weapons[mainWeapon][4])/50.0F);
+            } else if(player.mainPlayer.PlayerDir == -1) {
+              //root = + 2,9 from player
+              rootX-=7;
+              rootY+=5;
+      
+              aimingAngle = (PI)+(random(-Weapons[mainWeapon][4],Weapons[mainWeapon][4])/50.0F);
+            }
             int8_t bulletID = bulletsManager.spawnBullet(
               rootX*SCALE+(2*SCALE),
               rootY*SCALE+(2*SCALE),
-              -(int16_t)(cos(aimingAngle)*Weapons[mainWeapon][1]+random(-Weapons[mainWeapon][2]*10,Weapons[mainWeapon][2]*10)/10.0F),
-              (int16_t)(sin(aimingAngle)*Weapons[mainWeapon][1]+random(-Weapons[mainWeapon][2]*10,Weapons[mainWeapon][2]*10)/10.0F),
+              -(int16_t)(cos(aimingAngle)*(Weapons[mainWeapon][1]+random(-Weapons[mainWeapon][2]*10,Weapons[mainWeapon][2]*10)/10.0F)),
+              (int16_t)(sin(aimingAngle)*(Weapons[mainWeapon][1]+random(-Weapons[mainWeapon][2]*10,Weapons[mainWeapon][2]*10)/10.0F))+-Weapons[mainWeapon][11],
               player.mainPlayer.PlayerColor,
               0
             );
@@ -127,204 +170,166 @@ void DrawCursor() {
             }
           }
         }
-      }
-      break;
-      case 1: //--Rollers
-      if(gb.buttons.held(BUTTON_B,Weapons[mainWeapon][5]) && !(gb.buttons.timeHeld(BUTTON_B) > Weapons[mainWeapon][5]+Weapons[mainWeapon][9])) { //Attack (If not rolling)
-        float aimingAngle = 0;
-        shakeTimeLeft += 3;
-        shakeAmplitude += 2;
-        for(uint8_t b = 0; b < Weapons[mainWeapon][8]; b++) {
+        if(gb.buttons.timeHeld(BUTTON_B) > Weapons[mainWeapon][5]+Weapons[mainWeapon][9] && gb.buttons.repeat(BUTTON_B,1)) { //Rolling (After attack length)
+          float aimingAngle = 0;
+          for(uint8_t b = 0; b < Weapons[mainWeapon][8]/2; b++) {
+            int16_t rootX = player.mainPlayer.x/SCALE;
+            int16_t rootY = player.mainPlayer.y/SCALE;
+            
+            if(player.mainPlayer.PlayerDir == 1) {
+              //root = + 22,9 from player
+              rootX+=14;
+              rootY+=5;
+      
+              aimingAngle = (0)+(random(-Weapons[mainWeapon][4],Weapons[mainWeapon][4])/50.0F);
+            } else if(player.mainPlayer.PlayerDir == -1) {
+              //root = + 2,9 from player
+              rootX-=7;
+              rootY+=5;
+      
+              aimingAngle = (PI)+(random(-Weapons[mainWeapon][4],Weapons[mainWeapon][4])/50.0F);
+            }
+            int8_t bulletID = bulletsManager.spawnBullet(
+              rootX*SCALE+(2*SCALE),
+              rootY*SCALE+(2*SCALE),
+              0,
+              -Weapons[mainWeapon][1],
+              player.mainPlayer.PlayerColor,
+              0
+            );
+            if(bulletID!=-1) {
+              bulletsManager.bullets[bulletID].gravity = Weapons[mainWeapon][3];
+              bulletsManager.bullets[bulletID].Damage = Weapons[mainWeapon][6]*2;
+              bulletsManager.bullets[bulletID].BulletTimeLimit = Weapons[mainWeapon][7]/5;
+            }
+          }
+        }
+        break;
+        case 2: //--Chargers
+        if(gb.buttons.repeat(BUTTON_B,0)) {
+          WeaponResetTimer += 1;
+        }
+        if(WeaponResetTimer > Weapons[mainWeapon][5]) { //Recharge Indicator
           int16_t rootX = player.mainPlayer.x/SCALE;
           int16_t rootY = player.mainPlayer.y/SCALE;
-          
+          int16_t targetX = cameraX+curX;
+          int16_t targetY = cameraY+curY;
           if(player.mainPlayer.PlayerDir == 1) {
             //root = + 22,9 from player
             rootX+=14;
             rootY+=5;
-    
-            aimingAngle = (0)+(random(-Weapons[mainWeapon][4],Weapons[mainWeapon][4])/50.0F);
           } else if(player.mainPlayer.PlayerDir == -1) {
             //root = + 2,9 from player
             rootX-=7;
             rootY+=5;
-    
-            aimingAngle = (PI)+(random(-Weapons[mainWeapon][4],Weapons[mainWeapon][4])/50.0F);
           }
-          int8_t bulletID = bulletsManager.spawnBullet(
-            rootX*SCALE+(2*SCALE),
-            rootY*SCALE+(2*SCALE),
-            -(int16_t)(cos(aimingAngle)*(Weapons[mainWeapon][1]+random(-Weapons[mainWeapon][2]*10,Weapons[mainWeapon][2]*10)/10.0F)),
-            (int16_t)(sin(aimingAngle)*(Weapons[mainWeapon][1]+random(-Weapons[mainWeapon][2]*10,Weapons[mainWeapon][2]*10)/10.0F))+-Weapons[mainWeapon][11],
-            player.mainPlayer.PlayerColor,
-            0
-          );
-          if(bulletID!=-1) {
-            bulletsManager.bullets[bulletID].gravity = Weapons[mainWeapon][3];
-            bulletsManager.bullets[bulletID].Damage = Weapons[mainWeapon][6];
-            bulletsManager.bullets[bulletID].BulletTimeLimit = Weapons[mainWeapon][7];
-          }
-        }
-      }
-      if(gb.buttons.timeHeld(BUTTON_B) > Weapons[mainWeapon][5]+Weapons[mainWeapon][9] && gb.buttons.repeat(BUTTON_B,1)) { //Rolling (After attack length)
-        float aimingAngle = 0;
-        for(uint8_t b = 0; b < Weapons[mainWeapon][8]/2; b++) {
-          int16_t rootX = player.mainPlayer.x/SCALE;
-          int16_t rootY = player.mainPlayer.y/SCALE;
-          
-          if(player.mainPlayer.PlayerDir == 1) {
-            //root = + 22,9 from player
-            rootX+=14;
-            rootY+=5;
-    
-            aimingAngle = (0)+(random(-Weapons[mainWeapon][4],Weapons[mainWeapon][4])/50.0F);
-          } else if(player.mainPlayer.PlayerDir == -1) {
-            //root = + 2,9 from player
-            rootX-=7;
-            rootY+=5;
-    
-            aimingAngle = (PI)+(random(-Weapons[mainWeapon][4],Weapons[mainWeapon][4])/50.0F);
-          }
-          int8_t bulletID = bulletsManager.spawnBullet(
-            rootX*SCALE+(2*SCALE),
-            rootY*SCALE+(2*SCALE),
-            0,
-            -Weapons[mainWeapon][1],
-            player.mainPlayer.PlayerColor,
-            0
-          );
-          if(bulletID!=-1) {
-            bulletsManager.bullets[bulletID].gravity = Weapons[mainWeapon][3];
-            bulletsManager.bullets[bulletID].Damage = Weapons[mainWeapon][6]*2;
-            bulletsManager.bullets[bulletID].BulletTimeLimit = Weapons[mainWeapon][7]/5;
-          }
-        }
-      }
-      break;
-      case 2: //--Chargers
-      if(gb.buttons.repeat(BUTTON_B,0)) {
-        WeaponResetTimer += 1;
-      }
-      if(WeaponResetTimer > Weapons[mainWeapon][5]) { //Recharge Indicator
-        int16_t rootX = player.mainPlayer.x/SCALE;
-        int16_t rootY = player.mainPlayer.y/SCALE;
-        int16_t targetX = cameraX+curX;
-        int16_t targetY = cameraY+curY;
-        if(player.mainPlayer.PlayerDir == 1) {
-          //root = + 22,9 from player
-          rootX+=14;
-          rootY+=5;
-        } else if(player.mainPlayer.PlayerDir == -1) {
-          //root = + 2,9 from player
-          rootX-=7;
-          rootY+=5;
-        }
-
-        gb.display.setColor((ColorIndex)3);
-        gb.display.drawLine(toScreenX(rootX),toScreenY(rootY),toScreenX(targetX),toScreenY(targetY));
-        WeaponRecharged = true;
-      }
-      if(WeaponRecharged && gb.buttons.released(BUTTON_B)) { //Held for a certain length then released
-        WeaponRecharged = false;
-        WeaponResetTimer = 0;
-        
-        float aimingAngle = 0;
-        float driftX = 0;
-        float driftY = 0;
-        int16_t rootX = player.mainPlayer.x/SCALE;
-        int16_t rootY = player.mainPlayer.y/SCALE;
-        int16_t targetX = cameraX+curX;
-        int16_t targetY = cameraY+curY;
-        if(player.mainPlayer.PlayerDir == 1) {
-          //root = + 22,9 from player
-          rootX+=14;
-          rootY+=5;
-        } else if(player.mainPlayer.PlayerDir == -1) {
-          //root = + 2,9 from player
-          rootX-=7;
-          rootY+=5;
-        }
-        if(player.mainPlayer.PlayerDir == 1) {
-          aimingAngle = atan2(rootX-targetX,rootY-targetY)+1.5708F+(random(-Weapons[mainWeapon][4],Weapons[mainWeapon][4])/50.0F); //In radians
-        } else {
-          aimingAngle = atan2(rootX-targetX,rootY-targetY)+1.5708F+(random(-Weapons[mainWeapon][4],Weapons[mainWeapon][4])/50.0F); //In radians
-        }
-        if(player.mainPlayer.PlayerDir == 1) {
-          if(aimingAngle-1.5708F != constrain(aimingAngle-1.5708F,-PI,0)) {
-            break;
-          }
-        } else {
-          if(aimingAngle-1.5708F != constrain(aimingAngle-1.5708F,0,PI)) {
-            break;
-          }
-        }
-        shakeTimeLeft += 3;
-        shakeAmplitude += 1;
-        for(uint8_t b = 0; b < Weapons[mainWeapon][8]; b++) {
-          gb.display.setColor((ColorIndex)0);
+  
+          gb.display.setColor((ColorIndex)3);
           gb.display.drawLine(toScreenX(rootX),toScreenY(rootY),toScreenX(targetX),toScreenY(targetY));
-
-          driftX += cos(aimingAngle)*(Weapons[mainWeapon][1]/3.0F);
-          driftY += sin(aimingAngle)*(Weapons[mainWeapon][1]/3.0F);
-
-          //gb.display.setColor(RED);
-          //gb.display.drawRect(toScreenX((rootX+2+driftX/SCALE)/8*8),toScreenY((rootY+2-driftY/SCALE)/8*8),8,8);
-          if(world.getTile((rootX+2+driftX/SCALE)/8,(rootY+2-driftY/SCALE)/8) != 0) {
-            break;
-          }
-          
-          int8_t bulletID = bulletsManager.spawnBullet(
-            rootX*SCALE+(2*SCALE)+(int16_t)driftX,
-            rootY*SCALE+(2*SCALE)-(int16_t)driftY,
-            -(int16_t)(cos(aimingAngle)*50),
-            (int16_t)(sin(aimingAngle)*50),
-            player.mainPlayer.PlayerColor,
-            0
-          );
-          if(bulletID!=-1) {
-            bulletsManager.bullets[bulletID].gravity = Weapons[mainWeapon][3];
-            bulletsManager.bullets[bulletID].Damage = Weapons[mainWeapon][6];
-            bulletsManager.bullets[bulletID].BulletTimeLimit = Weapons[mainWeapon][7];
-          }
+          WeaponRecharged = true;
         }
-      }
-      break;
-      case 3: //--Rush attack weapons
-      if(gb.buttons.held(BUTTON_B,Weapons[mainWeapon][5])) {
-        float aimingAngle = 0;
-        for(uint8_t b = 0; b < Weapons[mainWeapon][8]; b++) {
+        if(WeaponRecharged && gb.buttons.released(BUTTON_B)) { //Held for a certain length then released
+          WeaponRecharged = false;
+          WeaponResetTimer = 0;
+          
+          float aimingAngle = 0;
+          float driftX = 0;
+          float driftY = 0;
           int16_t rootX = player.mainPlayer.x/SCALE;
           int16_t rootY = player.mainPlayer.y/SCALE;
-          
+          int16_t targetX = cameraX+curX;
+          int16_t targetY = cameraY+curY;
           if(player.mainPlayer.PlayerDir == 1) {
             //root = + 22,9 from player
             rootX+=14;
             rootY+=5;
-    
-            aimingAngle = (0)+(random(-Weapons[mainWeapon][4],Weapons[mainWeapon][4])/50.0F);
           } else if(player.mainPlayer.PlayerDir == -1) {
             //root = + 2,9 from player
             rootX-=7;
             rootY+=5;
-    
-            aimingAngle = (PI)+(random(-Weapons[mainWeapon][4],Weapons[mainWeapon][4])/50.0F);
           }
-          int8_t bulletID = bulletsManager.spawnBullet(
-            rootX*SCALE+(2*SCALE),
-            rootY*SCALE+(2*SCALE),
-            -(int16_t)(cos(aimingAngle)*(Weapons[mainWeapon][1]+random(-Weapons[mainWeapon][2]*10,Weapons[mainWeapon][2]*10)/10.0F)),
-            (int16_t)(sin(aimingAngle)*(Weapons[mainWeapon][1]+random(-Weapons[mainWeapon][2]*10,Weapons[mainWeapon][2]*10)/10.0F))+-Weapons[mainWeapon][11],
-            player.mainPlayer.PlayerColor,
-            0
-          );
-          if(bulletID!=-1) {
-            bulletsManager.bullets[bulletID].gravity = Weapons[mainWeapon][3];
-            bulletsManager.bullets[bulletID].Damage = Weapons[mainWeapon][6];
-            bulletsManager.bullets[bulletID].BulletTimeLimit = Weapons[mainWeapon][7];
+          if(player.mainPlayer.PlayerDir == 1) {
+            aimingAngle = atan2(rootX-targetX,rootY-targetY)+1.5708F+(random(-Weapons[mainWeapon][4],Weapons[mainWeapon][4])/50.0F); //In radians
+          } else {
+            aimingAngle = atan2(rootX-targetX,rootY-targetY)+1.5708F+(random(-Weapons[mainWeapon][4],Weapons[mainWeapon][4])/50.0F); //In radians
+          }
+          if(player.mainPlayer.PlayerDir == 1) {
+            if(aimingAngle-1.5708F != constrain(aimingAngle-1.5708F,-PI,0)) {
+              break;
+            }
+          } else {
+            if(aimingAngle-1.5708F != constrain(aimingAngle-1.5708F,0,PI)) {
+              break;
+            }
+          }
+          shakeTimeLeft += 3;
+          shakeAmplitude += 1;
+          for(uint8_t b = 0; b < Weapons[mainWeapon][8]; b++) {
+            gb.display.setColor((ColorIndex)0);
+            gb.display.drawLine(toScreenX(rootX),toScreenY(rootY),toScreenX(targetX),toScreenY(targetY));
+  
+            driftX += cos(aimingAngle)*(Weapons[mainWeapon][1]/3.0F);
+            driftY += sin(aimingAngle)*(Weapons[mainWeapon][1]/3.0F);
+  
+            //gb.display.setColor(RED);
+            //gb.display.drawRect(toScreenX((rootX+2+driftX/SCALE)/8*8),toScreenY((rootY+2-driftY/SCALE)/8*8),8,8);
+            if(world.getTile((rootX+2+driftX/SCALE)/8,(rootY+2-driftY/SCALE)/8) != 0) {
+              break;
+            }
+            
+            int8_t bulletID = bulletsManager.spawnBullet(
+              rootX*SCALE+(2*SCALE)+(int16_t)driftX,
+              rootY*SCALE+(2*SCALE)-(int16_t)driftY,
+              -(int16_t)(cos(aimingAngle)*50),
+              (int16_t)(sin(aimingAngle)*50),
+              player.mainPlayer.PlayerColor,
+              0
+            );
+            if(bulletID!=-1) {
+              bulletsManager.bullets[bulletID].gravity = Weapons[mainWeapon][3];
+              bulletsManager.bullets[bulletID].Damage = Weapons[mainWeapon][6];
+              bulletsManager.bullets[bulletID].BulletTimeLimit = Weapons[mainWeapon][7];
+            }
           }
         }
+        break;
+        case 3: //--Rush attack weapons
+        if(gb.buttons.held(BUTTON_B,Weapons[mainWeapon][5])) {
+          float aimingAngle = 0;
+          for(uint8_t b = 0; b < Weapons[mainWeapon][8]; b++) {
+            int16_t rootX = player.mainPlayer.x/SCALE;
+            int16_t rootY = player.mainPlayer.y/SCALE;
+            
+            if(player.mainPlayer.PlayerDir == 1) {
+              //root = + 22,9 from player
+              rootX+=14;
+              rootY+=5;
+      
+              aimingAngle = (0)+(random(-Weapons[mainWeapon][4],Weapons[mainWeapon][4])/50.0F);
+            } else if(player.mainPlayer.PlayerDir == -1) {
+              //root = + 2,9 from player
+              rootX-=7;
+              rootY+=5;
+      
+              aimingAngle = (PI)+(random(-Weapons[mainWeapon][4],Weapons[mainWeapon][4])/50.0F);
+            }
+            int8_t bulletID = bulletsManager.spawnBullet(
+              rootX*SCALE+(2*SCALE),
+              rootY*SCALE+(2*SCALE),
+              -(int16_t)(cos(aimingAngle)*(Weapons[mainWeapon][1]+random(-Weapons[mainWeapon][2]*10,Weapons[mainWeapon][2]*10)/10.0F)),
+              (int16_t)(sin(aimingAngle)*(Weapons[mainWeapon][1]+random(-Weapons[mainWeapon][2]*10,Weapons[mainWeapon][2]*10)/10.0F))+-Weapons[mainWeapon][11],
+              player.mainPlayer.PlayerColor,
+              0
+            );
+            if(bulletID!=-1) {
+              bulletsManager.bullets[bulletID].gravity = Weapons[mainWeapon][3];
+              bulletsManager.bullets[bulletID].Damage = Weapons[mainWeapon][6];
+              bulletsManager.bullets[bulletID].BulletTimeLimit = Weapons[mainWeapon][7];
+            }
+          }
+        }
+        break;
       }
-      break;
     }
 
     gb.display.setColor(BLACK);
@@ -369,7 +374,7 @@ void setup() {
   gb.pickRandomSeed();
   colorGroup = random(0,7);
   gb.display.colorIndex = palette;
-  PrepareMap();
+  PrepareMap(0);
 }
 
 byte Mode = 0;
@@ -379,6 +384,7 @@ long r2 = 0;
 void loop () {
   if(gb.update()) {
     if(!IsPlaying) {
+
 
 
 
@@ -427,7 +433,9 @@ void loop () {
           AnimationTimer5 = 0;
           GameState = 7;
         }
-      }
+      } else
+
+
 
 
 
@@ -566,7 +574,6 @@ void loop () {
               }
             }
           }
-
           if(gb.buttons.pressed(BUTTON_B) || gb.buttons.pressed(BUTTON_MENU)) {
             AnimationTimer = SelectedGender;
             SelectedGender = 2;
@@ -575,48 +582,199 @@ void loop () {
             AnimationTimer4 = 0;
             AnimationTimer5 = 0;
           }
-
-          if(gb.buttons.released(BUTTON_A)) {
+          if(gb.buttons.pressed(BUTTON_A)) {
             SelectedHaircut = AnimationTimer;
             AnimationTimer = 0;
             AnimationTimer2 = 0;
             AnimationTimer3 = 0;
             AnimationTimer4 = 0;
             AnimationTimer5 = 0;
-
+            PrepareMap(0);
+            player.mainPlayer.PlayerGender = SelectedGender;
+            player.mainPlayer.PlayerHaircut = SelectedHaircut;
+            player.mainPlayer.hat = 0;
             GameState = 1;
           }
         }
-        
         if(AnimationTimer2 > 0) {
           AnimationTimer2 -= 9;
         }
         AnimationTimer2 = constrain(AnimationTimer2,0,255);
-        
         if(AnimationTimer3 > 0) {
           AnimationTimer3 -= 9;
         }
         AnimationTimer3 = constrain(AnimationTimer3,0,255);
-
         if(AnimationTimer4 > 0) {
           AnimationTimer4 -= 9;
         }
         AnimationTimer4 = constrain(AnimationTimer4,0,255);
-        
         if(AnimationTimer5 > 0) {
           AnimationTimer5 -= 9;
         }
         AnimationTimer5 = constrain(AnimationTimer5,0,255);
+      } else
 
-        //DrawUI();
-      }
+
 
 
 
       //Inkopolis
       ///////////
       if(GameState == 1) {
+        gb.display.setColor((ColorIndex)12);
+        gb.display.fill();
+    
+        gb.display.drawImage(0,8,BackGCity0);
+        //gb.display.drawImage(-cameraX/5,(world.MapHeight*2-cameraY)/5,BackGCity0);
+        //gb.display.setColor((ColorIndex)13);
+        //gb.display.fillRect(-cameraX/5,((world.MapHeight*2-cameraY)+BackGCity0.height()*4)/5,BackGCity0.width(),BackGCity0.height());
+
+        player.UpdateMain();
+        world.Update(1);
+        DrawCursor();
+
+        if(AnimationTimer > 0) {
+          if(AnimationTimer > STARTLENGHT2-5) {
+            gb.display.setColor((ColorIndex)3);
+            gb.display.fillRect(0,0,80,(5-(STARTLENGHT2-AnimationTimer))*6.4F);
+            gb.display.fillRect(0,LCDHEIGHT-((5-(STARTLENGHT2-AnimationTimer))*6.4F)+1,80,(5-(STARTLENGHT2-AnimationTimer))*6.4F);
+          } else if(AnimationTimer > (STARTLENGHT2-5)/3*2-5) {
+            if(cinematicSkip == 1) {
+              AnimationTimer = 0;
+            } else {
+              cameraX = (cameraX*5+(23*8-(LCDWIDTH/2)+8))/6;
+              cameraY = (cameraY*4+(20*8-(LCDHEIGHT/2)+8))/5;
+            }
+          } else if(AnimationTimer > (STARTLENGHT2-5)/3*1-5) {
+            cameraX = (cameraX*5+(41*8-(LCDWIDTH/2)+8))/6;
+            cameraY = (cameraY*4+(21*8-(LCDHEIGHT/2)+8))/5;
+          } else if(AnimationTimer > (STARTLENGHT2-5)/3*0-5) {
+            cameraX = (cameraX*5+(1*8-(LCDWIDTH/2)+8))/6;
+            cameraY = (cameraY*4+(23*8-(LCDHEIGHT/2)+8))/5;
+          }
+          
+          AnimationTimer--;
+          if(AnimationTimer <= 0) {
+            cinematicSkip = 1;
+            FreezePlayers = false;
+          }
+        } else {
+          cameraX = (cameraX*5+(player.mainPlayer.x/SCALE+4-(LCDWIDTH/2) + ((curX-LCDWIDTH/2)/4)*3 + (-player.mainPlayer.vx/5)))/6;
+          cameraY = (cameraY*4+(player.mainPlayer.y/SCALE+4-(LCDHEIGHT/2) + ((curY-LCDWIDTH/2)/6)*4 + (-player.mainPlayer.vy/5)))/5;
+        }
+        ClampCamera();
+        if(gb.buttons.pressed(BUTTON_MENU)) {
+          GameState = 4;
+          AnimationTimer = 0;
+          AnimationTimer2 = 0;
+          AnimationTimer3 = 0;
+          AnimationTimer4 = 0;
+          AnimationTimer5 = 0;
+        }
+
+        //DrawUI();
+      } else
+
+
+
+
+
+      //Weapon Shop
+      /////////////
+      if(GameState == 2) {
+        gb.display.setColor((ColorIndex)3);
+        gb.display.fill();
         
+        if(gb.buttons.pressed(BUTTON_MENU)) {
+          AnimationTimer = 0;
+          AnimationTimer2 = 0;
+          AnimationTimer3 = 0;
+          AnimationTimer4 = 0;
+          AnimationTimer5 = 0;
+          GameState = 1;
+        }
+      } else
+
+
+
+
+
+      //Hat Shop
+      //////////
+      if(GameState == 3) {
+        gb.display.setColor((ColorIndex)3);
+        gb.display.fill();
+        
+        if(gb.buttons.pressed(BUTTON_MENU)) {
+          AnimationTimer = 0;
+          AnimationTimer2 = 0;
+          AnimationTimer3 = 0;
+          AnimationTimer4 = 0;
+          AnimationTimer5 = 0;
+          GameState = 1;
+        }
+      } else
+
+
+      
+
+
+      //Gear Selection Screen
+      ///////////////////////
+      if(GameState == 4) {
+        gb.display.setColor((ColorIndex)3);
+        gb.display.fill();
+        
+        if(gb.buttons.pressed(BUTTON_MENU) || gb.buttons.pressed(BUTTON_B)) {
+          AnimationTimer = 0;
+          AnimationTimer2 = 0;
+          AnimationTimer3 = 0;
+          AnimationTimer4 = 0;
+          AnimationTimer5 = 0;
+          GameState = 1;
+        }
+      } else
+
+
+      
+
+
+      //Play Mode Selection Screen
+      ////////////////////////////
+      if(GameState == 5) {
+        gb.display.setColor((ColorIndex)3);
+        gb.display.fill();
+        
+        if(gb.buttons.pressed(BUTTON_MENU) || gb.buttons.pressed(BUTTON_B)) {
+          AnimationTimer = 0;
+          AnimationTimer2 = 0;
+          AnimationTimer3 = 0;
+          AnimationTimer4 = 0;
+          AnimationTimer5 = 0;
+          PrepareMap(0);
+          GameState = 1;
+        }
+      } else
+      
+
+
+
+
+      //Salmon Run Selection Screen
+      /////////////////////////////
+      if(GameState == 6) {
+        gb.display.setColor((ColorIndex)3);
+        gb.display.fill();
+        
+        if(gb.buttons.pressed(BUTTON_MENU) || gb.buttons.pressed(BUTTON_B)) {
+          AnimationTimer = 0;
+          AnimationTimer2 = 0;
+          AnimationTimer3 = 0;
+          AnimationTimer4 = 0;
+          AnimationTimer5 = 0;
+          PrepareMap(0);
+          GameState = 1;
+        }
       }
 
 
@@ -668,7 +826,7 @@ void loop () {
       
       if(Mode == 0) {
         player.UpdateGlobal();
-        world.Update();
+        world.Update(0);
         
         bulletsManager.Update();
         DrawCursor();
