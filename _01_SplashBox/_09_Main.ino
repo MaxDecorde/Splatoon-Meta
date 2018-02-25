@@ -423,6 +423,8 @@ void loop () {
           AnimationTimer = 0;
           AnimationTimer2 = 0;
           AnimationTimer3 = 0;
+          AnimationTimer4 = 0;
+          AnimationTimer5 = 0;
           GameState = 7;
         }
       }
@@ -436,49 +438,153 @@ void loop () {
         gb.display.fill();
         //gb.display.drawImage(0,16,BackGCity0);
 
-        gb.display.setColor((ColorIndex)13);
-        
-        gb.display.fillRect(0,0,80,8);
-        gb.display.drawImage(0,1,GenderIcon);
-
-        int8_t sizeX = InklingF.width();
-        int8_t sizeY = InklingF.height();
-        setPaletteToColorGroup(0,1);
-        InklingF.setFrame((AnimationTimer2!=0)*7);
-        H1InklingF.setFrame((AnimationTimer2!=0)*7);
-        gb.display.drawImage(-5,LCDHEIGHT-42-(sin(AnimationTimer2/55.0F*PI)*12.0F),InklingF,sizeX*1*2,sizeY*2);
-        gb.display.drawImage(-5,LCDHEIGHT-42-(sin(AnimationTimer2/55.0F*PI)*12.0F),H1InklingF,sizeX*1*2,sizeY*2);
-        gb.display.colorIndex = palette;
-        if(AnimationTimer == 0) {
-          gb.display.setColor((ColorIndex)0);
-          gb.display.drawBitmap(12,LCDHEIGHT-44-(sin(AnimationTimer2/55.0F*PI)*12.0F),ArrowOutlineUI);
-          gb.display.setColor((ColorIndex)(!gb.buttons.repeat(BUTTON_A,0)*3));
-          gb.display.drawBitmap(12,LCDHEIGHT-44-(sin(AnimationTimer2/55.0F*PI)*12.0F),ArrowUI);
-        }
-
-        setPaletteToColorGroup(1,1);
-        InklingM.setFrame((AnimationTimer3!=0)*7);
-        H3InklingM.setFrame((AnimationTimer3!=0)*7);
-        gb.display.drawImage(LCDWIDTH-48,LCDHEIGHT-42-(sin(AnimationTimer3/55.0F*PI)*12.0F),InklingM,sizeX*-1*2,sizeY*2);
-        gb.display.drawImage(LCDWIDTH-48,LCDHEIGHT-42-(sin(AnimationTimer3/55.0F*PI)*12.0F),H3InklingM,sizeX*-1*2,sizeY*2);
-        gb.display.colorIndex = palette;
-        if(AnimationTimer == 1) {
-          gb.display.setColor((ColorIndex)0);
-          gb.display.drawBitmap(LCDWIDTH-24,LCDHEIGHT-44-(sin(AnimationTimer3/55.0F*PI)*12.0F),ArrowOutlineUI);
-          gb.display.setColor((ColorIndex)(!gb.buttons.repeat(BUTTON_A,0)*3));
-          gb.display.drawBitmap(LCDWIDTH-24,LCDHEIGHT-44-(sin(AnimationTimer3/55.0F*PI)*12.0F),ArrowUI);
-        }
-
-        if(gb.buttons.pressed(BUTTON_LEFT)) {
-          AnimationTimer = 0;
-          if(AnimationTimer2 == 0) {
-            AnimationTimer2 = 55;
+        if(SelectedGender == 2) {
+          gb.display.setColor((ColorIndex)13);
+          gb.display.fillRect(0,0,80,8);
+          gb.display.drawImage(0,1,GenderIcon);
+  
+          int8_t sizeX = DInklingF.width();
+          int8_t sizeY = DInklingF.height();
+          gb.display.drawImage(-2,LCDHEIGHT-43-(sin(AnimationTimer2/55.0F*PI)*6.0F),DInklingF,sizeX*1,sizeY);
+          if(AnimationTimer == 0) {
+            gb.display.setColor((ColorIndex)0);
+            gb.display.drawBitmap(12,LCDHEIGHT-44-(sin(AnimationTimer2/55.0F*PI)*12.0F),ArrowOutlineUI);
+            gb.display.setColor((ColorIndex)(!gb.buttons.repeat(BUTTON_A,0)*3));
+            gb.display.drawBitmap(12,LCDHEIGHT-44-(sin(AnimationTimer2/55.0F*PI)*12.0F),ArrowUI);
           }
-        }
-        if(gb.buttons.pressed(BUTTON_RIGHT)) {
-          AnimationTimer = 1;
-          if(AnimationTimer3 == 0) {
-            AnimationTimer3 = 55;
+          
+          gb.display.drawImage(LCDWIDTH-44,LCDHEIGHT-43-(sin(AnimationTimer3/55.0F*PI)*6.0F),DInklingM,sizeX*-1,sizeY);
+          if(AnimationTimer == 1) {
+            gb.display.setColor((ColorIndex)0);
+            gb.display.drawBitmap(LCDWIDTH-24,LCDHEIGHT-44-(sin(AnimationTimer3/55.0F*PI)*12.0F),ArrowOutlineUI);
+            gb.display.setColor((ColorIndex)(!gb.buttons.repeat(BUTTON_A,0)*3));
+            gb.display.drawBitmap(LCDWIDTH-24,LCDHEIGHT-44-(sin(AnimationTimer3/55.0F*PI)*12.0F),ArrowUI);
+          }
+          if(gb.buttons.pressed(BUTTON_LEFT)) {
+            AnimationTimer = 0;
+            if(AnimationTimer2 == 0) {
+              AnimationTimer2 = 55;
+            }
+          }
+          if(gb.buttons.pressed(BUTTON_RIGHT)) {
+            AnimationTimer = 1;
+            if(AnimationTimer3 == 0) {
+              AnimationTimer3 = 55;
+            }
+          }
+
+          if(gb.buttons.pressed(BUTTON_A)) {
+            SelectedGender = AnimationTimer;
+            
+            AnimationTimer = 0;
+            AnimationTimer2 = 55;
+            AnimationTimer3 = 0;
+            AnimationTimer4 = 0;
+            AnimationTimer5 = 0;
+          }
+        } else {
+          gb.display.setColor((ColorIndex)13);
+          gb.display.fillRect(0,0,80,8);
+          gb.display.drawImage(0,1,HaircutIcon);
+
+          setPaletteToColorGroup(SelectedGender, 1);
+          if(SelectedGender == 0) {
+            InklingF.setFrame(0);
+            H0InklingF.setFrame(0);
+            H1InklingF.setFrame(0);
+            H2InklingF.setFrame(0);
+            H3InklingF.setFrame(0);
+            gb.display.drawImage(1,LCDHEIGHT-22-(sin(AnimationTimer2/55.0F*PI)*6.0F),InklingF);
+            gb.display.drawImage(1,LCDHEIGHT-22-(sin(AnimationTimer2/55.0F*PI)*6.0F),H0InklingF);
+            gb.display.drawImage(1+19,LCDHEIGHT-22-(sin(AnimationTimer3/55.0F*PI)*6.0F),InklingF);
+            gb.display.drawImage(1+19,LCDHEIGHT-22-(sin(AnimationTimer3/55.0F*PI)*6.0F),H1InklingF);
+            gb.display.drawImage(1+19*2,LCDHEIGHT-22-(sin(AnimationTimer4/55.0F*PI)*6.0F),InklingF);
+            gb.display.drawImage(1+19*2,LCDHEIGHT-22-(sin(AnimationTimer4/55.0F*PI)*6.0F),H2InklingF);
+            gb.display.drawImage(1+19*3,LCDHEIGHT-22-(sin(AnimationTimer5/55.0F*PI)*6.0F),InklingF);
+            gb.display.drawImage(1+19*3,LCDHEIGHT-22-(sin(AnimationTimer5/55.0F*PI)*6.0F),H3InklingF);
+          } else if(SelectedGender == 1) {
+            InklingM.setFrame(0);
+            H0InklingM.setFrame(0);
+            H1InklingM.setFrame(0);
+            H2InklingM.setFrame(0);
+            H3InklingM.setFrame(0);
+            gb.display.drawImage(1,LCDHEIGHT-22-(sin(AnimationTimer2/55.0F*PI)*6.0F),InklingM);
+            gb.display.drawImage(1,LCDHEIGHT-22-(sin(AnimationTimer2/55.0F*PI)*6.0F),H0InklingM);
+            gb.display.drawImage(1+19,LCDHEIGHT-22-(sin(AnimationTimer3/55.0F*PI)*6.0F),InklingM);
+            gb.display.drawImage(1+19,LCDHEIGHT-22-(sin(AnimationTimer3/55.0F*PI)*6.0F),H1InklingM);
+            gb.display.drawImage(1+19*2,LCDHEIGHT-22-(sin(AnimationTimer4/55.0F*PI)*6.0F),InklingM);
+            gb.display.drawImage(1+19*2,LCDHEIGHT-22-(sin(AnimationTimer4/55.0F*PI)*6.0F),H2InklingM);
+            gb.display.drawImage(1+19*3,LCDHEIGHT-22-(sin(AnimationTimer5/55.0F*PI)*6.0F),InklingM);
+            gb.display.drawImage(1+19*3,LCDHEIGHT-22-(sin(AnimationTimer5/55.0F*PI)*6.0F),H3InklingM);
+          }
+          gb.display.colorIndex = palette;
+
+          gb.display.setColor((ColorIndex)0);
+          gb.display.drawBitmap(1+(AnimationTimer*19)+6,LCDHEIGHT-32,ArrowOutlineUI);
+          gb.display.setColor((ColorIndex)(!gb.buttons.repeat(BUTTON_A,0)*3));
+          gb.display.drawBitmap(1+(AnimationTimer*19)+6,LCDHEIGHT-32,ArrowUI);
+
+          if(gb.buttons.repeat(BUTTON_LEFT,4)) {
+            AnimationTimer--;
+            AnimationTimer = constrain(AnimationTimer,0,3);
+            if(AnimationTimer == 0) {
+              if(AnimationTimer2 == 0) {
+                AnimationTimer2 = 55;
+              }
+            } else if(AnimationTimer == 1) {
+              if(AnimationTimer3 == 0) {
+                AnimationTimer3 = 55;
+              }
+            } else if(AnimationTimer == 2) {
+              if(AnimationTimer4 == 0) {
+                AnimationTimer4 = 55;
+              }
+            } else if(AnimationTimer == 3) {
+              if(AnimationTimer5 == 0) {
+                AnimationTimer5 = 55;
+              }
+            }
+          }
+          if(gb.buttons.repeat(BUTTON_RIGHT,4)) {
+            AnimationTimer++;
+            AnimationTimer = constrain(AnimationTimer,0,3);
+            if(AnimationTimer == 0) {
+              if(AnimationTimer2 == 0) {
+                AnimationTimer2 = 55;
+              }
+            } else if(AnimationTimer == 1) {
+              if(AnimationTimer3 == 0) {
+                AnimationTimer3 = 55;
+              }
+            } else if(AnimationTimer == 2) {
+              if(AnimationTimer4 == 0) {
+                AnimationTimer4 = 55;
+              }
+            } else if(AnimationTimer == 3) {
+              if(AnimationTimer5 == 0) {
+                AnimationTimer5 = 55;
+              }
+            }
+          }
+
+          if(gb.buttons.pressed(BUTTON_B) || gb.buttons.pressed(BUTTON_MENU)) {
+            AnimationTimer = SelectedGender;
+            SelectedGender = 2;
+            AnimationTimer2 = 0;
+            AnimationTimer3 = 0;
+            AnimationTimer4 = 0;
+            AnimationTimer5 = 0;
+          }
+
+          if(gb.buttons.released(BUTTON_A)) {
+            SelectedHaircut = AnimationTimer;
+            AnimationTimer = 0;
+            AnimationTimer2 = 0;
+            AnimationTimer3 = 0;
+            AnimationTimer4 = 0;
+            AnimationTimer5 = 0;
+
+            GameState = 1;
           }
         }
         
@@ -492,7 +598,25 @@ void loop () {
         }
         AnimationTimer3 = constrain(AnimationTimer3,0,255);
 
+        if(AnimationTimer4 > 0) {
+          AnimationTimer4 -= 9;
+        }
+        AnimationTimer4 = constrain(AnimationTimer4,0,255);
+        
+        if(AnimationTimer5 > 0) {
+          AnimationTimer5 -= 9;
+        }
+        AnimationTimer5 = constrain(AnimationTimer5,0,255);
+
         //DrawUI();
+      }
+
+
+
+      //Inkopolis
+      ///////////
+      if(GameState == 1) {
+        
       }
 
 
