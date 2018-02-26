@@ -654,6 +654,10 @@ void loop () {
           }
           
           AnimationTimer--;
+          if(gb.buttons.repeat(BUTTON_A,0)) {
+            AnimationTimer-=2;
+          }
+          AnimationTimer = constrain(AnimationTimer,0,3200);
           if(AnimationTimer <= 0) {
             cinematicSkip = 1;
             FreezePlayers = false;
@@ -686,7 +690,7 @@ void loop () {
         gb.display.fill();
         
         if(gb.buttons.pressed(BUTTON_MENU)) {
-          AnimationTimer = 0;
+          AnimationTimer = STARTLENGHT2;
           AnimationTimer2 = 0;
           AnimationTimer3 = 0;
           AnimationTimer4 = 0;
@@ -706,7 +710,7 @@ void loop () {
         gb.display.fill();
         
         if(gb.buttons.pressed(BUTTON_MENU)) {
-          AnimationTimer = 0;
+          AnimationTimer = STARTLENGHT2;
           AnimationTimer2 = 0;
           AnimationTimer3 = 0;
           AnimationTimer4 = 0;
@@ -726,7 +730,7 @@ void loop () {
         gb.display.fill();
         
         if(gb.buttons.pressed(BUTTON_MENU) || gb.buttons.pressed(BUTTON_B)) {
-          AnimationTimer = 0;
+          AnimationTimer = STARTLENGHT2;
           AnimationTimer2 = 0;
           AnimationTimer3 = 0;
           AnimationTimer4 = 0;
@@ -744,6 +748,109 @@ void loop () {
       if(GameState == 5) {
         gb.display.setColor((ColorIndex)3);
         gb.display.fill();
+
+        gb.display.drawImage(1,1,UIElement_0);
+        
+        char coinC[5];
+        sprintf(coinC,"%06d",Coin);
+        char lvlC[2];
+        sprintf(lvlC,"%02d",Level);
+
+        gb.display.setColor((ColorIndex)0);
+        gb.display.cursorX = 7;
+        gb.display.cursorY = 1;
+        gb.display.print(coinC);
+
+        gb.display.setColor((ColorIndex)9);
+        gb.display.cursorX = 1;
+        gb.display.cursorY = 7;
+        gb.display.print("LVL");
+
+        gb.display.setColor((ColorIndex)10);
+        gb.display.cursorX = 13;
+        gb.display.cursorY = 7;
+        gb.display.print(lvlC);
+
+        gb.display.setColor((ColorIndex)0);
+        //gb.display.drawFastHLine(0,13,80);
+        gb.display.fillRect(0,15,80,7);
+
+        gb.display.drawImage(1,15,UIElement_1);
+
+        gb.display.setColor((ColorIndex)3); //0
+        gb.display.cursorX = 5;
+        gb.display.cursorY = 15;
+        gb.display.print("RANKED");
+
+        gb.display.drawImage(76,15,UIElement_2);
+
+        //gb.display.setColor((ColorIndex)0);
+        //gb.display.drawFastHLine(0,21,80);
+
+        gb.display.setColor((ColorIndex)8);
+        gb.display.cursorX = 1;
+        gb.display.cursorY = 23;
+        gb.display.print("RAINMAKER");
+
+        gb.display.drawImage(76,23,UIElement_3);
+
+        gb.display.setColor((ColorIndex)7);
+        gb.display.cursorX = 1;
+        gb.display.cursorY = 29;
+        gb.display.print("A+");
+
+        gb.display.setColor((ColorIndex)7);
+        gb.display.drawRect(9,29,62,5);
+        gb.display.fillRect(10,30,32,3);
+
+        gb.display.setColor((ColorIndex)8);
+        gb.display.drawFastVLine(32,29,5);
+
+        gb.display.setColor((ColorIndex)6);
+        gb.display.drawRect(72,29,7,5);
+        gb.display.fillRect(73,30,2,3);
+
+        gb.display.setColor((ColorIndex)0);
+        gb.display.fillRect(0,62,80,2);
+
+        setPaletteToColorGroup(player.mainPlayer.PlayerColor,colorGroup);
+        if(SelectedGender == 0) {
+          InklingF.setFrame(0);
+          gb.display.drawImage(-2,41,InklingF);
+          if(SelectedHaircut == 0) {
+            H0InklingF.setFrame(0);
+            gb.display.drawImage(-2,41,H0InklingF);
+          } else if(SelectedHaircut == 1) {
+            H1InklingF.setFrame(0);
+            gb.display.drawImage(-2,41,H1InklingF);
+          } else if(SelectedHaircut == 2) {
+            H2InklingF.setFrame(0);
+            gb.display.drawImage(-2,41,H2InklingF);
+          } else if(SelectedHaircut == 3) {
+            H3InklingF.setFrame(0);
+            gb.display.drawImage(-2,41,H3InklingF);
+          }
+        } else if(SelectedGender == 1) {
+          InklingM.setFrame(0);
+          gb.display.drawImage(-2,41,InklingM);
+          if(SelectedHaircut == 0) {
+            H0InklingM.setFrame(0);
+            gb.display.drawImage(-2,41,H0InklingM);
+          } else if(SelectedHaircut == 1) {
+            H1InklingM.setFrame(0);
+            gb.display.drawImage(-2,41,H1InklingM);
+          } else if(SelectedHaircut == 2) {
+            H2InklingM.setFrame(0);
+            gb.display.drawImage(-2,41,H2InklingM);
+          } else if(SelectedHaircut == 3) {
+            H3InklingM.setFrame(0);
+            gb.display.drawImage(0,41,H3InklingM);
+          }
+        }
+        gb.display.colorIndex = palette;
+
+        gb.display.drawImage(19,52,UIElement_4);
+        gb.display.drawImage(53,52,UIElement_5);
         
         if(gb.buttons.pressed(BUTTON_MENU) || gb.buttons.pressed(BUTTON_B)) {
           AnimationTimer = 0;

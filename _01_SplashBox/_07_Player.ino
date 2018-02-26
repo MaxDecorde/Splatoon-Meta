@@ -136,7 +136,19 @@ class Player :
         Kid2SquidFrames = 0;
         y-=Mul8(SCALE);
       }
-      if(B_HOLD&&!Last_B_HOLD && Last_DOWN_HOLD) {
+      if(B_HOLD&&!Last_B_HOLD && DOWN_HOLD) {
+        Kid2SquidFrames = 0;
+        y-=Mul8(SCALE);
+      }
+      if(!B_HOLD&&Last_B_HOLD && DOWN_HOLD) {
+        Kid2SquidFrames = 0;
+        y+=Mul8(SCALE);
+      }
+      if(!B_HOLD&&Last_B_HOLD && DOWN_HOLD&&!Last_DOWN_HOLD) {
+        Kid2SquidFrames = 0;
+        y-=Mul8(SCALE);
+      }
+      if(B_HOLD&&!Last_B_HOLD && !DOWN_HOLD&&Last_DOWN_HOLD) {
         Kid2SquidFrames = 0;
         y-=Mul8(SCALE);
       }
@@ -475,58 +487,8 @@ class Player :
     void Draw () {
       if(isOffScreen())
         return; //skip boxes which are out of the screen
-      
-      switch(colorGroup) {
-        case 0:
-        if(PlayerColor == 0) {
-          gb.display.colorIndex = palettePYellow;
-        } else {
-          gb.display.colorIndex = palettePBlue;
-        }
-        break;
-        case 1:
-        if(PlayerColor == 0) {
-          gb.display.colorIndex = palettePMagenta;
-        } else {
-          gb.display.colorIndex = palettePGreen;
-        }
-        break;
-        case 2:
-        if(PlayerColor == 0) {
-          gb.display.colorIndex = palettePOrange;
-        } else {
-          gb.display.colorIndex = palettePBlue;
-        }
-        break;
-        case 3:
-        if(PlayerColor == 0) {
-          gb.display.colorIndex = palettePMagenta;
-        } else {
-          gb.display.colorIndex = palettePBlue;
-        }
-        break;
-        case 4:
-        if(PlayerColor == 0) {
-          gb.display.colorIndex = palettePRed;
-        } else {
-          gb.display.colorIndex = palettePBlue;
-        }
-        break;
-        case 5:
-        if(PlayerColor == 0) {
-          gb.display.colorIndex = palettePMagenta;
-        } else {
-          gb.display.colorIndex = palettePOrange;
-        }
-        break;
-        case 6:
-        if(PlayerColor == 0) {
-          gb.display.colorIndex = palettePGreen;
-        } else {
-          gb.display.colorIndex = palettePBlue;
-        }
-        break;
-      }
+
+      setPaletteToColorGroup(PlayerColor,colorGroup);
       
       int8_t sizeX = InklingF.width();
       int8_t sizeY = InklingF.height();
