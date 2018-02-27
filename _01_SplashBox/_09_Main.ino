@@ -372,6 +372,7 @@ void DrawUI() {
 void setup() {
   gb.begin();
   gb.pickRandomSeed();
+  gb.display.setFont(SquidSquare);
   colorGroup = random(0,7);
   gb.display.colorIndex = palette;
   PrepareMap(0);
@@ -773,45 +774,68 @@ void loop () {
 
         gb.display.setColor((ColorIndex)0);
         //gb.display.drawFastHLine(0,13,80);
-        gb.display.fillRect(0,15,80,7);
+        gb.display.fillRect(0,14,80,7);
 
         gb.display.drawImage(1,15,UIElement_1);
 
-        gb.display.setColor((ColorIndex)3); //0
+        gb.display.setColor((ColorIndex)2); //0
         gb.display.cursorX = 5;
         gb.display.cursorY = 15;
-        gb.display.print("RANKED");
+        gb.display.print(enText[AnimationTimer]);
 
         gb.display.drawImage(76,15,UIElement_2);
+
+        if(gb.buttons.repeat(BUTTON_LEFT,7)) {
+          AnimationTimer--;
+        }
+        if(gb.buttons.repeat(BUTTON_RIGHT,7)) {
+          AnimationTimer++;
+        }
+        AnimationTimer = constrain(AnimationTimer,0,2);
 
         //gb.display.setColor((ColorIndex)0);
         //gb.display.drawFastHLine(0,21,80);
 
-        gb.display.setColor((ColorIndex)8);
-        gb.display.cursorX = 1;
-        gb.display.cursorY = 23;
-        gb.display.print("RAINMAKER");
+        if(gb.buttons.repeat(BUTTON_UP,7)) {
+          AnimationTimer2++;
+        }
+        if(gb.buttons.repeat(BUTTON_DOWN,7)) {
+          AnimationTimer2--;
+        }
+        AnimationTimer2 = constrain(AnimationTimer2,0,3);
 
-        gb.display.drawImage(76,23,UIElement_3);
-
-        gb.display.setColor((ColorIndex)7);
-        gb.display.cursorX = 1;
-        gb.display.cursorY = 29;
-        gb.display.print("A+");
-
-        gb.display.setColor((ColorIndex)7);
-        gb.display.drawRect(9,29,62,5);
-        gb.display.fillRect(10,30,32,3);
-
-        gb.display.setColor((ColorIndex)8);
-        gb.display.drawFastVLine(32,29,5);
-
-        gb.display.setColor((ColorIndex)6);
-        gb.display.drawRect(72,29,7,5);
-        gb.display.fillRect(73,30,2,3);
-
-        gb.display.setColor((ColorIndex)0);
-        gb.display.fillRect(0,62,80,2);
+        if(AnimationTimer == 1) {
+          gb.display.setColor((ColorIndex)8);
+          gb.display.cursorX = 1;
+          gb.display.cursorY = 23;
+          gb.display.print(enText[AnimationTimer2+3]);
+    
+          gb.display.drawImage(76,23,UIElement_3);
+    
+          gb.display.setColor((ColorIndex)7);
+          gb.display.cursorX = 1;
+          gb.display.cursorY = 29;
+          if(RankedLevelScore[AnimationTimer2] < 12) {
+            gb.display.print(rankScore[RankedLevelScore[AnimationTimer2]]);
+          } else {
+            return gb.display.print("S+\n");
+            gb.display.print(RankedLevelScore[AnimationTimer2]-12);
+          }
+    
+          gb.display.setColor((ColorIndex)7);
+          gb.display.drawRect(9,29,62,5);
+          gb.display.fillRect(10,30,RankedLevel[AnimationTimer2]*0.6F,3);
+    
+          gb.display.setColor((ColorIndex)8);
+          gb.display.drawFastVLine(32,29,5);
+    
+          gb.display.setColor((ColorIndex)6);
+          gb.display.drawRect(72,29,7,5);
+          gb.display.fillRect(73,30,RankedLevelBrokeness[AnimationTimer2],3);
+    
+          gb.display.setColor((ColorIndex)0);
+          gb.display.fillRect(0,62,80,2);
+        }
 
         setPaletteToColorGroup(player.mainPlayer.PlayerColor,colorGroup);
         if(SelectedGender == 0) {

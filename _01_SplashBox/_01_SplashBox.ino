@@ -3,6 +3,7 @@
 
 #include <Gamebuino-Meta.h>
 #include <math.h>
+#include "SquidSquare.h" //Font :D
 
 #define LCDWIDTH 80
 #define LCDHEIGHT 64
@@ -32,6 +33,10 @@ uint8_t lastLoad[8];
 
 uint32_t Coin = 0;
 uint8_t Level = 1;
+
+uint8_t RankedLevelScore[4]; //C- to S+
+uint8_t RankedLevel[4]; //0-100
+uint8_t RankedLevelBrokeness[4]; //0-5 (Determins if you're broke or not)
 
 //UI and Screen parameters
 bool IsPlaying = false; //Starts game (GameState define mode, 0:Classic, 1:Rainmaker, 2:Zones, 3:Tower, 4:Clam, 5:SalmonRun)

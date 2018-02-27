@@ -1,5 +1,29 @@
 //Text
 /////////////////
+const char* rankScore[] = {
+    "C-",
+    "C",
+    "C+",
+    "B-",
+    "B",
+    "B+",
+    "A-",
+    "A",
+    "A+",
+    "S-",
+    "S",
+    "S+"
+};
+
+const char* enText[] = {
+    "TURF WAR",
+    "RANKED",
+    "LOCAL MULTIPLAYER",
+    "RAINMAKER",
+    "SPLAT ZONES",
+    "TOWER CONTROL",
+    "CLAM BLITZ"
+};
 
 //UI
 /////////////////
