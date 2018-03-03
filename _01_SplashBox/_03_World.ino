@@ -144,6 +144,18 @@ class World {
     int16_t xMax = Div8(LCDWIDTH) + Div8(cameraX) + 2;
     int16_t yMin = Div8(cameraY);
     int16_t yMax = Div8(LCDHEIGHT) + Div8(cameraY) + 2;
+    if(RenderMode == 0) {
+      if(constrain(GetMap[CurrentLoadedMap][2],xMin,xMax) == GetMap[CurrentLoadedMap][2]) {
+        if(constrain(GetMap[CurrentLoadedMap][3],yMin,yMax) == GetMap[CurrentLoadedMap][3]) {
+          gb.display.drawImage(toScreenX(GetMap[CurrentLoadedMap][2]*8-4),toScreenY(GetMap[CurrentLoadedMap][3]*8+9),SpawnBoard);
+        }
+      }
+      if(constrain(GetMap[CurrentLoadedMap][0]-GetMap[CurrentLoadedMap][2],xMin,xMax) == GetMap[CurrentLoadedMap][0]-GetMap[CurrentLoadedMap][2]) {
+        if(constrain(GetMap[CurrentLoadedMap][3],yMin,yMax) == GetMap[CurrentLoadedMap][3]) {
+          gb.display.drawImage(toScreenX((GetMap[CurrentLoadedMap][0]-GetMap[CurrentLoadedMap][2])*8-12),toScreenY(GetMap[CurrentLoadedMap][3]*8+9),SpawnBoard,-SpawnBoard.width(),SpawnBoard.height());
+        }
+      }
+    }
     if(cpuLoad > 95) {
       yMin++;
       yMax--;
@@ -187,7 +199,7 @@ class World {
                 if(abs(x1)+abs(y1) > 1) {
                   continue;
                 } 
-                if(getTile(x+x1,y+y1)==0) {
+                if(TilesParams_Array[getTile(x+x1,y+y1)*5+0] == 0) {
 
                   //Ink
                   setColorToGroup(cC);

@@ -3,6 +3,7 @@ class Player :
   public:
     bool InputControl = true;
     int8_t Live = 100;
+    uint8_t Refill = 100;
     uint16_t RespawnTimer = 0;
     byte PlayerCode = 0;
 
@@ -32,6 +33,8 @@ class Player :
     bool RightInk = false;
 
     bool EBottomInk = false;
+
+    uint32_t InkPoints = 0;
 
     bool A_PRESSED;
     bool A_HOLD;
@@ -67,30 +70,35 @@ class Player :
         return;
       }
 
-      if(gb.buttons.pressed(BUTTON_UP)) {
-        byte doorCode = TilesParams_Array[world.getTile(x/SCALE/8,y/SCALE/8+1)*5+1];
-        if(doorCode == 12) {
-          AnimationTimer = 0;
-          AnimationTimer2 = 0;
-          AnimationTimer3 = 0;
-          AnimationTimer4 = 0;
-          AnimationTimer5 = 0;
-          GameState = 5;
-        } else if(doorCode == 13) {
-          AnimationTimer = 0;
-          AnimationTimer2 = 0;
-          AnimationTimer3 = 0;
-          AnimationTimer4 = 0;
-          AnimationTimer5 = 0;
-          GameState = 2;
-        } else if(doorCode == 14) {
-          AnimationTimer = 0;
-          AnimationTimer2 = 0;
-          AnimationTimer3 = 0;
-          AnimationTimer4 = 0;
-          AnimationTimer5 = 0;
-          GameState = 3;
+      byte doorCode = TilesParams_Array[world.getTile((x/SCALE+4)/8,y/SCALE/8+1)*5+1];
+      if(doorCode == 12 || doorCode == 13 || doorCode == 14) {
+        DoorWarning = true;
+        if(gb.buttons.pressed(BUTTON_UP)) {
+          if(doorCode == 12) {
+            AnimationTimer = 0;
+            AnimationTimer2 = 0;
+            AnimationTimer3 = 0;
+            AnimationTimer4 = 0;
+            AnimationTimer5 = 0;
+            GameState = 5;
+          } else if(doorCode == 13) {
+            AnimationTimer = 0;
+            AnimationTimer2 = 0;
+            AnimationTimer3 = 0;
+            AnimationTimer4 = 0;
+            AnimationTimer5 = 0;
+            GameState = 2;
+          } else if(doorCode == 14) {
+            AnimationTimer = 0;
+            AnimationTimer2 = 0;
+            AnimationTimer3 = 0;
+            AnimationTimer4 = 0;
+            AnimationTimer5 = 0;
+            GameState = 3;
+          }
         }
+      } else {
+        DoorWarning = false;
       }
       
       if(!InputControl) {
@@ -101,9 +109,12 @@ class Player :
           B_HOLD = gb.buttons.repeat(BUTTON_B,0);
           DOWN_HOLD = gb.buttons.repeat(BUTTON_DOWN,0);
         } else {
-          B_HOLD = gb.buttons.repeat(BUTTON_B,0);
-          if(B_HOLD) {
+          //B_HOLD = gb.buttons.repeat(BUTTON_B,0);
+          B_HOLD = false;
+          if(gb.buttons.repeat(BUTTON_B,0)) {
             DOWN_HOLD = false;
+          } else {
+            DOWN_HOLD = gb.buttons.repeat(BUTTON_DOWN,0);
           }
         }
         A_PRESSED = gb.buttons.pressed(BUTTON_A);
@@ -117,6 +128,16 @@ class Player :
       
       BottomInk = world.SMGetPaintValueAt(constrain(Div8(x/SCALE+4),0,world.MapWidth-1),constrain(Div8(y/SCALE)+2,0,world.MapHeight-1),0) > 0 
       && world.SMGetColor(constrain(Div8(x/SCALE+4),0,world.MapWidth-1),constrain(Div8(y/SCALE)+2,0,world.MapHeight-1)) == PlayerColor;
+
+      if(BottomInk) {
+        if(AnimationTimer2%5==0) {
+          Live = constrain(Live+1,0,100);
+        }
+      } else {
+        if(AnimationTimer2%6==0) {
+          Live = constrain(Live+1,0,100);
+        }
+      }
       
       RightInk = world.SMGetPaintValueAt(constrain(Div8(x/SCALE+4)+1,0,world.MapWidth-1),constrain(Div8(y/SCALE+4),0,world.MapHeight-1),3) > 0 
       && world.SMGetColor(constrain(Div8(x/SCALE+4)+1,0,world.MapWidth-1),constrain(Div8(y/SCALE+4),0,world.MapHeight-1)) == PlayerColor;
@@ -220,6 +241,12 @@ class Player :
         && world.SMGetColor(constrain(Div8(x/SCALE+4),0,world.MapWidth-1),constrain(Div8(y/SCALE)+1,0,world.MapHeight-1)) != PlayerColor;
 
         if(BottomInkSquid&&IsGroundedDown) {
+          if(AnimationTimer2%2==0) {
+            Live = constrain(Live+1,0,100);
+          }
+          if(AnimationTimer2%1==0) {
+            Refill = constrain(Refill+2,0,100);
+          }
           LVelY = constrain(LVelY+1, -5, 5);
         } else {
           if(LVelY > 0) LVelY = constrain(LVelY-2, 0, 5);
@@ -227,8 +254,20 @@ class Player :
         }
 
         if(LeftInk&&LEFT_HOLD) {
+          if(AnimationTimer2%2==0) {
+            Live = constrain(Live+1,0,100);
+          }
+          if(AnimationTimer2%1==0) {
+            Refill = constrain(Refill+2,0,100);
+          }
           LVelX = constrain(LVelX-1, -4, 4);
         } else if(RightInk&&RIGHT_HOLD) {
+          if(AnimationTimer2%2==0) {
+            Live = constrain(Live+1,0,100);
+          }
+          if(AnimationTimer2%1==0) {
+            Refill = constrain(Refill+2,0,100);
+          }
           LVelX = constrain(LVelX+1, -4, 4);
         } else {
           if(LVelX > 0) LVelX = constrain(LVelX-2, 0, 4);
@@ -757,9 +796,17 @@ class PlayersOperator {
         players[i-1].PlayerGender = random(0,2);
         players[i-1].PlayerHaircut = random(0,4);
         players[i-1].hat = random(0,HEADGEARCount+1);
+        players[i-1].InkPoints = 0;
+        players[i-1].Live = 100;
+        players[i-1].Refill = 100;
+        players[i-1].IsSwiming = false;
       } else {
         mainPlayer.PlayerColor = revertColors;
         mainPlayer.PlayerCode = 0;
+        mainPlayer.InkPoints = 0;
+        mainPlayer.Live = 100;
+        mainPlayer.Refill = 100;
+        mainPlayer.IsSwiming = false;
       }
     }
   }
@@ -780,4 +827,12 @@ class PlayersOperator {
 };
 
 PlayersOperator player;
+
+void AddPointToPlayer(byte playerCode, byte points) {
+  if(playerCode == 0) {
+    player.mainPlayer.InkPoints+=points;
+  } else {
+    player.players[playerCode-1].InkPoints+=points;
+  }
+}
 

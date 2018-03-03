@@ -14,6 +14,8 @@ void ClampCamera () { //Clamp the camera in the world
 }
 
 void PrepareMap (uint8_t mapID) {
+  world.SMResetMap();
+  
   world.CurrentLoadedMap = mapID;
   player.mainPlayer.x = ((GetMap[world.CurrentLoadedMap][2]*8)-4)*SCALE;
   player.mainPlayer.y = (GetMap[world.CurrentLoadedMap][3]*8)*SCALE;
@@ -27,10 +29,10 @@ void PrepareMap (uint8_t mapID) {
   player.mainPlayer.vy = 0;
 
   player.Initialize();
-
-  IsPlaying = false;
+  bulletsManager.Reset();
 
   if(mapID != 0) {
+    AnimationTimer2 = 3000; //Min*60*fps = Match Lenght
     AnimationTimer = STARTLENGHT;
   } else {
     AnimationTimer = STARTLENGHT2;
@@ -112,7 +114,8 @@ void DrawCursor() {
               }
             }
   
-            if(shoot) {
+            if(shoot && (player.mainPlayer.Refill >= Weapons[mainWeapon][10])) {
+              player.mainPlayer.Refill -= Weapons[mainWeapon][10];
               gb.display.setColor(BLACK);
               gb.display.drawLine(toScreenX(rootX),toScreenY(rootY),toScreenX(targetX),toScreenY(targetY));
               
@@ -139,6 +142,12 @@ void DrawCursor() {
           shakeTimeLeft += 3;
           shakeAmplitude += 2;
           for(uint8_t b = 0; b < Weapons[mainWeapon][8]; b++) {
+            if(player.mainPlayer.Refill >= Weapons[mainWeapon][10]) {
+              player.mainPlayer.Refill -= Weapons[mainWeapon][10];
+            } else {
+              break;
+            }
+            
             int16_t rootX = player.mainPlayer.x/SCALE;
             int16_t rootY = player.mainPlayer.y/SCALE;
             
@@ -171,6 +180,11 @@ void DrawCursor() {
           }
         }
         if(gb.buttons.timeHeld(BUTTON_B) > Weapons[mainWeapon][5]+Weapons[mainWeapon][9] && gb.buttons.repeat(BUTTON_B,1)) { //Rolling (After attack length)
+          if(player.mainPlayer.Refill >= 1) {
+            player.mainPlayer.Refill -= 1;
+          } else {
+            break;
+          }
           float aimingAngle = 0;
           for(uint8_t b = 0; b < Weapons[mainWeapon][8]/2; b++) {
             int16_t rootX = player.mainPlayer.x/SCALE;
@@ -228,7 +242,8 @@ void DrawCursor() {
           gb.display.drawLine(toScreenX(rootX),toScreenY(rootY),toScreenX(targetX),toScreenY(targetY));
           WeaponRecharged = true;
         }
-        if(WeaponRecharged && gb.buttons.released(BUTTON_B)) { //Held for a certain length then released
+        if(WeaponRecharged && gb.buttons.released(BUTTON_B) && (player.mainPlayer.Refill >= Weapons[mainWeapon][10])) { //Held for a certain length then released
+          player.mainPlayer.Refill -= Weapons[mainWeapon][10];
           WeaponRecharged = false;
           WeaponResetTimer = 0;
           
@@ -273,7 +288,7 @@ void DrawCursor() {
   
             //gb.display.setColor(RED);
             //gb.display.drawRect(toScreenX((rootX+2+driftX/SCALE)/8*8),toScreenY((rootY+2-driftY/SCALE)/8*8),8,8);
-            if(world.getTile((rootX+2+driftX/SCALE)/8,(rootY+2-driftY/SCALE)/8) != 0) {
+            if(TilesParams_Array[world.getTile((rootX+2+driftX/SCALE)/8,(rootY+2-driftY/SCALE)/8)] != 0) {
               break;
             }
             
@@ -295,6 +310,12 @@ void DrawCursor() {
         break;
         case 3: //--Rush attack weapons
         if(gb.buttons.held(BUTTON_B,Weapons[mainWeapon][5])) {
+          if(player.mainPlayer.Refill >= Weapons[mainWeapon][10]) {
+            player.mainPlayer.Refill -= Weapons[mainWeapon][10];
+          } else {
+            break;
+          }
+            
           float aimingAngle = 0;
           for(uint8_t b = 0; b < Weapons[mainWeapon][8]; b++) {
             int16_t rootX = player.mainPlayer.x/SCALE;
@@ -634,6 +655,10 @@ void loop () {
         world.Update(1);
         DrawCursor();
 
+        if(DoorWarning) {
+          gb.display.drawImage(35,14,UpArrowNotice);
+        }
+
         if(AnimationTimer > 0) {
           if(AnimationTimer > STARTLENGHT2-5) {
             gb.display.setColor((ColorIndex)3);
@@ -755,7 +780,7 @@ void loop () {
         char coinC[5];
         sprintf(coinC,"%06d",Coin);
         char lvlC[2];
-        sprintf(lvlC,"%02d",Level);
+        sprintf(lvlC,"%02d",(uint16_t)floor(Level));
 
         gb.display.setColor((ColorIndex)0);
         gb.display.cursorX = 7;
@@ -787,22 +812,16 @@ void loop () {
 
         if(gb.buttons.repeat(BUTTON_LEFT,7)) {
           AnimationTimer--;
+          AnimationTimer2 = 0;
         }
         if(gb.buttons.repeat(BUTTON_RIGHT,7)) {
           AnimationTimer++;
+          AnimationTimer2 = 0;
         }
         AnimationTimer = constrain(AnimationTimer,0,2);
 
         //gb.display.setColor((ColorIndex)0);
         //gb.display.drawFastHLine(0,21,80);
-
-        if(gb.buttons.repeat(BUTTON_UP,7)) {
-          AnimationTimer2++;
-        }
-        if(gb.buttons.repeat(BUTTON_DOWN,7)) {
-          AnimationTimer2--;
-        }
-        AnimationTimer2 = constrain(AnimationTimer2,0,3);
 
         if(AnimationTimer == 1) {
           gb.display.setColor((ColorIndex)8);
@@ -818,7 +837,7 @@ void loop () {
           if(RankedLevelScore[AnimationTimer2] < 12) {
             gb.display.print(rankScore[RankedLevelScore[AnimationTimer2]]);
           } else {
-            return gb.display.print("S+\n");
+            gb.display.println("S+");
             gb.display.print(RankedLevelScore[AnimationTimer2]-12);
           }
     
@@ -832,43 +851,81 @@ void loop () {
           gb.display.setColor((ColorIndex)6);
           gb.display.drawRect(72,29,7,5);
           gb.display.fillRect(73,30,RankedLevelBrokeness[AnimationTimer2],3);
-    
+
           gb.display.setColor((ColorIndex)0);
-          gb.display.fillRect(0,62,80,2);
+          gb.display.cursorX = 1;
+          gb.display.cursorY = 35;
+          gb.display.print(enText[AnimationTimer2+9]);
+
+          if(gb.buttons.repeat(BUTTON_UP,7)) {
+            AnimationTimer2--;
+          }
+          if(gb.buttons.repeat(BUTTON_DOWN,7)) {
+            AnimationTimer2++;
+          }
+          AnimationTimer2 = constrain(AnimationTimer2,0,3);
+        } else if(AnimationTimer == 0) {
+          gb.display.setColor((ColorIndex)0);
+          gb.display.cursorX = 1;
+          gb.display.cursorY = 23;
+          gb.display.print(enText[7]);
+        } else if(AnimationTimer == 2) {
+          if(gb.buttons.repeat(BUTTON_UP,7)) {
+            AnimationTimer2--;
+          }
+          if(gb.buttons.repeat(BUTTON_DOWN,7)) {
+            AnimationTimer2++;
+          }
+          AnimationTimer2 = constrain(AnimationTimer2,0,4);
+          gb.display.drawImage(76,23,UIElement_3);
+
+          gb.display.setColor((ColorIndex)8);
+          gb.display.cursorX = 1;
+          gb.display.cursorY = 23;
+          if(AnimationTimer2 > 0) {
+            gb.display.print(enText[AnimationTimer2+2]);
+          } else {
+            gb.display.print(enText[0]);
+          }
+          
+          gb.display.setColor((ColorIndex)0);
+          gb.display.cursorX = 1;
+          gb.display.cursorY = 30;
+          gb.display.print(enText[8]);
         }
 
         setPaletteToColorGroup(player.mainPlayer.PlayerColor,colorGroup);
         if(SelectedGender == 0) {
           InklingF.setFrame(0);
-          gb.display.drawImage(-2,41,InklingF);
+          gb.display.drawImage(-2,43,InklingF);
           if(SelectedHaircut == 0) {
             H0InklingF.setFrame(0);
-            gb.display.drawImage(-2,41,H0InklingF);
+            gb.display.drawImage(-2,43,H0InklingF);
           } else if(SelectedHaircut == 1) {
             H1InklingF.setFrame(0);
-            gb.display.drawImage(-2,41,H1InklingF);
+            gb.display.drawImage(-2,43,H1InklingF);
           } else if(SelectedHaircut == 2) {
             H2InklingF.setFrame(0);
-            gb.display.drawImage(-2,41,H2InklingF);
+            gb.display.drawImage(-2,43,H2InklingF);
           } else if(SelectedHaircut == 3) {
             H3InklingF.setFrame(0);
-            gb.display.drawImage(-2,41,H3InklingF);
+            gb.display.drawImage(-2,43,H3InklingF);
           }
         } else if(SelectedGender == 1) {
           InklingM.setFrame(0);
-          gb.display.drawImage(-2,41,InklingM);
+          gb.display.drawImage(-2,43,InklingM);
           if(SelectedHaircut == 0) {
             H0InklingM.setFrame(0);
-            gb.display.drawImage(-2,41,H0InklingM);
+            gb.display.drawImage(-2,43,H0InklingM);
           } else if(SelectedHaircut == 1) {
             H1InklingM.setFrame(0);
-            gb.display.drawImage(-2,41,H1InklingM);
+            gb.display.drawImage(-2,43,H1InklingM);
           } else if(SelectedHaircut == 2) {
             H2InklingM.setFrame(0);
-            gb.display.drawImage(-2,41,H2InklingM);
+            gb.display.drawImage(-2,43,H2InklingM);
           } else if(SelectedHaircut == 3) {
             H3InklingM.setFrame(0);
-            gb.display.drawImage(0,41,H3InklingM);
+            gb.display.drawImage(-2,43,H3InklingM);
           }
         }
         gb.display.colorIndex = palette;
@@ -884,6 +941,20 @@ void loop () {
           AnimationTimer5 = 0;
           PrepareMap(0);
           GameState = 1;
+        }
+        if(gb.buttons.pressed(BUTTON_A)) {
+          if(AnimationTimer == 0) {
+            AnimationTimer = 0;
+            AnimationTimer2 = 0;
+            AnimationTimer3 = 0;
+            AnimationTimer4 = 0;
+            AnimationTimer5 = 0;
+            IsPlaying = true;
+            PrepareMap(2);
+            GameState = 0;
+            FreezePlayers = true;
+          }
+          //Start Game!!
         }
       } else
       
@@ -913,141 +984,306 @@ void loop () {
 
       
     }
-    if(IsPlaying && GameState == 0) {
-      gb.display.setColor((ColorIndex)12);
-      gb.display.fill();
 
-      //gb.display.drawImage(0,8,BackGCity0);
-      //gb.display.drawImage(-cameraX/5,(world.MapHeight*2-cameraY)/5,BackGCity0);
-      //gb.display.setColor((ColorIndex)13);
-      //gb.display.fillRect(-cameraX/5,((world.MapHeight*2-cameraY)+BackGCity0.height()*4)/5,BackGCity0.width(),BackGCity0.height());
-      
-      if(gb.buttons.pressed(BUTTON_MENU)) {
-        if(gb.buttons.repeat(BUTTON_B, 0)) {
-          mainWeapon++;
-          if(mainWeapon > WeaponCount) {
-            mainWeapon = 0;
+
+
+
+    //Turf War
+    //////////
+    if(IsPlaying && GameState == 0) {
+      if(AnimationTimer3 == 0) {
+        gb.display.setColor((ColorIndex)12);
+        gb.display.fill();
+    
+        //gb.display.drawImage(0,8,BackGCity0);
+        //gb.display.drawImage(-cameraX/5,(world.MapHeight*2-cameraY)/5,BackGCity0);
+        //gb.display.setColor((ColorIndex)13);
+        //gb.display.fillRect(-cameraX/5,((world.MapHeight*2-cameraY)+BackGCity0.height()*4)/5,BackGCity0.width(),BackGCity0.height());
+        
+        if(gb.buttons.pressed(BUTTON_MENU)) {
+          if(gb.buttons.repeat(BUTTON_B, 0)) {
+            mainWeapon++;
+            if(mainWeapon > WeaponCount) {
+              mainWeapon = 0;
+            }
+          } else if(gb.buttons.repeat(BUTTON_A, 0)) {
+            player.mainPlayer.PlayerColor = (player.mainPlayer.PlayerColor+1)%2;
           }
-        } else if(gb.buttons.repeat(BUTTON_A, 0)) {
-          player.mainPlayer.PlayerColor = (player.mainPlayer.PlayerColor+1)%2;
-        } else {
-          long BlackScore = 0;
-          long WhiteScore = 0;
+        }
+        
+        if(Mode == 0) {
+          player.UpdateGlobal();
+          world.Update(0);
           
-          for(byte x = 0; x < world.MapWidth; x++) {
-            for(byte y = 0; y < world.MapHeight; y++) {
-              if(world.getTile(x,y) != 0) {
-                if(world.SMGetColor(x,y) == 0) {
-                  //Black
-                  BlackScore += (world.SMGetPaintValueAt(x,y,0)+world.SMGetPaintValueAt(x,y,1)+world.SMGetPaintValueAt(x,y,2)+world.SMGetPaintValueAt(x,y,3));
-                } else if(world.SMGetColor(x,y) == 1) {
-                  //White
-                  WhiteScore += (world.SMGetPaintValueAt(x,y,0)+world.SMGetPaintValueAt(x,y,1)+world.SMGetPaintValueAt(x,y,2)+world.SMGetPaintValueAt(x,y,3));
+          bulletsManager.Update();
+          DrawCursor();
+    
+          if((Weapons[mainWeapon][0]) == 2 && gb.buttons.repeat(BUTTON_B,0)) {
+            cameraX = (cameraX*5+(player.mainPlayer.x/SCALE+4-(LCDWIDTH/2) + ((curX-LCDWIDTH/2)/6)*10 + (-player.mainPlayer.vx/5)))/6;
+            cameraY = (cameraY*4+(player.mainPlayer.y/SCALE+4-(LCDHEIGHT/2) + ((curY-LCDWIDTH/2)/6)*12 + (-player.mainPlayer.vy/5)))/5;
+          } else {
+            cameraX = (cameraX*5+(player.mainPlayer.x/SCALE+4-(LCDWIDTH/2) + ((curX-LCDWIDTH/2)/4)*3 + (-player.mainPlayer.vx/5)))/6;
+            cameraY = (cameraY*4+(player.mainPlayer.y/SCALE+4-(LCDHEIGHT/2) + ((curY-LCDWIDTH/2)/6)*4 + (-player.mainPlayer.vy/5)))/5;
+          }
+    
+          /*if(gb.buttons.repeat(BUTTON_UP,0)) {
+            cameraY+=1;
+          }
+          if(gb.buttons.repeat(BUTTON_DOWN,0)) {
+            cameraY-=1;
+          }
+          if(gb.buttons.repeat(BUTTON_LEFT,0)) {
+            cameraX-=1;
+          }
+          if(gb.buttons.repeat(BUTTON_RIGHT,0)) {
+            cameraX+=1;
+          }*/
+          
+          if(shakeTimeLeft > 0) {
+            shakeTimeLeft--;
+            cameraX += random(-1, 2) * shakeAmplitude;
+            cameraY += random(-1, 2) * shakeAmplitude;
+          } else {
+            shakeAmplitude = 0;
+          }
+    
+          ClampCamera();
+    
+          if(AnimationTimer<=0) {
+            //DrawUI();
+          }
+        }
+    
+        if(AnimationTimer > 0) {
+          if(AnimationTimer > STARTLENGHT/3*2) {
+            cameraX = ClampInt(0,(world.MapWidth*8)-LCDWIDTH,(GetMap[world.CurrentLoadedMap][2]*8)+4-(LCDWIDTH/2));
+            cameraY = ClampInt(0,(world.MapHeight*8)-LCDHEIGHT,(GetMap[world.CurrentLoadedMap][3]*8)+4-(LCDHEIGHT/2));
+          } else if(AnimationTimer > STARTLENGHT/3) {
+            cameraX = ClampInt(0,(world.MapWidth*8)-LCDWIDTH,(GetMap[world.CurrentLoadedMap][0]*8) - 8*pgm_read_byte(GetMap[world.CurrentLoadedMap] + 2)+4-(LCDWIDTH/2));
+            cameraY = ClampInt(0,(world.MapHeight*8)-LCDHEIGHT,(GetMap[world.CurrentLoadedMap][3]*8)+4-(LCDHEIGHT/2));
+          } else {
+            if(AnimationTimer > (STARTLENGHT/3/2)) {
+              cameraX = ClampInt(0,(world.MapWidth*8)-LCDWIDTH,(GetMap[world.CurrentLoadedMap][2]*8)+4-(LCDWIDTH/2));
+              cameraY = ClampInt(0,(world.MapHeight*8)-LCDHEIGHT,(GetMap[world.CurrentLoadedMap][3]*8)+4-(LCDHEIGHT/2));
+              gb.display.drawImage(17,25,READY_ICON);
+              gb.display.drawImage(17,25+14,READY_INK,READY_INK.width(),READY_INK.height()*(STARTLENGHT/3-AnimationTimer)/(STARTLENGHT/3/2));
+            } else {
+              gb.display.drawImage(27,25,GO_ICON);
+              gb.display.drawImage(27+1,25+14,GO_INK,GO_INK.width(),GO_INK.height()*(STARTLENGHT/3/2-AnimationTimer)/(STARTLENGHT/3/2));
+              FreezePlayers = false;
+            }
+          }
+          
+          AnimationTimer--;
+          AnimationTimer = constrain(AnimationTimer,0,65535);
+          if(AnimationTimer <= 0) {
+            gb.display.setColor(BLACK);
+            gb.display.cursorX = 0;
+            gb.display.cursorY = 0;
+            gb.display.fontSize = 1;
+            gb.display.print(F(""));
+          }
+        }
+    
+        if(AnimationTimer == 0) {
+          setColorToGroup(1-revertColors);
+          if(player.mainPlayer.Live < 95) {
+            gb.display.drawRect(0,0,80,64);
+          }
+          if(player.mainPlayer.Live < 55) {
+            gb.display.drawRect(2,2,76,60);
+          }
+          if(player.mainPlayer.Live < 35) {
+            gb.display.drawRect(4,4,72,658);
+          }
+          
+          gb.display.drawImage(1,1,HudElement_12);
+          gb.display.setColor((ColorIndex)0);
+          gb.display.cursorX = 6;
+          gb.display.cursorY = 2;
+          gb.display.fontSize = 1;
+          char minC[5];
+          sprintf(minC,"%01d",AnimationTimer2/25/60);
+          gb.display.print(minC);
+          gb.display.print(":");
+          char secC[5];
+          sprintf(secC,"%02d",AnimationTimer2/25-(AnimationTimer2/25/60)*60);
+          gb.display.print(secC);
+    
+          //change palette
+          setPaletteToColorGroup(revertColors,colorGroup);
+          if(player.mainPlayer.RespawnTimer == 0) {
+            gb.display.drawImage(43,2,HudElement_4);
+          } else {
+            gb.display.drawImage(43,2,HudElement_5);
+          }
+          if(player.players[0].RespawnTimer == 0) {
+            gb.display.drawImage(43+6,2,HudElement_4);
+          } else {
+            gb.display.drawImage(43+6,2,HudElement_5);
+          }
+          gb.display.colorIndex = palette;
+          gb.display.drawImage(43+6*2,2,HudElement_6);
+          //change palette
+          setPaletteToColorGroup(1-revertColors,colorGroup);
+          if(player.players[1].RespawnTimer == 0) {
+            gb.display.drawImage(43+6*3,2,HudElement_4);
+          } else {
+            gb.display.drawImage(43+6*3,2,HudElement_5);
+          }
+          if(player.players[2].RespawnTimer == 0) {
+            gb.display.drawImage(43+6*4,2,HudElement_4);
+          } else {
+            gb.display.drawImage(43+6*4,2,HudElement_5);
+          }
+          gb.display.colorIndex = palette;
+    
+          gb.display.drawImage(73,9,HudElement_1);
+          gb.display.setColor((ColorIndex)3);
+          gb.display.fillRect(50,9,23,7);
+          gb.display.drawImage(45,9,HudElement_0);
+          gb.display.setColor((ColorIndex)0);
+          gb.display.cursorX = 50;
+          gb.display.cursorY = 10;
+          char ipC[5];
+          sprintf(ipC,"%05d",player.mainPlayer.InkPoints); //player.mainPlayer.InkPoints
+          gb.display.print(ipC);
+          gb.display.print("P");
+
+        
+          setColorToGroup(revertColors);
+          gb.display.drawRect(74,54,5,7);
+          
+          byte fillsize = player.mainPlayer.Refill*7/100;
+          gb.display.fillRect(74,62,5,-fillsize);
+          gb.display.setColor((ColorIndex)10);
+          gb.display.drawFastHLine(74,54,5);
+          gb.display.drawFastHLine(74,62,5);
+    
+          if(AnimationTimer2 < 45) {
+            FreezePlayers = true;
+            byte sX = constrain(STOP_ICON.width()*(45-AnimationTimer2)/10,0,STOP_ICON.width());
+            byte sY = constrain(STOP_ICON.height()*(45-AnimationTimer2)/10,0,STOP_ICON.height());
+            gb.display.drawImage(40-sX/2,32-sY/2,STOP_ICON, sX, sY);
+            //Done!
+          } 
+          if(AnimationTimer2 > 0) {
+            AnimationTimer2-=1; //1
+          } else {
+            AnimationTimer2=0;
+            AnimationTimer3 = 1;
+
+            AlphaScore = 0;
+            BetaScore = 0;
+            for(byte x = 0; x < world.MapWidth; x++) {
+              for(byte y = 0; y < world.MapHeight; y++) {
+                if(TilesParams_Array[world.getTile(x,y)*5+0] == 1) {
+                  if(world.SMGetColor(x,y) == 0) {
+                    AlphaScore += (world.SMGetPaintValueAt(x,y,0)+world.SMGetPaintValueAt(x,y,1)+world.SMGetPaintValueAt(x,y,2)+world.SMGetPaintValueAt(x,y,3));
+                  } else if(world.SMGetColor(x,y) == 1) {
+                    BetaScore += (world.SMGetPaintValueAt(x,y,0)+world.SMGetPaintValueAt(x,y,1)+world.SMGetPaintValueAt(x,y,2)+world.SMGetPaintValueAt(x,y,3));
+                  }
                 }
               }
             }
-          }
 
-          r1 = BlackScore;
-          r2 = WhiteScore;
+            if(AlphaScore > BetaScore && !revertColors) {
+              AddedCoins = (byte)constrain((15+player.mainPlayer.InkPoints/55)*constrain(Level/20.0F,1,5),0,149);
+              AddedLevel = (byte)constrain((5+player.mainPlayer.InkPoints/67),0,120);
+            } else {
+              AddedCoins = (byte)constrain((player.mainPlayer.InkPoints/55)*constrain(Level/20.0F,1,5),0,149);
+              AddedLevel = (byte)constrain((player.mainPlayer.InkPoints/67),0,120);
+            }
 
-          Mode = 1;
-        }
-      }
-      
-      if(Mode == 0) {
-        player.UpdateGlobal();
-        world.Update(0);
-        
-        bulletsManager.Update();
-        DrawCursor();
-
-        if((Weapons[mainWeapon][0]) == 2 && gb.buttons.repeat(BUTTON_B,0)) {
-          cameraX = (cameraX*5+(player.mainPlayer.x/SCALE+4-(LCDWIDTH/2) + ((curX-LCDWIDTH/2)/6)*10 + (-player.mainPlayer.vx/5)))/6;
-          cameraY = (cameraY*4+(player.mainPlayer.y/SCALE+4-(LCDHEIGHT/2) + ((curY-LCDWIDTH/2)/6)*12 + (-player.mainPlayer.vy/5)))/5;
-        } else {
-          cameraX = (cameraX*5+(player.mainPlayer.x/SCALE+4-(LCDWIDTH/2) + ((curX-LCDWIDTH/2)/4)*3 + (-player.mainPlayer.vx/5)))/6;
-          cameraY = (cameraY*4+(player.mainPlayer.y/SCALE+4-(LCDHEIGHT/2) + ((curY-LCDWIDTH/2)/6)*4 + (-player.mainPlayer.vy/5)))/5;
-        }
-
-        /*if(gb.buttons.repeat(BUTTON_UP,0)) {
-          cameraY+=1;
-        }
-        if(gb.buttons.repeat(BUTTON_DOWN,0)) {
-          cameraY-=1;
-        }
-        if(gb.buttons.repeat(BUTTON_LEFT,0)) {
-          cameraX-=1;
-        }
-        if(gb.buttons.repeat(BUTTON_RIGHT,0)) {
-          cameraX+=1;
-        }*/
-        
-        if(shakeTimeLeft > 0) {
-          shakeTimeLeft--;
-          cameraX += random(-1, 2) * shakeAmplitude;
-          cameraY += random(-1, 2) * shakeAmplitude;
-        } else {
-          shakeAmplitude = 0;
-        }
-
-        ClampCamera();
-
-        if(AnimationTimer<=0) {
-          DrawUI();
-        }
-      } else if(Mode == 1) {
-        gb.display.setColor(WHITE);
-        gb.display.fillRect(0,0,84,6+6);
-        
-        gb.display.setColor(BLACK);
-        gb.display.cursorX = 0;
-        gb.display.cursorY = 0;
-        gb.display.print(r1);
-        gb.display.cursorX = 0;
-        gb.display.cursorY = 7;
-        gb.display.print(r2);
-
-        if(gb.buttons.repeat(BUTTON_A, 0)) {
-          Mode = 0;
-        }
-      }
-
-      if(AnimationTimer > 0) {
-        if(AnimationTimer > STARTLENGHT/3*2) {
-          cameraX = ClampInt(0,(world.MapWidth*8)-LCDWIDTH,(GetMap[world.CurrentLoadedMap][2]*8)+4-(LCDWIDTH/2));
-          cameraY = ClampInt(0,(world.MapHeight*8)-LCDHEIGHT,(GetMap[world.CurrentLoadedMap][3])+4-(LCDHEIGHT/2));
-        } else if(AnimationTimer > STARTLENGHT/3) {
-          cameraX = ClampInt(0,(world.MapWidth*8)-LCDWIDTH,(GetMap[world.CurrentLoadedMap][0]*8) - 8*pgm_read_byte(GetMap[world.CurrentLoadedMap] + 2)+4-(LCDWIDTH/2));
-          cameraY = ClampInt(0,(world.MapHeight*8)-LCDHEIGHT,(GetMap[world.CurrentLoadedMap][3])+4-(LCDHEIGHT/2));
-        } else {
-          if(AnimationTimer > (STARTLENGHT/3/2)) {
-            cameraX = ClampInt(0,(world.MapWidth*8)-LCDWIDTH,(GetMap[world.CurrentLoadedMap][2]*8)+4-(LCDWIDTH/2));
-            cameraY = ClampInt(0,(world.MapHeight*8)-LCDHEIGHT,(GetMap[world.CurrentLoadedMap][3]*8)+4-(LCDHEIGHT/2));
-            gb.display.setColor(BLACK);
-            gb.display.cursorX = 12;
-            gb.display.cursorY = 24;
-            gb.display.fontSize = 2;
-            gb.display.print(F("READY?"));
-          } else {
-            gb.display.setColor(BLACK);
-            gb.display.cursorX = 12;
-            gb.display.cursorY = 24;
-            gb.display.fontSize = 3;
-            gb.display.print(F("GO!"));
-            FreezePlayers = false;
+            Coin = constrain(Coin+AddedCoins,0,999999);
+            Level = constrain(Level+(AddedLevel*0.01F),0,99);
           }
         }
+      } else {
+        gb.display.setColor((ColorIndex)3);
+        gb.display.fill();
         
-        AnimationTimer--;
-        if(AnimationTimer <= 0) {
-          gb.display.setColor(BLACK);
-          gb.display.cursorX = 0;
-          gb.display.cursorY = 0;
-          gb.display.fontSize = 1;
-          gb.display.print(F(""));
+        gb.display.setColor((ColorIndex)0);
+        gb.display.cursorX = 1;
+        gb.display.cursorY = 1;
+        if(AlphaScore > BetaScore && !revertColors) {
+          gb.display.print(enText[13]);
+          setPaletteToColorGroup(revertColors,colorGroup);
+          gb.display.drawImage(2,24,HappyJudd);
+          setPaletteToColorGroup(!revertColors,colorGroup);
+          gb.display.drawImage(55,39,AngryLilJudd);
+          gb.display.colorIndex = palette;
+        } else {
+          gb.display.print(enText[14]);
+          setPaletteToColorGroup(revertColors,colorGroup);
+          gb.display.drawImage(2,27,AngryJudd);
+          setPaletteToColorGroup(!revertColors,colorGroup);
+          gb.display.drawImage(50,30,HappyLilJudd);
+          gb.display.colorIndex = palette;
+        }
+
+        gb.display.drawImage(1,1+7,UIElement_0);
+        
+        char coinC[3];
+        sprintf(coinC,"%02d",AddedCoins);
+        char lvlC[3];
+        sprintf(lvlC,"%01d",AddedLevel);
+
+        gb.display.setColor((ColorIndex)8);
+        gb.display.cursorX = 7;
+        gb.display.cursorY = 1+7;
+        gb.display.print("+");
+        gb.display.print(coinC);
+
+        gb.display.setColor((ColorIndex)9);
+        gb.display.cursorX = 1;
+        gb.display.cursorY = 7+7;
+        gb.display.print("LVL");
+
+        gb.display.setColor((ColorIndex)10);
+        gb.display.cursorX = 13;
+        gb.display.cursorY = 7+7;
+        gb.display.print("+");
+        gb.display.print(lvlC);
+        gb.display.print("%");
+
+        char alphaScoreC[5];
+        sprintf(alphaScoreC,"%05d",AlphaScore);
+        char betaScoreC[5];
+        sprintf(betaScoreC,"%05d",BetaScore);
+        
+        setColorToGroup(revertColors);
+        gb.display.cursorX = 1;
+        gb.display.cursorY = 58;
+        gb.display.print(alphaScoreC);
+        gb.display.print("P");
+
+        setColorToGroup(1-revertColors);
+        gb.display.cursorX = 56;
+        gb.display.cursorY = 58;
+        gb.display.print(betaScoreC);
+        gb.display.print("P");
+
+        
+
+        if(AnimationTimer2 > 0) {
+          AnimationTimer2-=1;
+        } else {
+          if(gb.buttons.pressed(BUTTON_A)) {
+            IsPlaying = false;
+            AnimationTimer = 0;
+            AnimationTimer2 = 0;
+            AnimationTimer3 = 0;
+            AnimationTimer4 = 0;
+            AnimationTimer5 = 0;
+            GameState = 5;
+          }
         }
       }
     }
+
+
+
+    
   }
 }

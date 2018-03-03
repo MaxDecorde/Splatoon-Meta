@@ -16,8 +16,9 @@
 
 #define BCOUNT 16
 
-#define STARTLENGHT 70
+#define STARTLENGHT 90
 #define STARTLENGHT2 130
+#define ENDSCREENLENGHT 110
 
 #define MapHeader 4
 
@@ -32,7 +33,7 @@ uint8_t cpuLoad = 0;
 uint8_t lastLoad[8];
 
 uint32_t Coin = 0;
-uint8_t Level = 1;
+float Level = 1;
 
 uint8_t RankedLevelScore[4]; //C- to S+
 uint8_t RankedLevel[4]; //0-100
@@ -47,6 +48,7 @@ int32_t AnimationTimer2;
 int32_t AnimationTimer3;
 int32_t AnimationTimer4;
 int32_t AnimationTimer5;
+bool DoorWarning = false;
 
 byte SelectedGender = 2; //0: F, 1: M, 2: N/A
 byte SelectedHaircut = 4; //4: N/A
@@ -65,6 +67,11 @@ byte V5 = 0;
 byte V6 = 0;
 byte V7 = 0;
 byte cC = 0;
+
+long AlphaScore = 0;
+long BetaScore = 0;
+byte AddedCoins = 0;
+byte AddedLevel = 0;
 
 Color palette[] = {  
   (Color)0xf779, //(Color)0xf779 White
@@ -164,7 +171,7 @@ Color palettePMagenta[] = {
 Color palettePBlue[] = {  
   (Color)0xf779, //(Color)0xf779 White
   (Color)0xacd0, //(Color)0xacd0 Grey
-  (Color)0xe985, //(Color)0x730b Dark Grey
+  (Color)0x730b, //(Color)0x730b Dark Grey
   (Color)0x2923, //(Color)0x2923 Black
   (Color)0xb15a, //(Color)0xb15a Purple
   (Color)0xc9ae, //(Color)0xc9ae Magenta

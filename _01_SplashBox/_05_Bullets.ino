@@ -135,45 +135,50 @@ class Bullets:
         
         inkX = constrain(inkX,0,(world.MapWidth-1)*8);
         inkY = constrain(inkY,0,(world.MapHeight-1)*8);
-
-        for(int8_t x = -1; x < 2; x++) {
-          for(int8_t y = -1; y < 2; y++) {
-            if(((Div8(inkX+x*4) == constrain(Div8(inkX+x*4),0,world.MapWidth-1))&&(Div8(inkY+y*4) == constrain(Div8(inkY+y*4),0,world.MapWidth-1))) && TilesParams_Array[world.getTile(Div8(inkX+x*4),Div8(inkY+y*4))*TileParamsCount+0] == 1) {
-              V0 = constrain(world.SMGetPaintValueAt(Div8(inkX+x*4),Div8(inkY+y*4),0), 0, 3);
-              V1 = constrain(world.SMGetPaintValueAt(Div8(inkX+x*4),Div8(inkY+y*4),1), 0, 3);
-              V2 = constrain(world.SMGetPaintValueAt(Div8(inkX+x*4),Div8(inkY+y*4),2), 0, 3);
-              V3 = constrain(world.SMGetPaintValueAt(Div8(inkX+x*4),Div8(inkY+y*4),3), 0, 3);
+        
+        for(int8_t xv = -1; xv < 2; xv++) {
+          for(int8_t yv = -1; yv < 2; yv++) {
+            if(((Div8(inkX+xv*4) == constrain(Div8(inkX+xv*4),0,world.MapWidth-1))&&(Div8(inkY+yv*4) == constrain(Div8(inkY+yv*4),0,world.MapWidth-1))) && TilesParams_Array[world.getTile(Div8(inkX+xv*4),Div8(inkY+yv*4))*TileParamsCount+0] == 1) {
               
-              if(x==-1 && y==0) {
-                if(world.getTile(Div8(x/SCALE-4),Div8(y/SCALE+0)) != 0) {
+              V0 = constrain(world.SMGetPaintValueAt(Div8(inkX+xv*4),Div8(inkY+yv*4),0), 0, 3);
+              V1 = constrain(world.SMGetPaintValueAt(Div8(inkX+xv*4),Div8(inkY+yv*4),1), 0, 3);
+              V2 = constrain(world.SMGetPaintValueAt(Div8(inkX+xv*4),Div8(inkY+yv*4),2), 0, 3);
+              V3 = constrain(world.SMGetPaintValueAt(Div8(inkX+xv*4),Div8(inkY+yv*4),3), 0, 3);
+              
+              if(xv==-1 && yv==0) {
+                if(world.getTile(Div8(inkX-4),Div8(inkY+0)) != 0) {
                   V0 = constrain(world.SMGetPaintValueAt(Div8(inkX-4),Div8(inkY),0), 0, 3);
                   V1 = constrain(world.SMGetPaintValueAt(Div8(inkX-4),Div8(inkY),1)+1+IsGroundedLeft, 0, 3);
                   V2 = constrain(world.SMGetPaintValueAt(Div8(inkX-4),Div8(inkY),2), 0, 3);
                   V3 = constrain(world.SMGetPaintValueAt(Div8(inkX-4),Div8(inkY),3), 0, 3);
+                  AddPointToPlayer(Owner,V1-world.SMGetPaintValueAt(Div8(inkX-4),Div8(inkY),1));
                 }
               }
-              if(x==1 && y==0) {
-                if(world.getTile(Div8(x/SCALE+4),Div8(y/SCALE+0)) != 0) {
+              if(xv==1 && yv==0) {
+                if(world.getTile(Div8(inkX+4),Div8(inkY+0)) != 0) {
                   V0 = constrain(world.SMGetPaintValueAt(Div8(inkX+4),Div8(inkY),0), 0, 3);
                   V1 = constrain(world.SMGetPaintValueAt(Div8(inkX+4),Div8(inkY),1), 0, 3);
                   V2 = constrain(world.SMGetPaintValueAt(Div8(inkX+4),Div8(inkY),2), 0, 3);
                   V3 = constrain(world.SMGetPaintValueAt(Div8(inkX+4),Div8(inkY),3)+1+IsGroundedRight, 0, 3);
+                  AddPointToPlayer(Owner,V3-world.SMGetPaintValueAt(Div8(inkX+4),Div8(inkY),3));
                 }
               }
-              if(y==1 && x==0) {
-                if(world.getTile(Div8(x/SCALE+0),Div8(y/SCALE+4)) != 0) {
+              if(yv==1 && xv==0) {
+                if(world.getTile(Div8(inkX+0),Div8(inkY+4)) != 0) {
                   V0 = constrain(world.SMGetPaintValueAt(Div8(inkX),Div8(inkY+4),0)+1+IsGroundedDown, 0, 3);
                   V1 = constrain(world.SMGetPaintValueAt(Div8(inkX),Div8(inkY+4),1), 0, 3);
                   V2 = constrain(world.SMGetPaintValueAt(Div8(inkX),Div8(inkY+4),2), 0, 3);
                   V3 = constrain(world.SMGetPaintValueAt(Div8(inkX),Div8(inkY+4),3), 0, 3);
+                  AddPointToPlayer(Owner,V0-world.SMGetPaintValueAt(Div8(inkX),Div8(inkY+4),0));
                 }
               }
-              if(y==-1 && x==0) {
-                if(world.getTile((x/SCALE+0)/8,(y/SCALE-4)/8) != 0) {
+              if(yv==-1 && xv==0) {
+                if(world.getTile((inkX+0)/8,(inkY-4)/8) != 0) {
                   V0 = constrain(world.SMGetPaintValueAt(Div8(inkX),Div8(inkY-4),0), 0, 3); 
                   V1 = constrain(world.SMGetPaintValueAt(Div8(inkX),Div8(inkY-4),1), 0, 3); 
                   V2 = constrain(world.SMGetPaintValueAt(Div8(inkX),Div8(inkY-4),2)+1+IsGroundedUp, 0, 3); 
                   V3 = constrain(world.SMGetPaintValueAt(Div8(inkX),Div8(inkY-4),3), 0, 3);
+                  AddPointToPlayer(Owner,V2-world.SMGetPaintValueAt(Div8(inkX),Div8(inkY-4),2));
                 }
               }
 
@@ -182,8 +187,8 @@ class Bullets:
                 constrain(V1, 0, 3),
                 constrain(V2, 0, 3),
                 constrain(V3, 0, 3),
-                constrain(Div8(inkX+x*4),0,world.MapWidth-1),
-                constrain(Div8(inkY+y*4),0,world.MapHeight-1),
+                constrain(Div8(inkX+xv*4),0,world.MapWidth-1),
+                constrain(Div8(inkY+yv*4),0,world.MapHeight-1),
                 color
               );
             }
@@ -229,6 +234,12 @@ class BulletsManager {
       }
     }
     return -1;
+  }
+
+  void Reset () {
+    for(byte i = 0; i < BCOUNT; i++) {
+      bullets[i].IsDead = true;
+    }
   }
 
   void Update () {
