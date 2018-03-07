@@ -35,6 +35,9 @@ class Player :
     bool EBottomInk = false;
 
     uint32_t InkPoints = 0;
+    
+    int16_t targetX = 0;
+    int16_t targetY = 0;
 
     bool A_PRESSED;
     bool A_HOLD;
@@ -48,7 +51,7 @@ class Player :
     bool DOWN_PRESSED;
 
     bool Last_DOWN_HOLD;
-    bool Last_B_HOLD;
+    bool Last_A_HOLD;
 
     virtual int16_t getWidth() {
       if(IsSwiming) {
@@ -125,6 +128,10 @@ class Player :
         RIGHT_HOLD = gb.buttons.repeat(BUTTON_RIGHT,0);
         DOWN_PRESSED = gb.buttons.pressed(BUTTON_DOWN);
       }
+
+      if(gb.buttons.repeat(BUTTON_UP,9) && !gb.buttons.pressed(BUTTON_UP) && LEFT_HOLD && RIGHT_HOLD) {
+        particleManager.spawnParticle(x/SCALE+random(-3,6),y/SCALE,5,colorGroup,PlayerColor);
+      }
       
       BottomInk = world.SMGetPaintValueAt(constrain(Div8(x/SCALE+4),0,world.MapWidth-1),constrain(Div8(y/SCALE)+2,0,world.MapHeight-1),0) > 0 
       && world.SMGetColor(constrain(Div8(x/SCALE+4),0,world.MapWidth-1),constrain(Div8(y/SCALE)+2,0,world.MapHeight-1)) == PlayerColor;
@@ -149,27 +156,27 @@ class Player :
       && world.SMGetColor(constrain(Div8(x/SCALE+4),0,world.MapWidth-1),constrain(Div8(y/SCALE)+2,0,world.MapHeight-1)) != PlayerColor;
 
       //Kid to Squid to Kid collision
-      if(DOWN_HOLD && !Last_DOWN_HOLD && (!B_HOLD || (B_HOLD&&!Last_B_HOLD))) {
+      if(DOWN_HOLD && !Last_DOWN_HOLD && (!A_HOLD || (A_HOLD&&!Last_A_HOLD))) {
         Kid2SquidFrames = 0;
         y+=Mul8(SCALE);
       }
-      if(!DOWN_HOLD && Last_DOWN_HOLD && !B_HOLD) {
+      if(!DOWN_HOLD && Last_DOWN_HOLD && !A_HOLD) {
         Kid2SquidFrames = 0;
         y-=Mul8(SCALE);
       }
-      if(B_HOLD&&!Last_B_HOLD && DOWN_HOLD) {
+      if(A_HOLD&&!Last_A_HOLD && DOWN_HOLD) {
         Kid2SquidFrames = 0;
         y-=Mul8(SCALE);
       }
-      if(!B_HOLD&&Last_B_HOLD && DOWN_HOLD) {
+      if(!A_HOLD&&Last_A_HOLD && DOWN_HOLD) {
         Kid2SquidFrames = 0;
         y+=Mul8(SCALE);
       }
-      if(!B_HOLD&&Last_B_HOLD && DOWN_HOLD&&!Last_DOWN_HOLD) {
+      if(!A_HOLD&&Last_A_HOLD && DOWN_HOLD&&!Last_DOWN_HOLD) {
         Kid2SquidFrames = 0;
         y-=Mul8(SCALE);
       }
-      if(B_HOLD&&!Last_B_HOLD && !DOWN_HOLD&&Last_DOWN_HOLD) {
+      if(A_HOLD&&!Last_A_HOLD && !DOWN_HOLD&&Last_DOWN_HOLD) {
         Kid2SquidFrames = 0;
         y-=Mul8(SCALE);
       }
@@ -233,7 +240,7 @@ class Player :
 
       //Swim PhysX
       ////////////
-      if(DOWN_HOLD && !B_HOLD) {
+      if(DOWN_HOLD && !A_HOLD) {
         bool BottomInkSquid = world.SMGetPaintValueAt(constrain(Div8(x/SCALE+4),0,world.MapWidth-1),constrain(Div8(y/SCALE)+1,0,world.MapHeight-1),0) > 0 
         && world.SMGetColor(constrain(Div8(x/SCALE+4),0,world.MapWidth-1),constrain(Div8(y/SCALE)+1,0,world.MapHeight-1)) == PlayerColor;
 
@@ -246,6 +253,9 @@ class Player :
           }
           if(AnimationTimer2%1==0) {
             Refill = constrain(Refill+2,0,100);
+          }
+          if(LVelY == 0) {
+            particleManager.spawnParticle(x/SCALE+1,y/SCALE+3,3,colorGroup,PlayerColor);
           }
           LVelY = constrain(LVelY+1, -5, 5);
         } else {
@@ -278,50 +288,50 @@ class Player :
         IsSwiming = true;
         if(RIGHT_HOLD && !IsGroundedRight) {
           if(BottomInkSquid) {
-            if(vx - 15 > -112) {
-              vx -= 15;
+            if(vx - PSwimAcceleration > -PSwimMaxSpeed) {
+              vx -= PSwimAcceleration;
             }
           } else if(BottomEInkSquid) {
-            if(vx - 3 > -14) {
-              vx -= 3;
+            if(vx - PESwimAcceleration > -PESwimMaxSpeed) {
+              vx -= PESwimAcceleration;
             }
           } else {
-            if(vx - 7 > -78) {
-              vx -= 7;
+            if(vx - PGSwimAcceleration > -PGSwimMaxSpeed) {
+              vx -= PGSwimAcceleration;
             }
           }
           PlayerDir = 1;
         } else if(RIGHT_HOLD && IsGroundedRight && RightInk) {
-          vy = 90;
+          vy = PSwimWallClimb;
           PlayerDir = 1;
         }
         if(LEFT_HOLD && !IsGroundedLeft) {
           if(BottomInkSquid) {
-            if(vx + 15 < 112) {
-              vx += 15;
+            if(vx + PSwimAcceleration < PSwimMaxSpeed) {
+              vx += PSwimAcceleration;
             }
           } else if(BottomEInkSquid) {
-            if(vx + 3 < 14) {
-              vx += 3;
+            if(vx + PESwimAcceleration < PESwimMaxSpeed) {
+              vx += PESwimAcceleration;
             }
           } else {
-            if(vx + 7 < 78) {
-              vx += 7;
+            if(vx + PGSwimAcceleration < PGSwimMaxSpeed) {
+              vx += PGSwimAcceleration;
             }
           }
           PlayerDir = -1;
         } else if(LEFT_HOLD && IsGroundedLeft && LeftInk) {
-          vy = 90;
+          vy = PSwimWallClimb;
           PlayerDir = -1;
         }
         if((IsGroundedRight&&RightInk) || (IsGroundedLeft&&LeftInk)) {
-          vy = max(vy-3,-18);
+          vy = max(vy-PSwimWallReleaseAcceleration,-PSwimWallReleaseMaxSpeed);
         }
-        if(IsGroundedDown && gb.buttons.pressed(BUTTON_A)) {
+        if(IsGroundedDown && gb.buttons.pressed(BUTTON_B)) {
           if(BottomEInkSquid) {
-            vy = 46;
+            vy = PEJumpForceSquid;
           } else {
-            vy = 110;
+            vy = PJumpForceSquid;
           }
         }
         if(!RIGHT_HOLD && !LEFT_HOLD) {
@@ -336,7 +346,7 @@ class Player :
       //gb.display.fillRect(toScreenX(constrain((x/SCALE+4)/8,0,world.MapWidth-1)*8),toScreenY(constrain((y/SCALE)/8+2,0,world.MapHeight-1)*8),8,8);
   
       //Mouvement SlowDown
-      if(!RIGHT_HOLD && !LEFT_HOLD && !B_HOLD) {
+      if(!RIGHT_HOLD && !LEFT_HOLD && !A_HOLD) {
         vx = vx * 0.75f;
       }
       
@@ -346,7 +356,7 @@ class Player :
           shakeAmplitude = 1;
         }
         
-        vx = constrain(vx,-9,9);
+        vx = constrain(vx,-PERestrictedSpeed,PERestrictedSpeed);
       }
   
       //Gravity
@@ -371,26 +381,26 @@ class Player :
         }
 
         //MOVING
-        if(RIGHT_HOLD && !B_HOLD) {
+        if(RIGHT_HOLD && !A_HOLD) {
           if(EBottomInk) {
-            if(vx - 3 > -9) {
-              vx -= 3;
+            if(vx - PEWalkAcceleration > -PEWalkMaxSpeed) {
+              vx -= PEWalkAcceleration;
             }
           } else {
-            if(vx - 7 > -76) {
-              vx -= 7;
+            if(vx - PWalkAcceleration > -PWalkMaxSpeed) {
+              vx -= PWalkAcceleration;
             }
           }
           PlayerDir = 1;
         }
-        if(LEFT_HOLD && !B_HOLD) {
+        if(LEFT_HOLD && !A_HOLD) {
           if(EBottomInk) {
-            if(vx + 3 < 9) {
-              vx += 3;
+            if(vx + PEWalkAcceleration < PEWalkMaxSpeed) {
+              vx += PEWalkAcceleration;
             }
           } else {
-            if(vx + 7 < 76) {
-              vx += 7;
+            if(vx + PWalkAcceleration < PWalkMaxSpeed) {
+              vx += PWalkAcceleration;
             }
           }
           PlayerDir = -1;
@@ -407,30 +417,30 @@ class Player :
       //}
   
       //Jumps
-      if(A_PRESSED && Object::IsGroundedDown  && !B_HOLD) {
+      if(B_PRESSED && Object::IsGroundedDown  && !A_HOLD) {
         sfx(0, 0);
         if(EBottomInk) {
-          vy = 26;
+          vy = PEJumpForce;
         } else {
-          vy = 132;
+          vy = PJumpForce;
         }
       }
-      if(A_PRESSED && Object::IsGroundedRight && !Object::IsGroundedDown  && !B_HOLD) { 
-        vx = 60;
-        vy = 104;
+      if(B_PRESSED && Object::IsGroundedRight && !Object::IsGroundedDown  && !A_HOLD) { 
+        vx = PWallJumpForceX;
+        vy = PWallJumpForceY;
         sfx(1, 0);
       }
-      if(A_PRESSED && Object::IsGroundedLeft && !Object::IsGroundedDown  && !B_HOLD) { 
-        vx = -60;
-        vy = 104;
+      if(B_PRESSED && Object::IsGroundedLeft && !Object::IsGroundedDown  && !A_HOLD) { 
+        vx = -PWallJumpForceX;
+        vy = PWallJumpForceY;
         sfx(1, 0);
       }
   
       //GroundPound
-      if(DOWN_PRESSED && GroundPoundTime == 0 && !Object::IsGroundedDown  && !B_HOLD && !IsSwiming) { 
+      if(DOWN_PRESSED && GroundPoundTime == 0 && !Object::IsGroundedDown  && !A_HOLD && !IsSwiming) { 
         GroundPoundTime = 1;
       }
-      if(A_PRESSED && GroundPoundTime > 0 && !Object::IsGroundedDown  && !B_HOLD) {
+      if(B_PRESSED && GroundPoundTime > 0 && !Object::IsGroundedDown  && !A_HOLD) {
         if(PlayerDir == 1) {
           vx = -33;
           vy = 76;
@@ -462,52 +472,184 @@ class Player :
       }
     }
 
+
+
+
+    
+
     byte MoveTimer = 0;
+    byte State = 0;               //STATE-- 0: Goto Target, 1: Escape Target, 2: Ink area, 3: Attack
+    uint16_t ReachingTimer = 0;
+
+    //Squidbagging:
+    /*LEFT_HOLD = false;
+    RIGHT_HOLD = false;
+    if(AnimationTimer%8<4) {
+      DOWN_HOLD = false;
+    } else {
+      DOWN_HOLD = true;
+    }
+    MoveTimer = 0;*/
 
     void ControlUpdate () {
-      LEFT_HOLD = false;
-      RIGHT_HOLD = false;
-      if(random(0,12) == 0 && Object::IsGroundedDown) {
-        A_PRESSED = true;
-      }
-      if(random(0,32) == 0 && Object::IsGroundedRight && !Object::IsGroundedDown) {
-        A_PRESSED = true;
-        LEFT_HOLD = true;
-        PlayerDir = -PlayerDir;
-        MoveTimer = random(80,141);
-      }
-      if(random(0,32) == 0 && Object::IsGroundedLeft && !Object::IsGroundedDown) { 
-        A_PRESSED = true;
-        RIGHT_HOLD = true;
-        PlayerDir = -PlayerDir;
-        MoveTimer = random(80,141);
-      }
+      ReachingTimer = 1;
+      State = 1;
 
-      if(random(0,78) == 0) {
-        float aimingAngleV = random(0,360);
-      
-        bulletsManager.spawnBullet(
-          Object::x+4,
-          Object::y+4,
-          (int)(cos(aimingAngleV)*110.0F),
-          (int)(sin(aimingAngleV)*110.0F),
-          PlayerColor,
-          PlayerCode
-        );
-      }
-      
-      if(random(0,89) == 0) {
-        MoveTimer = random(80,230);
-        PlayerDir = random(0,2)*2-1;
-      }
+      //Destination reached or Timer over
+      ///////////////////////////////////
+      if(abs(targetX)+abs(targetY) < 16 || ReachingTimer<=0) {
+        //Execute Action
+      } else
 
-      if(MoveTimer > 0) {
-        if(PlayerDir == 1) {
-          RIGHT_HOLD = true;
-        } else {
-          LEFT_HOLD = true;
+
+
+      //Destination not reached yet
+      /////////////////////////////
+      if(ReachingTimer>0 && (State == 0 || State == 1)) {
+        if(State == 1) {
+          targetX = -targetX;
+          targetY = -targetY;
         }
-        MoveTimer--;
+        
+        DOWN_HOLD = false;
+        
+        LEFT_HOLD = false;
+        RIGHT_HOLD = false;
+        
+        if(targetY > 0) {
+          if(random(0,14) == 0 && IsGroundedDown) {
+            B_PRESSED = true;
+          }
+        } else {
+          if(random(0,26) == 0 && IsGroundedDown) {
+            B_PRESSED = true;
+          }
+        }
+
+        if(targetY > 0) {
+          if(random(0,6) == 0 && IsGroundedRight && !IsGroundedDown) {
+            B_PRESSED = true;
+            LEFT_HOLD = true;
+            PlayerDir = -PlayerDir;
+            MoveTimer = random(8,14);
+          }
+          if(random(0,6) == 0 && IsGroundedLeft && !IsGroundedDown) { 
+            B_PRESSED = true;
+            RIGHT_HOLD = true;
+            PlayerDir = -PlayerDir;
+            MoveTimer = random(8,14);
+          }
+        } else {
+          if(random(0,66) == 0 && IsGroundedRight && !IsGroundedDown) {
+            B_PRESSED = true;
+            LEFT_HOLD = true;
+            PlayerDir = -PlayerDir;
+            MoveTimer = random(8,14);
+          } else if(random(0,66) == 0 && IsGroundedLeft && !IsGroundedDown) { 
+            B_PRESSED = true;
+            RIGHT_HOLD = true;
+            PlayerDir = -PlayerDir;
+            MoveTimer = random(8,14);
+          }
+        }
+
+        if(IsGroundedDown) {
+          if(IsGroundedLeft) {
+            if(random(0,45)) {
+              B_PRESSED = true;
+            }
+          } else if(IsGroundedRight) {
+            if(random(0,45)) {
+              B_PRESSED = true;
+            }
+          }
+        }
+  
+        if(LeftInk || BottomInk || RightInk) {
+          DOWN_HOLD = true;
+        }
+  
+        if(random(0,38) == 0) {
+          float aimingAngleV = random(0,360);
+        
+          bulletsManager.spawnBullet(
+            Object::x+4,
+            Object::y+4,
+            (int)(cos(aimingAngleV)*110.0F),
+            (int)(sin(aimingAngleV)*110.0F),
+            PlayerColor,
+            PlayerCode,
+            3
+          );
+        }
+        
+        if(/*random(0,5) == 0 && */MoveTimer <= 0) {
+          MoveTimer = 1;
+          if(targetX < 0) {
+            PlayerDir = -1;
+          } else {
+            PlayerDir = 1;
+          }
+          /*if(targetX < 0) {
+            if(random(0,12) != 0) {
+              MoveTimer = random(20,30);
+              PlayerDir = -1;
+            } else {
+              MoveTimer = random(5,9);
+              PlayerDir = 1;
+            }
+          } else {
+            if(random(0,12) != 0) {
+              MoveTimer = random(20,30);
+              PlayerDir = 1;
+            } else {
+              MoveTimer = random(5,9);
+              PlayerDir = -1;
+            }
+          }*/
+        }
+
+        if(targetY > 0) {
+          if(PlayerDir < 0) {
+            gb.display.setColor(RED);
+            gb.display.drawRect(Div8(x/SCALE+0)*8,(Div8(y/SCALE)+2)*8,8,8);
+            if(TilesParams_Array[world.getTile(constrain(Div8(x/SCALE+0),0,world.MapWidth-1),constrain(Div8(y/SCALE)+2,0,world.MapHeight-1))*5+0] == 0) {
+              B_PRESSED = true;
+            }
+          } else {
+            gb.display.setColor(RED);
+            gb.display.drawRect(Div8(x/SCALE+8)*8,(Div8(y/SCALE)+2)*8,8,8);
+            if(TilesParams_Array[world.getTile(constrain(Div8(x/SCALE+8),0,world.MapWidth-1),constrain(Div8(y/SCALE)+2,0,world.MapHeight-1))*5+0] == 0) {
+              B_PRESSED = true;
+            }
+          }
+        }
+  
+        if(MoveTimer > 0) {
+          if(PlayerDir == 1) {
+            RIGHT_HOLD = true;
+          } else {
+            LEFT_HOLD = true;
+          }
+          MoveTimer--;
+        }
+
+        if(State == 1) {
+          targetX = -targetX;
+          targetY = -targetY;
+        }
+
+        ReachingTimer--;
+      } else
+
+
+
+      //Ink area
+      //////////
+      if(ReachingTimer>0 && State == 2) {
+        
+        
+        ReachingTimer--;
       }
     }
 
@@ -622,12 +764,12 @@ class Player :
         if(!IsGroundedDown && vy < 0) {
           playerImageID = 8;
         }
-        if(IsGroundedDown && abs(vx) > 5 && abs(vx) < 72 && (RIGHT_HOLD||LEFT_HOLD)) {
+        if(IsGroundedDown && abs(vx) > 5 && (RIGHT_HOLD||LEFT_HOLD)) {
           playerImageID = 1+((blinkEye/AnimWALKSPEED)%3);
         }
-        if(IsGroundedDown && abs(vx) > 72 && (RIGHT_HOLD||LEFT_HOLD)) {
+        /*if(IsGroundedDown && abs(vx) > 72 && (RIGHT_HOLD||LEFT_HOLD)) {
           playerImageID = 4+((blinkEye/AnimRUNSPEED)%3);
-        }
+        }*/
 
         if(ShootCall) {
           playerImageID = 9;
@@ -710,8 +852,10 @@ class Player :
         if(!bulletsManager.bullets[i].IsDead) {
           if(gb.collidePointRect(bulletsManager.bullets[i].x/SCALE,bulletsManager.bullets[i].y/SCALE,x/SCALE,y/SCALE,getWidth(),getHeight())) {
             if(bulletsManager.bullets[i].color != PlayerColor) {
+              particleManager.spawnParticle(bulletsManager.bullets[i].x/SCALE,bulletsManager.bullets[i].y/SCALE,0,colorGroup,bulletsManager.bullets[i].color);
               Live-=bulletsManager.bullets[i].Damage;
               bulletsManager.bullets[i].Die();
+              
               if(PlayerCode == 0) {
                 shakeTimeLeft += 3;
                 shakeAmplitude += 1;
@@ -756,10 +900,13 @@ class Player :
       B_PRESSED = false;
       DOWN_PRESSED = false;
       Last_DOWN_HOLD = DOWN_HOLD;
-      Last_B_HOLD = B_HOLD;
+      Last_A_HOLD = A_HOLD;
     }
 
     void Die () {
+      particleManager.spawnParticle(x/SCALE,y/SCALE,4,colorGroup,PlayerColor);
+      particleManager.spawnParticle(x/SCALE+5,y/SCALE+11,3,colorGroup,!PlayerColor);
+      
       RespawnTimer = 80;
       Live = 100;
     }
@@ -817,6 +964,9 @@ class PlayersOperator {
         mainPlayer.Update();
       } else {
         players[i-1].Update();
+        
+        players[i-1].targetX = mainPlayer.x/SCALE-players[i-1].x/SCALE;
+        players[i-1].targetY = mainPlayer.y/SCALE-players[i-1].y/SCALE;
       }
     }
   }

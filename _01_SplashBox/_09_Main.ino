@@ -44,21 +44,21 @@ void DrawCursor() {
     return;
   }
   
-  if(gb.buttons.repeat(BUTTON_RIGHT,0) && !gb.buttons.repeat(BUTTON_B,0)) {
+  if(gb.buttons.repeat(BUTTON_RIGHT,0) && !gb.buttons.repeat(BUTTON_A,0)) {
     if(!LastDirection && curX<48) {
       curX = 84 - curX;
     }
     LastDirection = true;
   }
 
-  if(gb.buttons.repeat(BUTTON_LEFT,0) && !gb.buttons.repeat(BUTTON_B,0)) {
+  if(gb.buttons.repeat(BUTTON_LEFT,0) && !gb.buttons.repeat(BUTTON_A,0)) {
     if(LastDirection && curX>48) {
       curX = 84 - curX;
     }
     LastDirection = false;
   }
 
-  if(gb.buttons.repeat(BUTTON_B,0) || gb.buttons.released(BUTTON_B)) {
+  if(gb.buttons.repeat(BUTTON_A,0) || gb.buttons.released(BUTTON_A)) {
     player.mainPlayer.ShootCall = IsPlaying;
     if(gb.buttons.repeat(BUTTON_UP,0)) {
       curY-=4;
@@ -80,7 +80,7 @@ void DrawCursor() {
     if(IsPlaying) {
       switch(Weapons[mainWeapon][0]) {
         case 0: //--Classic Shooters
-        if(gb.buttons.repeat(BUTTON_A,Weapons[mainWeapon][5]) && !gb.buttons.pressed(BUTTON_A)) {
+        if(gb.buttons.repeat(BUTTON_B,Weapons[mainWeapon][5]) && !gb.buttons.pressed(BUTTON_B)) {
           float aimingAngle = 0;
           for(uint8_t b = 0; b < Weapons[mainWeapon][8]; b++) {
             int16_t rootX = player.mainPlayer.x/SCALE;
@@ -125,6 +125,7 @@ void DrawCursor() {
                 -(int16_t)(cos(aimingAngle)*Weapons[mainWeapon][1]+random(-Weapons[mainWeapon][2]*10,Weapons[mainWeapon][2]*10)/10.0F),
                 (int16_t)(sin(aimingAngle)*Weapons[mainWeapon][1]+random(-Weapons[mainWeapon][2]*10,Weapons[mainWeapon][2]*10)/10.0F),
                 player.mainPlayer.PlayerColor,
+                0,
                 0
               );
               if(bulletID!=-1) {
@@ -137,7 +138,7 @@ void DrawCursor() {
         }
         break;
         case 1: //--Rollers
-        if(gb.buttons.held(BUTTON_B,Weapons[mainWeapon][5]) && !(gb.buttons.timeHeld(BUTTON_B) > Weapons[mainWeapon][5]+Weapons[mainWeapon][9])) { //Attack (If not rolling)
+        if(gb.buttons.held(BUTTON_A,Weapons[mainWeapon][5]) && !(gb.buttons.timeHeld(BUTTON_A) > Weapons[mainWeapon][5]+Weapons[mainWeapon][9])) { //Attack (If not rolling)
           float aimingAngle = 0;
           shakeTimeLeft += 3;
           shakeAmplitude += 2;
@@ -170,7 +171,8 @@ void DrawCursor() {
               -(int16_t)(cos(aimingAngle)*(Weapons[mainWeapon][1]+random(-Weapons[mainWeapon][2]*10,Weapons[mainWeapon][2]*10)/10.0F)),
               (int16_t)(sin(aimingAngle)*(Weapons[mainWeapon][1]+random(-Weapons[mainWeapon][2]*10,Weapons[mainWeapon][2]*10)/10.0F))+-Weapons[mainWeapon][11],
               player.mainPlayer.PlayerColor,
-              0
+              0,
+              1
             );
             if(bulletID!=-1) {
               bulletsManager.bullets[bulletID].gravity = Weapons[mainWeapon][3];
@@ -179,9 +181,9 @@ void DrawCursor() {
             }
           }
         }
-        if(gb.buttons.timeHeld(BUTTON_B) > Weapons[mainWeapon][5]+Weapons[mainWeapon][9] && gb.buttons.repeat(BUTTON_B,1)) { //Rolling (After attack length)
+        if(gb.buttons.timeHeld(BUTTON_A) > Weapons[mainWeapon][5]+Weapons[mainWeapon][9] && gb.buttons.repeat(BUTTON_A,1)) { //Rolling (After attack length)
           if(player.mainPlayer.Refill >= 1) {
-            player.mainPlayer.Refill -= 1;
+            player.mainPlayer.Refill -= (AnimationTimer2%3!=1);
           } else {
             break;
           }
@@ -209,7 +211,8 @@ void DrawCursor() {
               0,
               -Weapons[mainWeapon][1],
               player.mainPlayer.PlayerColor,
-              0
+              0,
+              2
             );
             if(bulletID!=-1) {
               bulletsManager.bullets[bulletID].gravity = Weapons[mainWeapon][3];
@@ -220,7 +223,7 @@ void DrawCursor() {
         }
         break;
         case 2: //--Chargers
-        if(gb.buttons.repeat(BUTTON_B,0)) {
+        if(gb.buttons.repeat(BUTTON_A,0)) {
           WeaponResetTimer += 1;
         }
         if(WeaponResetTimer > Weapons[mainWeapon][5]) { //Recharge Indicator
@@ -242,7 +245,7 @@ void DrawCursor() {
           gb.display.drawLine(toScreenX(rootX),toScreenY(rootY),toScreenX(targetX),toScreenY(targetY));
           WeaponRecharged = true;
         }
-        if(WeaponRecharged && gb.buttons.released(BUTTON_B) && (player.mainPlayer.Refill >= Weapons[mainWeapon][10])) { //Held for a certain length then released
+        if(WeaponRecharged && gb.buttons.released(BUTTON_A) && (player.mainPlayer.Refill >= Weapons[mainWeapon][10])) { //Held for a certain length then released
           player.mainPlayer.Refill -= Weapons[mainWeapon][10];
           WeaponRecharged = false;
           WeaponResetTimer = 0;
@@ -298,7 +301,8 @@ void DrawCursor() {
               -(int16_t)(cos(aimingAngle)*50),
               (int16_t)(sin(aimingAngle)*50),
               player.mainPlayer.PlayerColor,
-              0
+              0,
+              2
             );
             if(bulletID!=-1) {
               bulletsManager.bullets[bulletID].gravity = Weapons[mainWeapon][3];
@@ -309,7 +313,7 @@ void DrawCursor() {
         }
         break;
         case 3: //--Rush attack weapons
-        if(gb.buttons.held(BUTTON_B,Weapons[mainWeapon][5])) {
+        if(gb.buttons.held(BUTTON_A,Weapons[mainWeapon][5])) {
           if(player.mainPlayer.Refill >= Weapons[mainWeapon][10]) {
             player.mainPlayer.Refill -= Weapons[mainWeapon][10];
           } else {
@@ -340,7 +344,8 @@ void DrawCursor() {
               -(int16_t)(cos(aimingAngle)*(Weapons[mainWeapon][1]+random(-Weapons[mainWeapon][2]*10,Weapons[mainWeapon][2]*10)/10.0F)),
               (int16_t)(sin(aimingAngle)*(Weapons[mainWeapon][1]+random(-Weapons[mainWeapon][2]*10,Weapons[mainWeapon][2]*10)/10.0F))+-Weapons[mainWeapon][11],
               player.mainPlayer.PlayerColor,
-              0
+              0,
+              3
             );
             if(bulletID!=-1) {
               bulletsManager.bullets[bulletID].gravity = Weapons[mainWeapon][3];
@@ -392,7 +397,6 @@ void DrawUI() {
 
 void setup() {
   gb.begin();
-  gb.pickRandomSeed();
   gb.display.setFont(SquidSquare);
   colorGroup = random(0,7);
   gb.display.colorIndex = palette;
@@ -447,6 +451,13 @@ void loop () {
         if(AnimationTimer > 236) {
           AnimationTimer = 0;
         }
+        
+        if(gb.buttons.held(BUTTON_A,25)) {
+          UseBackgroundInGame = !UseBackgroundInGame;
+          gb.display.setColor((ColorIndex)0);
+          gb.display.fillRect(0,0,80,64);
+        }
+        
         if(gb.buttons.released(BUTTON_A)) {
           AnimationTimer = 0;
           AnimationTimer2 = 0;
@@ -645,8 +656,9 @@ void loop () {
       if(GameState == 1) {
         gb.display.setColor((ColorIndex)12);
         gb.display.fill();
-    
-        gb.display.drawImage(0,8,BackGCity0);
+
+        Background.setFrame(GetMap[world.CurrentLoadedMap][4]);
+        gb.display.drawImage(0,0,Background);
         //gb.display.drawImage(-cameraX/5,(world.MapHeight*2-cameraY)/5,BackGCity0);
         //gb.display.setColor((ColorIndex)13);
         //gb.display.fillRect(-cameraX/5,((world.MapHeight*2-cameraY)+BackGCity0.height()*4)/5,BackGCity0.width(),BackGCity0.height());
@@ -754,8 +766,80 @@ void loop () {
       if(GameState == 4) {
         gb.display.setColor((ColorIndex)3);
         gb.display.fill();
+
+        gb.display.setColor((ColorIndex)(8-gb.buttons.repeat(BUTTON_A,0)));
+        gb.display.cursorX = 1;
+        gb.display.cursorY = 1;
+        gb.display.print("WEAPON N-");
+        gb.display.setColor((ColorIndex)(1*gb.buttons.repeat(BUTTON_A,0)));
+        gb.display.print(AnimationTimer2);
+
+        gb.display.drawImage(72,1,UIElement_1);
+        gb.display.drawImage(76,1,UIElement_2);
+
+        if(gb.buttons.repeat(BUTTON_LEFT,7)) {
+          AnimationTimer2 = constrain(AnimationTimer2-1,0,WeaponCount);
+        }
+
+        if(gb.buttons.repeat(BUTTON_RIGHT,7)) {
+          AnimationTimer2 = constrain(AnimationTimer2+1,0,WeaponCount);
+        }
+
+        gb.display.cursorX = 1;
+        gb.display.cursorY = 7;
+        gb.display.setColor((ColorIndex)8);
+        gb.display.print("TYPE: ");
+        gb.display.setColor((ColorIndex)0);
+        if(Weapons[AnimationTimer2][0] == 0) {
+          gb.display.print("CLASSIC");
+        } else if(Weapons[AnimationTimer2][0] == 1) {
+          gb.display.print("ROLLERS");
+        } else if(Weapons[AnimationTimer2][0] == 2) {
+          gb.display.print("CHARGERS");
+        } else if(Weapons[AnimationTimer2][0] == 3) {
+          gb.display.print("MASH ATTACK");
+        }
+
+        gb.display.cursorX = 1;
+        gb.display.cursorY = 13;
+        gb.display.setColor((ColorIndex)8);
+        gb.display.print("ATTACK: ");
+        gb.display.setColor((ColorIndex)0);
+        gb.display.print(Weapons[AnimationTimer2][6]*Weapons[AnimationTimer2][8]);
+
+        gb.display.cursorX = 1;
+        gb.display.cursorY = 19;
+        gb.display.setColor((ColorIndex)8);
+        gb.display.print("FORCE: ");
+        gb.display.setColor((ColorIndex)0);
+        gb.display.print(Weapons[AnimationTimer2][1]);
+
+        gb.display.cursorX = 1;
+        gb.display.cursorY = 25;
+        gb.display.setColor((ColorIndex)8);
+        gb.display.print("INTERVAL: ");
+        gb.display.setColor((ColorIndex)0);
+        gb.display.print(Weapons[AnimationTimer2][5]);
+
+        gb.display.cursorX = 1;
+        gb.display.cursorY = 31;
+        gb.display.setColor((ColorIndex)8);
+        gb.display.print("INK PER ATTACK: ");
+        gb.display.setColor((ColorIndex)0);
+        gb.display.print(Weapons[AnimationTimer2][10]);
+
+        gb.display.cursorX = 1;
+        gb.display.cursorY = 37;
+        gb.display.setColor((ColorIndex)8);
+        gb.display.print("SPRAY: ");
+        gb.display.setColor((ColorIndex)0);
+        gb.display.print(Weapons[AnimationTimer2][2]+Weapons[AnimationTimer2][4]);
         
-        if(gb.buttons.pressed(BUTTON_MENU) || gb.buttons.pressed(BUTTON_B)) {
+        if(gb.buttons.pressed(BUTTON_MENU) || gb.buttons.released(BUTTON_A)) {
+          if(gb.buttons.released(BUTTON_A)) {
+            mainWeapon = AnimationTimer2;
+          }
+          
           AnimationTimer = STARTLENGHT2;
           AnimationTimer2 = 0;
           AnimationTimer3 = 0;
@@ -950,7 +1034,7 @@ void loop () {
             AnimationTimer4 = 0;
             AnimationTimer5 = 0;
             IsPlaying = true;
-            PrepareMap(2);
+            PrepareMap(random(1,9));
             GameState = 0;
             FreezePlayers = true;
           }
@@ -994,22 +1078,16 @@ void loop () {
       if(AnimationTimer3 == 0) {
         gb.display.setColor((ColorIndex)12);
         gb.display.fill();
-    
+
+        if(UseBackgroundInGame) {
+          Background.setFrame(GetMap[world.CurrentLoadedMap][4]);
+          gb.display.drawImage(0,0,Background);
+        }
+        
         //gb.display.drawImage(0,8,BackGCity0);
         //gb.display.drawImage(-cameraX/5,(world.MapHeight*2-cameraY)/5,BackGCity0);
         //gb.display.setColor((ColorIndex)13);
         //gb.display.fillRect(-cameraX/5,((world.MapHeight*2-cameraY)+BackGCity0.height()*4)/5,BackGCity0.width(),BackGCity0.height());
-        
-        if(gb.buttons.pressed(BUTTON_MENU)) {
-          if(gb.buttons.repeat(BUTTON_B, 0)) {
-            mainWeapon++;
-            if(mainWeapon > WeaponCount) {
-              mainWeapon = 0;
-            }
-          } else if(gb.buttons.repeat(BUTTON_A, 0)) {
-            player.mainPlayer.PlayerColor = (player.mainPlayer.PlayerColor+1)%2;
-          }
-        }
         
         if(Mode == 0) {
           player.UpdateGlobal();
@@ -1017,8 +1095,10 @@ void loop () {
           
           bulletsManager.Update();
           DrawCursor();
+
+          particleManager.Update();
     
-          if((Weapons[mainWeapon][0]) == 2 && gb.buttons.repeat(BUTTON_B,0)) {
+          if((Weapons[mainWeapon][0]) == 2 && gb.buttons.repeat(BUTTON_A,0)) {
             cameraX = (cameraX*5+(player.mainPlayer.x/SCALE+4-(LCDWIDTH/2) + ((curX-LCDWIDTH/2)/6)*10 + (-player.mainPlayer.vx/5)))/6;
             cameraY = (cameraY*4+(player.mainPlayer.y/SCALE+4-(LCDHEIGHT/2) + ((curY-LCDWIDTH/2)/6)*12 + (-player.mainPlayer.vy/5)))/5;
           } else {
@@ -1186,13 +1266,22 @@ void loop () {
                 }
               }
             }
-
-            if(AlphaScore > BetaScore && !revertColors) {
-              AddedCoins = (byte)constrain((15+player.mainPlayer.InkPoints/55)*constrain(Level/20.0F,1,5),0,149);
-              AddedLevel = (byte)constrain((5+player.mainPlayer.InkPoints/67),0,120);
+            if(!revertColors) {
+              if(AlphaScore > BetaScore) {
+                AddedCoins = (byte)constrain((15+player.mainPlayer.InkPoints/55)*constrain(Level/20.0F,1,5),0,149);
+                AddedLevel = (byte)constrain((5+player.mainPlayer.InkPoints/67),0,120);
+              } else {
+                AddedCoins = (byte)constrain((player.mainPlayer.InkPoints/55)*constrain(Level/20.0F,1,5),0,149);
+                AddedLevel = (byte)constrain((player.mainPlayer.InkPoints/67),0,120);
+              }
             } else {
-              AddedCoins = (byte)constrain((player.mainPlayer.InkPoints/55)*constrain(Level/20.0F,1,5),0,149);
-              AddedLevel = (byte)constrain((player.mainPlayer.InkPoints/67),0,120);
+              if(AlphaScore < BetaScore) {
+                AddedCoins = (byte)constrain((15+player.mainPlayer.InkPoints/55)*constrain(Level/20.0F,1,5),0,149);
+                AddedLevel = (byte)constrain((5+player.mainPlayer.InkPoints/67),0,120);
+              } else {
+                AddedCoins = (byte)constrain((player.mainPlayer.InkPoints/55)*constrain(Level/20.0F,1,5),0,149);
+                AddedLevel = (byte)constrain((player.mainPlayer.InkPoints/67),0,120);
+              }
             }
 
             Coin = constrain(Coin+AddedCoins,0,999999);
@@ -1206,20 +1295,38 @@ void loop () {
         gb.display.setColor((ColorIndex)0);
         gb.display.cursorX = 1;
         gb.display.cursorY = 1;
-        if(AlphaScore > BetaScore && !revertColors) {
-          gb.display.print(enText[13]);
-          setPaletteToColorGroup(revertColors,colorGroup);
-          gb.display.drawImage(2,24,HappyJudd);
-          setPaletteToColorGroup(!revertColors,colorGroup);
-          gb.display.drawImage(55,39,AngryLilJudd);
-          gb.display.colorIndex = palette;
+        if(!revertColors) {
+          if(AlphaScore > BetaScore) {
+            gb.display.print(enText[13]);
+            setPaletteToColorGroup(revertColors,colorGroup);
+            gb.display.drawImage(2,24,HappyJudd);
+            setPaletteToColorGroup(!revertColors,colorGroup);
+            gb.display.drawImage(55,39,AngryLilJudd);
+            gb.display.colorIndex = palette;
+          } else {
+            gb.display.print(enText[14]);
+            setPaletteToColorGroup(revertColors,colorGroup);
+            gb.display.drawImage(2,27,AngryJudd);
+            setPaletteToColorGroup(!revertColors,colorGroup);
+            gb.display.drawImage(50,30,HappyLilJudd);
+            gb.display.colorIndex = palette;
+          }
         } else {
-          gb.display.print(enText[14]);
-          setPaletteToColorGroup(revertColors,colorGroup);
-          gb.display.drawImage(2,27,AngryJudd);
-          setPaletteToColorGroup(!revertColors,colorGroup);
-          gb.display.drawImage(50,30,HappyLilJudd);
-          gb.display.colorIndex = palette;
+          if(AlphaScore < BetaScore) {
+            gb.display.print(enText[13]);
+            setPaletteToColorGroup(revertColors,colorGroup);
+            gb.display.drawImage(2,24,HappyJudd);
+            setPaletteToColorGroup(!revertColors,colorGroup);
+            gb.display.drawImage(55,39,AngryLilJudd);
+            gb.display.colorIndex = palette;
+          } else {
+            gb.display.print(enText[14]);
+            setPaletteToColorGroup(revertColors,colorGroup);
+            gb.display.drawImage(2,27,AngryJudd);
+            setPaletteToColorGroup(!revertColors,colorGroup);
+            gb.display.drawImage(50,30,HappyLilJudd);
+            gb.display.colorIndex = palette;
+          }
         }
 
         gb.display.drawImage(1,1+7,UIElement_0);
@@ -1255,13 +1362,21 @@ void loop () {
         setColorToGroup(revertColors);
         gb.display.cursorX = 1;
         gb.display.cursorY = 58;
-        gb.display.print(alphaScoreC);
+        if(!revertColors) {
+          gb.display.print(alphaScoreC);
+        } else {
+          gb.display.print(betaScoreC);
+        }
         gb.display.print("P");
 
-        setColorToGroup(1-revertColors);
+        setColorToGroup(!revertColors);
         gb.display.cursorX = 56;
         gb.display.cursorY = 58;
-        gb.display.print(betaScoreC);
+        if(revertColors) {
+          gb.display.print(alphaScoreC);
+        } else {
+          gb.display.print(betaScoreC);
+        }
         gb.display.print("P");
 
         

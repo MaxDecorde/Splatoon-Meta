@@ -327,3 +327,137 @@ class UISplash {
 
 UISplash uiSplashes[5];
 
+class Particle {
+  public:
+  int16_t x,y;
+  byte type;
+  byte timer = 0;
+  byte cgroup = 0;
+  byte cside = 0;
+
+  bool IsDead = true;
+
+  virtual uint8_t getTimerLenght () {
+    if(type == 0) { //HitSpark
+      return 5;
+    }
+    if(type == 1) { //SuperHitSpark
+      return 3;
+    }
+    if(type == 2) { //MiniSplash
+      return 3;
+    }
+    if(type == 3) { //MegaSplash
+      return 5;
+    }
+    if(type == 4) { //Squid-Squid Squiddy Squid
+      return 255;
+    }
+    if(type == 5) { //Love heart (No homo)
+      return 15;
+    }
+    if(type == 6) { //Warning
+      return 15;
+    }
+  }
+
+  void Init (int16_t nx, int16_t ny, byte ntype, byte ncgroup, byte ncside) {
+    x = nx;
+    y = ny;
+    type = ntype;
+    cgroup = ncgroup;
+    cside = ncside;
+
+    timer = getTimerLenght();
+    IsDead = false;
+  }
+
+  void Draw () {
+    setPaletteToColorGroup(cside,cgroup);
+    if(type == 0) { //HitSpark
+      if(timer < 3) {
+        HitSpark.setFrame(timer);
+      } else {
+        HitSpark.setFrame(abs(4-timer));
+      }
+      gb.display.drawImage(toScreenX(x-3),toScreenY(y-3),HitSpark);
+    }
+    if(type == 1) { //SuperHitSpark
+      SuperHitSpark.setFrame(timer);
+      gb.display.drawImage(toScreenX(x-3),toScreenY(y-3),SuperHitSpark);
+    }
+    if(type == 2) { //MiniSplash
+      MiniSplash.setFrame(timer);
+      gb.display.drawImage(toScreenX(x-3),toScreenY(y-3),MiniSplash);
+    }
+    if(type == 3) { //MegaSplash
+      BigSplash.setFrame(timer);
+      gb.display.drawImage(toScreenX(x-3),toScreenY(y-3),BigSplash);
+    }
+    if(type == 4) { //Squid-Squid Squiddy Squid
+      Squiddy.setFrame(timer%2);
+      y--;
+      gb.display.drawImage(toScreenX(x-3),toScreenY(y-3),Squiddy);
+    }
+    if(type == 5) { //Love heart (No homo)
+      if(timer%2==0) {
+        y--;
+      }
+      gb.display.colorIndex = palette;
+      gb.display.drawImage(toScreenX(x-3),toScreenY(y-3),LoveHeart);
+    }
+    if(type == 6) { //Warning
+      gb.display.colorIndex = palette;
+      gb.display.drawImage(toScreenX(x-3),toScreenY(y-3),Surprised);
+    }
+    gb.display.colorIndex = palette;
+  }
+
+  void Destroy () {
+    IsDead = true;
+  }
+
+  void Update () {
+    if(IsDead) {
+      return;
+    }
+    
+    if(timer <= 0 || (x < cameraX || x > cameraX+LCDWIDTH || y < cameraY || y > cameraY+LCDHEIGHT)) {
+      Destroy();
+    }
+    Draw();
+    if(timer > 0) {
+      timer--;
+    }
+  }
+};
+
+class ParticleManager {
+  public:
+  Particle particles[PCOUNT];
+
+  int8_t spawnParticle (int16_t x, int16_t y, byte type, byte cgroup, byte color) {
+    for(byte i = 0; i < PCOUNT; i++) {
+      if(particles[i].IsDead) {
+        particles[i].Init(x,y,type,cgroup,color);
+        return i;
+      }
+    }
+    return -1;
+  }
+
+  void Reset () {
+    for(byte i = 0; i < PCOUNT; i++) {
+      particles[i].IsDead = true;
+    }
+  }
+
+  void Update () {
+    for(byte i = 0; i < PCOUNT; i++) {
+      particles[i].Update();
+    }
+  }
+};
+
+ParticleManager particleManager;
+

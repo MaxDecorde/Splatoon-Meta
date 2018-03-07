@@ -9,6 +9,7 @@ class Bullets:
     byte color = 0;
     byte Owner = 0;
     byte Damage = 7;
+    byte Type = 0;
     uint16_t BulletTimeLimit = 300;
     int16_t gravity = 0;
     virtual int16_t getWidth() {
@@ -93,11 +94,22 @@ class Bullets:
       }
 
       if(Timer != 0) {
-        if(/*vx>0*/true) {
-          gb.display.drawBitmap(toScreenX(x/SCALE-3), toScreenY(y/SCALE-3), bulletsSprite[ClampInt(0,4,Timer/(BulletTimeLimit/4))],0,FLIPH);
-        } else {
-          gb.display.drawBitmap(toScreenX(x/SCALE-3), toScreenY(y/SCALE-3), bulletsSprite[ClampInt(0,4,Timer/(BulletTimeLimit/4))],0,NOFLIP);
+        setPaletteToColorGroup(color,colorGroup);
+        int8_t bulldir = (vx<0)*2-1;
+        if(Type == 0) { //Squish
+          BulletSquish.setFrame(constrain(Timer/(BulletTimeLimit/4),0,3));
+          gb.display.drawImage(toScreenX(x/SCALE-3), toScreenY(y/SCALE-3), BulletSquish, 7*bulldir, 7);
+        } else if(Type == 1) { //Flat
+          BulletLong.setFrame(constrain(Timer/(BulletTimeLimit/4),0,3));
+          gb.display.drawImage(toScreenX(x/SCALE-3), toScreenY(y/SCALE-3), BulletLong, 7*bulldir, 7);
+        } if(Type == 2) { //Falling
+          FallingBullet.setFrame(constrain(Timer/(BulletTimeLimit/4),0,3));
+          gb.display.drawImage(toScreenX(x/SCALE-3), toScreenY(y/SCALE-3), FallingBullet, 7*bulldir, 7);
+        } else if(Type == 3) { //Spray
+          SprayBullet.setFrame(constrain(Timer/(BulletTimeLimit/4),0,3));
+          gb.display.drawImage(toScreenX(x/SCALE-3), toScreenY(y/SCALE-3), SprayBullet, 7*bulldir, 7);
         }
+        gb.display.colorIndex = palette;
       }
     }
 
@@ -119,6 +131,10 @@ class Bullets:
       }
       
       if(collided && !IsDead) {
+        if(IsGroundedDown) {
+          particleManager.spawnParticle(x/SCALE,y/SCALE-1,2,colorGroup,color);
+        }
+        
         inkX = (x/SCALE);//+(vx>=0?1:-1)
         inkY = (y/SCALE);//+(vy>=0?1:-1)
 
@@ -220,7 +236,7 @@ class BulletsManager {
   public:
   Bullets bullets[BCOUNT];
 
-  int8_t spawnBullet (int16_t x, int16_t y, int16_t vx, int16_t vy, byte color, byte owner) {
+  int8_t spawnBullet (int16_t x, int16_t y, int16_t vx, int16_t vy, byte color, byte owner, byte type) {
     for(byte i = 0; i < BCOUNT; i++) {
       if(bullets[i].IsDead) {
         bullets[i].Recreate();
@@ -230,6 +246,7 @@ class BulletsManager {
         bullets[i].vy = vy;
         bullets[i].color = color;
         bullets[i].Owner = owner;
+        bullets[i].Type = type;
         return i;
       }
     }

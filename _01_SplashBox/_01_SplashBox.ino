@@ -15,13 +15,41 @@
 #define VFORCE 5
 
 #define BCOUNT 16
+#define PCOUNT 8
 
 #define STARTLENGHT 90
 #define STARTLENGHT2 130
 #define ENDSCREENLENGHT 110
 
-#define MapHeader 4
+#define MapHeader 5
 
+//Player mouvement
+#define PSwimAcceleration 18 //How fast the player will reach the max speed when swiming in it's own ink
+#define PSwimMaxSpeed 116 //The maximum swiming speed 
+#define PESwimAcceleration 6 //How fast the player will reach the max speed when swiming in the ennemie ink
+#define PESwimMaxSpeed 24 //The maximum swiming speed 
+#define PGSwimAcceleration 7 //How fast the player will reach the max speed when squidding on the ground
+#define PGSwimMaxSpeed 62 //The maximum squid speed 
+#define PSwimWallClimb 84 //How fast the player can swim up a wall
+#define PSwimWallReleaseAcceleration 3 //How fast the player reach the max swim up a wall speed
+#define PSwimWallReleaseMaxSpeed 18 //The maximum releasing speed when swimming up a wall
+
+#define PJumpForceSquid 134 //The squid jump force
+#define PEJumpForceSquid 26 //The jump force when on ennemy ink
+
+#define PERestrictedSpeed 15 //The maximum velocity you can reach on ennemy ink
+#define PWalkMaxSpeed 84
+#define PWalkAcceleration 9
+#define PEWalkMaxSpeed 12
+#define PEWalkAcceleration 1
+
+#define PJumpForce 134 //The inkling jump force
+#define PEJumpForce 26 //The jump force when on ennemy ink
+
+#define PWallJumpForceX 68 //The inkling horizontal wall jump force
+#define PWallJumpForceY 104 //The inkling vertical wall jump force
+
+byte UseBackgroundInGame = false;
 byte cinematicSkip = 0;
 
 byte revertColors = 0;
