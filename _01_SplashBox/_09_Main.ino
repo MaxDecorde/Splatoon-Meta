@@ -1174,7 +1174,7 @@ void loop () {
             gb.display.drawRect(2,2,76,60);
           }
           if(player.mainPlayer.Live < 35) {
-            gb.display.drawRect(4,4,72,658);
+            gb.display.drawRect(4,4,72,56);
           }
           
           gb.display.drawImage(1,1,HudElement_12);

@@ -1706,7 +1706,7 @@ const uint16_t Aerospray[] = {
   4, //DirectionSpray: 0-NoVariation/50-HighVariation
   4, //ShootingInterval or Charging Lenght: 1-Minimum/11-Long
   22, //Damage: 0-NoDamage/100-OneShootKill
-  330, //Timer 30-ExtremlyShort/330-ExtremlyLong
+  70, //Timer 30-ExtremlyShort/330-ExtremlyLong
   1, //BulletsPerAttack
 
   //OTHER PARAMETERS

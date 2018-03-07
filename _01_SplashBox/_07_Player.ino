@@ -480,6 +480,8 @@ class Player :
     byte MoveTimer = 0;
     byte State = 0;               //STATE-- 0: Goto Target, 1: Escape Target, 2: Ink area, 3: Attack
     uint16_t ReachingTimer = 0;
+    uint8_t TargetPlayerId = -1;
+    bool TargetPlayerIsDead = false;
 
     //Squidbagging:
     /*LEFT_HOLD = false;
@@ -493,19 +495,22 @@ class Player :
 
     void ControlUpdate () {
       ReachingTimer = 1;
-      State = 1;
+      State = 2;
 
-      //Destination reached or Timer over
+      //Action Triggerer
       ///////////////////////////////////
-      if(abs(targetX)+abs(targetY) < 16 || ReachingTimer<=0) {
-        //Execute Action
+      if(abs(targetX)+abs(targetY) < 32) {
+        
+      } else
+      if(ReachingTimer<=0) {
+        
       } else
 
 
 
       //Destination not reached yet
       /////////////////////////////
-      if(ReachingTimer>0 && (State == 0 || State == 1)) {
+      if(ReachingTimer>0 && (State == 0 || State == 1 || State == 3)) {
         if(State == 1) {
           targetX = -targetX;
           targetY = -targetY;
@@ -565,22 +570,28 @@ class Player :
           }
         }
   
-        if(LeftInk || BottomInk || RightInk) {
-          DOWN_HOLD = true;
+        if(State == 3) {
+          ShootCall = true;
+
+          if(random(0,12) == 0) {
+            float aimingAngleV = atan2(targetX,targetY)+1.5708F;
+            
+            bulletsManager.spawnBullet(
+              Object::x-7+(21*((PlayerDir+1)/2)),
+              Object::y+5,
+              (int)(cos(aimingAngleV)*110.0F),
+              (int)(sin(aimingAngleV)*110.0F),
+              PlayerColor,
+              PlayerCode,
+              3
+            );
+          } 
+        } else {
+          ShootCall = false;
         }
-  
-        if(random(0,38) == 0) {
-          float aimingAngleV = random(0,360);
-        
-          bulletsManager.spawnBullet(
-            Object::x+4,
-            Object::y+4,
-            (int)(cos(aimingAngleV)*110.0F),
-            (int)(sin(aimingAngleV)*110.0F),
-            PlayerColor,
-            PlayerCode,
-            3
-          );
+
+        if((LeftInk || BottomInk || RightInk) && !ShootCall) {
+          DOWN_HOLD = true;
         }
         
         if(/*random(0,5) == 0 && */MoveTimer <= 0) {
@@ -611,14 +622,10 @@ class Player :
 
         if(targetY > 0) {
           if(PlayerDir < 0) {
-            gb.display.setColor(RED);
-            gb.display.drawRect(Div8(x/SCALE+0)*8,(Div8(y/SCALE)+2)*8,8,8);
             if(TilesParams_Array[world.getTile(constrain(Div8(x/SCALE+0),0,world.MapWidth-1),constrain(Div8(y/SCALE)+2,0,world.MapHeight-1))*5+0] == 0) {
               B_PRESSED = true;
             }
           } else {
-            gb.display.setColor(RED);
-            gb.display.drawRect(Div8(x/SCALE+8)*8,(Div8(y/SCALE)+2)*8,8,8);
             if(TilesParams_Array[world.getTile(constrain(Div8(x/SCALE+8),0,world.MapWidth-1),constrain(Div8(y/SCALE)+2,0,world.MapHeight-1))*5+0] == 0) {
               B_PRESSED = true;
             }
@@ -647,9 +654,31 @@ class Player :
       //Ink area
       //////////
       if(ReachingTimer>0 && State == 2) {
-        
+        ShootCall = true;
+
+        if(AnimationTimer2%8 == 0) {
+          float aimingAngleV = fmod((AnimationTimer2/20.0F),(PI*2.0F));
+
+          if(aimingAngleV < PI) {
+            PlayerDir = -1;
+          } else {
+            PlayerDir = 1;
+          }
+          
+          bulletsManager.spawnBullet(
+            Object::x-(7*SCALE)+(21*((PlayerDir+1)/2)*SCALE),
+            Object::y+(5*SCALE),
+            (int)(cos(aimingAngleV-(PI/2.0F))*110.0F),
+            (int)(sin(aimingAngleV-(PI/2.0F))*110.0F),
+            PlayerColor,
+            PlayerCode,
+            3
+          );
+        }
         
         ReachingTimer--;
+      } else {
+        ShootCall = false;
       }
     }
 
@@ -964,9 +993,12 @@ class PlayersOperator {
         mainPlayer.Update();
       } else {
         players[i-1].Update();
-        
+
+        if(State == 3) {
+          
+        }
         players[i-1].targetX = mainPlayer.x/SCALE-players[i-1].x/SCALE;
-        players[i-1].targetY = mainPlayer.y/SCALE-players[i-1].y/SCALE;
+        players[i-1].targetY = players[i-1].y/SCALE-mainPlayer.y/SCALE;
       }
     }
   }
