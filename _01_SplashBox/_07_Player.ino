@@ -478,10 +478,9 @@ class Player :
     
 
     byte MoveTimer = 0;
-    byte State = 0;               //STATE-- 0: Goto Target, 1: Escape Target, 2: Ink area, 3: Attack
-    uint16_t ReachingTimer = 0;
-    uint8_t TargetPlayerId = -1;
-    bool TargetPlayerIsDead = false;
+    byte State = 2;               //STATE-- 0: Goto Target(Position), 1: Escape Target(Position), 2: Ink(Area), 3: Attack(Player), 4: Goto Target(Player), 5: Escape Target(Player)
+    uint16_t ReachingTimer = 25;
+    uint8_t TargetPlayerId = -1; //-1
 
     //Squidbagging:
     /*LEFT_HOLD = false;
@@ -494,24 +493,55 @@ class Player :
     MoveTimer = 0;*/
 
     void ControlUpdate () {
-      ReachingTimer = 1;
-      State = 2;
 
-      //Action Triggerer
+      //Action Triggerer -- Find what to do when an action ends and were are the players
       ///////////////////////////////////
+
+      //0: When area done inked
+      //1: --
+      //2: After traveling, attack done/target escaped/attack cancelled
+      //3: When a ennemie is close
+      //4: No current attack and a close teammates needs some help
+      //5: When two player are attacking
+      
       if(abs(targetX)+abs(targetY) < 32) {
-        
-      } else
+        if(State == 0 || State == 4) {
+          State = 2;
+          ReachingTimer = random(81,123);
+        }
+      }
+      if(abs(targetX)+abs(targetY) > 1024) {
+        if(State == 1 || State == 5 || State == 3) {
+          State = 2;
+          ReachingTimer = random(81,123);
+        }
+      }
       if(ReachingTimer<=0) {
-        
-      } else
+        if(State == 2) {
+          State = 0;
+          ReachingTimer = random(95,240);
+          targetX = random(0,world.MapWidth*8);
+          targetY = random(0,world.MapHeight*8);
+          TargetPlayerId = -1;
+        } else if(State == 3) {
+          if(random(0,4)==0) {
+            State = 2;
+            ReachingTimer = random(81,123);
+          } else {
+            ReachingTimer = random(95,240);
+          }
+        } else if(State == 0 || State == 1 || State == 4 || State == 5) {
+          State = 2;
+          ReachingTimer = random(45,80);
+        }
+      }
 
 
 
       //Destination not reached yet
       /////////////////////////////
-      if(ReachingTimer>0 && (State == 0 || State == 1 || State == 3)) {
-        if(State == 1) {
+      if(ReachingTimer>0 && (State == 0 || State == 1 || State == 3 || State == 4 || State == 5)) {
+        if(State == 1 || State == 5) {
           targetX = -targetX;
           targetY = -targetY;
         }
@@ -545,12 +575,12 @@ class Player :
             MoveTimer = random(8,14);
           }
         } else {
-          if(random(0,66) == 0 && IsGroundedRight && !IsGroundedDown) {
+          if(random(0,16) == 0 && IsGroundedRight && !IsGroundedDown) {
             B_PRESSED = true;
             LEFT_HOLD = true;
             PlayerDir = -PlayerDir;
             MoveTimer = random(8,14);
-          } else if(random(0,66) == 0 && IsGroundedLeft && !IsGroundedDown) { 
+          } else if(random(0,16) == 0 && IsGroundedLeft && !IsGroundedDown) { 
             B_PRESSED = true;
             RIGHT_HOLD = true;
             PlayerDir = -PlayerDir;
@@ -560,11 +590,11 @@ class Player :
 
         if(IsGroundedDown) {
           if(IsGroundedLeft) {
-            if(random(0,45)) {
+            if(random(0,45) == 0) {
               B_PRESSED = true;
             }
           } else if(IsGroundedRight) {
-            if(random(0,45)) {
+            if(random(0,45) == 0) {
               B_PRESSED = true;
             }
           }
@@ -594,30 +624,24 @@ class Player :
           DOWN_HOLD = true;
         }
         
-        if(/*random(0,5) == 0 && */MoveTimer <= 0) {
-          MoveTimer = 1;
+        if(MoveTimer <= 0) {
           if(targetX < 0) {
-            PlayerDir = -1;
+            if(random(0,12) != 0) {
+              MoveTimer = random(40,60);
+              PlayerDir = -1;
+            } else {
+              MoveTimer = random(5,9);
+              PlayerDir = 1;
+            }
           } else {
-            PlayerDir = 1;
+            if(random(0,12) != 0) {
+              MoveTimer = random(40,60);
+              PlayerDir = 1;
+            } else {
+              MoveTimer = random(5,9);
+              PlayerDir = -1;
+            }
           }
-          /*if(targetX < 0) {
-            if(random(0,12) != 0) {
-              MoveTimer = random(20,30);
-              PlayerDir = -1;
-            } else {
-              MoveTimer = random(5,9);
-              PlayerDir = 1;
-            }
-          } else {
-            if(random(0,12) != 0) {
-              MoveTimer = random(20,30);
-              PlayerDir = 1;
-            } else {
-              MoveTimer = random(5,9);
-              PlayerDir = -1;
-            }
-          }*/
         }
 
         if(targetY > 0) {
@@ -635,13 +659,15 @@ class Player :
         if(MoveTimer > 0) {
           if(PlayerDir == 1) {
             RIGHT_HOLD = true;
+            LEFT_HOLD = false;
           } else {
             LEFT_HOLD = true;
+            RIGHT_HOLD = false;
           }
           MoveTimer--;
         }
 
-        if(State == 1) {
+        if(State == 1 || State == 5) {
           targetX = -targetX;
           targetY = -targetY;
         }
@@ -976,6 +1002,9 @@ class PlayersOperator {
         players[i-1].Live = 100;
         players[i-1].Refill = 100;
         players[i-1].IsSwiming = false;
+
+        players[i-1].State = 2;
+        players[i-1].ReachingTimer = 25;
       } else {
         mainPlayer.PlayerColor = revertColors;
         mainPlayer.PlayerCode = 0;
@@ -994,11 +1023,106 @@ class PlayersOperator {
       } else {
         players[i-1].Update();
 
-        if(State == 3) {
+        if(AnimationTimer2%10 == 0) {
+          //Analize surrouding player:
+          //- Close player needs help and no one's nearby
+          //- How many ennemies are nearby and am I attacked
+          //- Which ennemie is the closest
+
+          //Goal:
+          //AttackPlayer/3: When a ennemie is close
+          //GotoPlayer/4: No current attack and a close teammates needs some help
+          //EscapePlayer/5: When two player are attacking
+
+          byte ennemieCountNearby = 0;
+          int8_t closestEnnemie = -1;
+          uint16_t closestRange = 65535;
+          for(int16_t e = 0; e < PLAYER_C; e++) {
+            if(e==0) {
+              if(players[i-1].PlayerColor != mainPlayer.PlayerColor && mainPlayer.RespawnTimer > 0) {
+                uint16_t Range = abs(players[i-1].x/SCALE-mainPlayer.x/SCALE)+abs(players[i-1].y/SCALE-mainPlayer.y/SCALE);
+                if(Range < 128) {
+                  ennemieCountNearby++;
+                  if(Range < closestRange) {
+                    closestEnnemie = e;
+                  }
+                }
+              }
+            } else {
+              if(players[i-1].PlayerColor != players[e-1].PlayerColor && players[e-1].RespawnTimer > 0) {
+                uint16_t Range = abs(players[i-1].x/SCALE-players[e-1].x/SCALE)+abs(players[i-1].y/SCALE-players[e-1].y/SCALE);
+                if(Range < 128) {
+                  ennemieCountNearby++;
+                  if(Range < closestRange) {
+                    closestEnnemie = e;
+                  }
+                }
+              }
+            }
+          }
+
+          if(ennemieCountNearby > 0 && closestEnnemie != -1) {
+            if(ennemieCountNearby > 1) {
+              //AttackClosestEnnemie
+              players[i-1].State = 3;
+              players[i-1].ReachingTimer = random(75,100);
+              players[i-1].TargetPlayerId = closestEnnemie;
+            } else {
+              //EscapeClosestEnnemie
+              players[i-1].State = 5;
+              players[i-1].ReachingTimer = random(100,150);
+              players[i-1].TargetPlayerId = closestEnnemie;
+            }
+          } else if(ennemieCountNearby <= 0) {
+            for(int16_t e = 0; e < PLAYER_C; e++) {
+              if(e==0) {
+                if(players[i-1].PlayerColor == mainPlayer.PlayerColor && mainPlayer.RespawnTimer > 0) {
+                  if(mainPlayer.Live < 50) {
+                    //GotoPlayer
+                    players[i-1].State = 4;
+                    players[i-1].ReachingTimer = random(100,150);
+                    players[i-1].TargetPlayerId = e;
+                  }
+                }
+              } else {
+                if(players[i-1].PlayerColor == players[e-1].PlayerColor && players[e-1].RespawnTimer > 0) {
+                  if(players[e-1].Live < 50) {
+                    //GotoPlayer
+                    players[i-1].State = 4;
+                    players[i-1].ReachingTimer = random(100,150);
+                    players[i-1].TargetPlayerId = e;
+                  }
+                }
+              }
+            }
+          }
           
         }
-        players[i-1].targetX = mainPlayer.x/SCALE-players[i-1].x/SCALE;
-        players[i-1].targetY = players[i-1].y/SCALE-mainPlayer.y/SCALE;
+        if((players[i-1].State == 3 || players[i-1].State == 4 || players[i-1].State == 5) && players[i-1].TargetPlayerId != -1) {
+          if(players[i-1].TargetPlayerId==0) {
+            if(mainPlayer.RespawnTimer <= 0) {
+              
+              players[i-1].State = 2;
+              players[i-1].ReachingTimer = random(81,123);
+              
+              players[i-1].TargetPlayerId = -1;
+            } else {
+              players[i-1].targetX = mainPlayer.x/SCALE-players[i-1].x/SCALE;
+              players[i-1].targetY = mainPlayer.y/SCALE-mainPlayer.y/SCALE;
+            }
+          } else {
+            if(players[players[i-1].TargetPlayerId-1].RespawnTimer <= 0) {
+              
+              players[i-1].State = 2;
+              players[i-1].ReachingTimer = random(81,123);
+
+              players[i-1].TargetPlayerId = -1;
+            } else {
+              players[i-1].targetX = players[players[i-1].TargetPlayerId-1].x/SCALE-players[i-1].x/SCALE;
+              players[i-1].targetY = players[players[i-1].TargetPlayerId-1].y/SCALE-mainPlayer.y/SCALE;
+            }
+          }
+        }
       }
     }
   }

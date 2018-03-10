@@ -721,11 +721,16 @@ void loop () {
 
 
 
-      //Weapon Shop
+      //Salmon Run
       /////////////
       if(GameState == 2) {
         gb.display.setColor((ColorIndex)3);
         gb.display.fill();
+        
+        gb.display.cursorX = 1;
+        gb.display.cursorY = 1;
+        gb.display.setColor((ColorIndex)0);
+        gb.display.print("SALMON RUN IS\n CLOSED.\n\n COME BACK LATER\n ONCE THE UPDATE\n IS OUT.");
         
         if(gb.buttons.pressed(BUTTON_MENU)) {
           AnimationTimer = STARTLENGHT2;
@@ -741,11 +746,16 @@ void loop () {
 
 
 
-      //Hat Shop
+      //Shops
       //////////
       if(GameState == 3) {
         gb.display.setColor((ColorIndex)3);
         gb.display.fill();
+
+        gb.display.cursorX = 1;
+        gb.display.cursorY = 1;
+        gb.display.setColor((ColorIndex)0);
+        gb.display.print("THE SHOPS ARE\n CURRENTLY CLOSED.\n\n WE PROVIDED SOME\n WEAPON SAMPLE\n TO LET YOU\n TRY THEM!");
         
         if(gb.buttons.pressed(BUTTON_MENU)) {
           AnimationTimer = STARTLENGHT2;
@@ -1014,8 +1024,11 @@ void loop () {
         }
         gb.display.colorIndex = palette;
 
+        
         gb.display.drawImage(19,52,UIElement_4);
-        gb.display.drawImage(53,52,UIElement_5);
+        if(AnimationTimer==0) {
+          gb.display.drawImage(53,52,UIElement_5);
+        }
         
         if(gb.buttons.pressed(BUTTON_MENU) || gb.buttons.pressed(BUTTON_B)) {
           AnimationTimer = 0;

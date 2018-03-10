@@ -49,7 +49,7 @@
 #define PWallJumpForceX 68 //The inkling horizontal wall jump force
 #define PWallJumpForceY 104 //The inkling vertical wall jump force
 
-byte UseBackgroundInGame = false;
+byte UseBackgroundInGame = true;
 byte cinematicSkip = 0;
 
 byte revertColors = 0;
