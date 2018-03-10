@@ -105,15 +105,15 @@ int8_t MusicTrack = 0;
 void startMusic () {
   uint8_t Music = random(0,5);
   if(Music == 0) {
-    MusicTrack = gb.sound.play("MUSIC_0");
+    MusicTrack = gb.sound.play("S/MUSIC_0.wav");
   } else if(Music == 1) {
-    MusicTrack = gb.sound.play("MUSIC_1");
+    MusicTrack = gb.sound.play("S/MUSIC_1.wav");
   } else if(Music == 2) {
-    MusicTrack = gb.sound.play("MUSIC_2");
+    MusicTrack = gb.sound.play("S/MUSIC_2.wav");
   } else if(Music == 3) {
-    MusicTrack = gb.sound.play("MUSIC_3");
+    MusicTrack = gb.sound.play("S/MUSIC_3.wav");
   } else if(Music == 4) {
-    MusicTrack = gb.sound.play("MUSIC_4");
+    MusicTrack = gb.sound.play("S/MUSIC_4.wav");
   }
 }
 void stopMusic () {
