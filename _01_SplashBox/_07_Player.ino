@@ -247,7 +247,27 @@ class Player :
         bool BottomEInkSquid = world.SMGetPaintValueAt(constrain(Div8(x/SCALE+4),0,world.MapWidth-1),constrain(Div8(y/SCALE)+1,0,world.MapHeight-1),0) > 0 
         && world.SMGetColor(constrain(Div8(x/SCALE+4),0,world.MapWidth-1),constrain(Div8(y/SCALE)+1,0,world.MapHeight-1)) != PlayerColor;
 
+        if(BottomEInkSquid && PlayerCode == 0) {
+          shakeTimeLeft = 1;
+          shakeAmplitude = 1;
+
+          setLightColorToGroup(!revertColors);
+          for(uint8_t x = 0; x < 2; x++) {
+            for(uint8_t y = 0; y < 4; y++) {
+              if(random(0,2)==0) {
+                gb.lights.drawPixel(x,y);
+              }
+            }
+          }
+        }
+
         if(BottomInkSquid&&IsGroundedDown) {
+          if(PlayerCode == 0) {
+            setLightColorToGroup(revertColors);
+            gb.lights.drawPixel(0,3);
+            gb.lights.drawPixel(1,3);
+          }
+          
           if(AnimationTimer2%2==0) {
             Live = constrain(Live+1,0,100);
           }
@@ -258,6 +278,17 @@ class Player :
             particleManager.spawnParticle(x/SCALE+1,y/SCALE+3,3,colorGroup,PlayerColor);
           }
           LVelY = constrain(LVelY+1, -5, 5);
+
+          if(PlayerCode == 0) {
+            setLightColorToGroup(revertColors);
+            for(uint8_t x = 0; x < 2; x++) {
+              for(int8_t y = constrain(LVelY,0,3); y >= 0; y--) {
+                if(random(0,4) != 0 || LVelY == 5) {
+                  gb.lights.drawPixel(x,y);
+                }
+              }
+            }
+          }
         } else {
           if(LVelY > 0) LVelY = constrain(LVelY-2, 0, 5);
           if(LVelY < 0) LVelY = constrain(LVelY+2, -5, 0);
@@ -354,6 +385,15 @@ class Player :
         if(PlayerCode == 0) {
           shakeTimeLeft = 1;
           shakeAmplitude = 1;
+
+          setLightColorToGroup(!revertColors);
+          for(uint8_t x = 0; x < 2; x++) {
+            for(uint8_t y = 0; y < 4; y++) {
+              if(random(0,2)==0) {
+                gb.lights.drawPixel(x,y);
+              }
+            }
+          }
         }
         
         vx = constrain(vx,-PERestrictedSpeed,PERestrictedSpeed);
@@ -418,7 +458,6 @@ class Player :
   
       //Jumps
       if(B_PRESSED && Object::IsGroundedDown  && !A_HOLD) {
-        sfx(0, 0);
         if(EBottomInk) {
           vy = PEJumpForce;
         } else {
@@ -428,12 +467,10 @@ class Player :
       if(B_PRESSED && Object::IsGroundedRight && !Object::IsGroundedDown  && !A_HOLD) { 
         vx = PWallJumpForceX;
         vy = PWallJumpForceY;
-        sfx(1, 0);
       }
       if(B_PRESSED && Object::IsGroundedLeft && !Object::IsGroundedDown  && !A_HOLD) { 
         vx = -PWallJumpForceX;
         vy = PWallJumpForceY;
-        sfx(1, 0);
       }
   
       //GroundPound
@@ -449,14 +486,12 @@ class Player :
           vy = 76;
         }
         GroundPoundTime = 0;
-        sfx(8, 0);
       }
       if(Object::IsGroundedDown && GroundPoundTime > 0) {
         GroundPoundTime = 0;
         if(!BottomInk) {
           vy = 36;
         }
-        sfx(3, 0);
       }
       if(GroundPoundTime > 0) {
         vx *= 0.7F;
@@ -478,9 +513,9 @@ class Player :
     
 
     byte MoveTimer = 0;
-    byte State = 2;               //STATE-- 0: Goto Target(Position), 1: Escape Target(Position), 2: Ink(Area), 3: Attack(Player), 4: Goto Target(Player), 5: Escape Target(Player)
-    uint16_t ReachingTimer = 25;
-    uint8_t TargetPlayerId = -1; //-1
+    byte State = 4;/*2*/               //STATE-- 0: Goto Target(Position), 1: Escape Target(Position), 2: Ink(Area), 3: Attack(Player), 4: Goto Target(Player), 5: Escape Target(Player)
+    uint16_t ReachingTimer = 25;/*25*/ 
+    uint8_t TargetPlayerId = 0; //-1
 
     //Squidbagging:
     /*LEFT_HOLD = false;
@@ -620,7 +655,9 @@ class Player :
           ShootCall = false;
         }
 
-        if((LeftInk || BottomInk || RightInk) && !ShootCall) {
+        bool BottomInkSquid = world.SMGetPaintValueAt(constrain(Div8(x/SCALE+4),0,world.MapWidth-1),constrain(Div8(y/SCALE)+1,0,world.MapHeight-1),0) > 0 
+        && world.SMGetColor(constrain(Div8(x/SCALE+4),0,world.MapWidth-1),constrain(Div8(y/SCALE)+1,0,world.MapHeight-1)) == PlayerColor;
+        if((LeftInk || BottomInk || RightInk || BottomInkSquid) && !ShootCall) {
           DOWN_HOLD = true;
         }
         
@@ -1003,8 +1040,9 @@ class PlayersOperator {
         players[i-1].Refill = 100;
         players[i-1].IsSwiming = false;
 
-        players[i-1].State = 2;
-        players[i-1].ReachingTimer = 25;
+        players[i-1].State = 4;/*2*/               //STATE-- 0: Goto Target(Position), 1: Escape Target(Position), 2: Ink(Area), 3: Attack(Player), 4: Goto Target(Player), 5: Escape Target(Player)
+        players[i-1].ReachingTimer = 25;/*25*/ 
+        players[i-1].TargetPlayerId = 0; //-1
       } else {
         mainPlayer.PlayerColor = revertColors;
         mainPlayer.PlayerCode = 0;
@@ -1108,7 +1146,7 @@ class PlayersOperator {
               players[i-1].TargetPlayerId = -1;
             } else {
               players[i-1].targetX = mainPlayer.x/SCALE-players[i-1].x/SCALE;
-              players[i-1].targetY = mainPlayer.y/SCALE-mainPlayer.y/SCALE;
+              players[i-1].targetY = mainPlayer.y/SCALE-players[i-1].y/SCALE;
             }
           } else {
             if(players[players[i-1].TargetPlayerId-1].RespawnTimer <= 0) {
@@ -1119,7 +1157,7 @@ class PlayersOperator {
               players[i-1].TargetPlayerId = -1;
             } else {
               players[i-1].targetX = players[players[i-1].TargetPlayerId-1].x/SCALE-players[i-1].x/SCALE;
-              players[i-1].targetY = players[players[i-1].TargetPlayerId-1].y/SCALE-mainPlayer.y/SCALE;
+              players[i-1].targetY = players[players[i-1].TargetPlayerId-1].y/SCALE-players[i-1].y/SCALE;
             }
           }
         }

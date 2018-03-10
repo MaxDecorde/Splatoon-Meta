@@ -409,6 +409,7 @@ long r2 = 0;
 
 void loop () {
   if(gb.update()) {
+    gb.lights.clear();
     if(!IsPlaying) {
 
 
@@ -1164,6 +1165,9 @@ void loop () {
               gb.display.drawImage(27,25,GO_ICON);
               gb.display.drawImage(27+1,25+14,GO_INK,GO_INK.width(),GO_INK.height()*(STARTLENGHT/3/2-AnimationTimer)/(STARTLENGHT/3/2));
               FreezePlayers = false;
+              if(AnimationTimer == 1) {
+                startMusic();
+              }
             }
           }
           
@@ -1282,18 +1286,18 @@ void loop () {
             if(!revertColors) {
               if(AlphaScore > BetaScore) {
                 AddedCoins = (byte)constrain((15+player.mainPlayer.InkPoints/55)*constrain(Level/20.0F,1,5),0,149);
-                AddedLevel = (byte)constrain((5+player.mainPlayer.InkPoints/67),0,120);
+                AddedLevel = (byte)constrain((7+player.mainPlayer.InkPoints/67),0,120);
               } else {
                 AddedCoins = (byte)constrain((player.mainPlayer.InkPoints/55)*constrain(Level/20.0F,1,5),0,149);
-                AddedLevel = (byte)constrain((player.mainPlayer.InkPoints/67),0,120);
+                AddedLevel = (byte)constrain((1+player.mainPlayer.InkPoints/47),0,120);
               }
             } else {
               if(AlphaScore < BetaScore) {
                 AddedCoins = (byte)constrain((15+player.mainPlayer.InkPoints/55)*constrain(Level/20.0F,1,5),0,149);
-                AddedLevel = (byte)constrain((5+player.mainPlayer.InkPoints/67),0,120);
+                AddedLevel = (byte)constrain((7+player.mainPlayer.InkPoints/67),0,120);
               } else {
                 AddedCoins = (byte)constrain((player.mainPlayer.InkPoints/55)*constrain(Level/20.0F,1,5),0,149);
-                AddedLevel = (byte)constrain((player.mainPlayer.InkPoints/67),0,120);
+                AddedLevel = (byte)constrain((1+player.mainPlayer.InkPoints/47),0,120);
               }
             }
 

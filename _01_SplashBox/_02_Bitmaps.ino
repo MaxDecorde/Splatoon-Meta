@@ -1670,7 +1670,7 @@ const uint16_t Octobrush[] = {
 
   //OTHER PARAMETERS
   0, //AttackLenght 0-Instant/25-OneSecond
-  7, //Ink Consumed
+  13, //Ink Consumed
   0, //Bullet Vertical Force
 };
 

@@ -101,6 +101,25 @@ long BetaScore = 0;
 byte AddedCoins = 0;
 byte AddedLevel = 0;
 
+int8_t MusicTrack = 0;
+void startMusic () {
+  uint8_t Music = random(0,5);
+  if(Music == 0) {
+    MusicTrack = gb.sound.play("MUSIC_0");
+  } else if(Music == 1) {
+    MusicTrack = gb.sound.play("MUSIC_1");
+  } else if(Music == 2) {
+    MusicTrack = gb.sound.play("MUSIC_2");
+  } else if(Music == 3) {
+    MusicTrack = gb.sound.play("MUSIC_3");
+  } else if(Music == 4) {
+    MusicTrack = gb.sound.play("MUSIC_4");
+  }
+}
+void stopMusic () {
+  gb.sound.stop(MusicTrack);
+}
+
 Color palette[] = {  
   (Color)0xf779, //(Color)0xf779 White
   (Color)0xacd0, //(Color)0xacd0 Grey
@@ -288,6 +307,60 @@ void setColorToGroup (byte cC) {
   }
 }
 
+void setLightColorToGroup (byte cC) {
+  switch(colorGroup) {
+    case 0:
+    if(cC == 0) {
+      gb.lights.setColor((ColorIndex)8);
+    } else {
+      gb.lights.setColor((ColorIndex)11);
+    }
+    break;
+    case 1:
+    if(cC == 0) {
+      gb.lights.setColor((ColorIndex)5);
+    } else {
+      gb.lights.setColor((ColorIndex)9);
+    }
+    break;
+    case 2:
+    if(cC == 0) {
+      gb.lights.setColor((ColorIndex)7);
+    } else {
+      gb.lights.setColor((ColorIndex)11);
+    }
+    break;
+    case 3:
+    if(cC == 0) {
+      gb.lights.setColor((ColorIndex)5);
+    } else {
+      gb.lights.setColor((ColorIndex)11);
+    }
+    break;
+    case 4:
+    if(cC == 0) {
+      gb.lights.setColor((ColorIndex)6);
+    } else {
+      gb.lights.setColor((ColorIndex)11);
+    }
+    break;
+    case 5:
+    if(cC == 0) {
+      gb.lights.setColor((ColorIndex)5);
+    } else {
+      gb.lights.setColor((ColorIndex)7);
+    }
+    break;
+    case 6:
+    if(cC == 0) {
+      gb.lights.setColor((ColorIndex)9);
+    } else {
+      gb.lights.setColor((ColorIndex)11);
+    }
+    break;
+  }
+}
+
 void setPaletteToColorGroup (byte Color, byte Group) {
   switch(Group) {
     case 0:
@@ -341,6 +414,8 @@ void setPaletteToColorGroup (byte Color, byte Group) {
     break;
   }  
 }
+
+
 
 template<typename T> T Mul8 (T v) {
     return v << 3;
