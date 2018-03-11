@@ -1,1 +1,2 @@
 #define DISPLAY_MODE DISPLAY_MODE_RGB565
+#define FOLDER_NAME "SplatoonMeta"
