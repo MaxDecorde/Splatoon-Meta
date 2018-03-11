@@ -180,7 +180,7 @@ class World {
           continue;
         }
         
-        if(TilesParams_Array[gt*TileParamsCount+0] == 1) {
+        if(TilesParams_Array[gt*TileParamsCount+0] == 1 && SMGetRaw(x,y) != 0) {
           //V = DebugBytes;
           cC = SMGetColor(x,y);
           V1 = SMGetPaintValueAt(x,y,0);

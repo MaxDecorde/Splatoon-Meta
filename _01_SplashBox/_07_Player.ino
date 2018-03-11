@@ -73,7 +73,7 @@ class Player :
         return;
       }
 
-      byte doorCode = TilesParams_Array[world.getTile((x/SCALE+4)/8,y/SCALE/8+1)*5+1];
+      byte doorCode = TilesParams_Array[world.getTile(Div8(Div8(x)+4),Div64(y)+1)*5+1];
       if(doorCode == 12 || doorCode == 13 || doorCode == 14) {
         DoorWarning = true;
         if(gb.buttons.pressed(BUTTON_UP)) {
@@ -130,11 +130,11 @@ class Player :
       }
 
       if(gb.buttons.repeat(BUTTON_UP,9) && !gb.buttons.pressed(BUTTON_UP) && LEFT_HOLD && RIGHT_HOLD) {
-        particleManager.spawnParticle(x/SCALE+random(-3,6),y/SCALE,5,colorGroup,PlayerColor);
+        particleManager.spawnParticle(Div8(x)+random(-3,6),Div8(y),5,colorGroup,PlayerColor);
       }
       
-      BottomInk = world.SMGetPaintValueAt(constrain(Div8(x/SCALE+4),0,world.MapWidth-1),constrain(Div8(y/SCALE)+2,0,world.MapHeight-1),0) > 0 
-      && world.SMGetColor(constrain(Div8(x/SCALE+4),0,world.MapWidth-1),constrain(Div8(y/SCALE)+2,0,world.MapHeight-1)) == PlayerColor;
+      BottomInk = world.SMGetPaintValueAt(constrain(Div8(Div8(x)+4),0,world.MapWidth-1),constrain(Div64(y)+2,0,world.MapHeight-1),0) > 0 
+      && world.SMGetColor(constrain(Div8(Div8(x)+4),0,world.MapWidth-1),constrain(Div64(y)+2,0,world.MapHeight-1)) == PlayerColor;
 
       if(BottomInk) {
         if(AnimationTimer2%5==0) {
@@ -146,45 +146,45 @@ class Player :
         }
       }
       
-      RightInk = world.SMGetPaintValueAt(constrain(Div8(x/SCALE+4)+1,0,world.MapWidth-1),constrain(Div8(y/SCALE+4),0,world.MapHeight-1),3) > 0 
-      && world.SMGetColor(constrain(Div8(x/SCALE+4)+1,0,world.MapWidth-1),constrain(Div8(y/SCALE+4),0,world.MapHeight-1)) == PlayerColor;
+      RightInk = world.SMGetPaintValueAt(constrain(Div8(Div8(x)+4)+1,0,world.MapWidth-1),constrain(Div8(Div8(y)+4),0,world.MapHeight-1),3) > 0 
+      && world.SMGetColor(constrain(Div8(Div8(x)+4)+1,0,world.MapWidth-1),constrain(Div8(Div8(y)+4),0,world.MapHeight-1)) == PlayerColor;
       
-      LeftInk = world.SMGetPaintValueAt(constrain(Div8(x/SCALE+4)-1,0,world.MapWidth-1),constrain(Div8(y/SCALE+4),0,world.MapHeight-1),1) > 0 
-      && world.SMGetColor(constrain(Div8(x/SCALE+4)-1,0,world.MapWidth-1),constrain(Div8(y/SCALE+4),0,world.MapHeight-1)) == PlayerColor;
+      LeftInk = world.SMGetPaintValueAt(constrain(Div8(Div8(x)+4)-1,0,world.MapWidth-1),constrain(Div8(Div8(y)+4),0,world.MapHeight-1),1) > 0 
+      && world.SMGetColor(constrain(Div8(Div8(x)+4)-1,0,world.MapWidth-1),constrain(Div8(Div8(y)+4),0,world.MapHeight-1)) == PlayerColor;
   
-      EBottomInk = world.SMGetPaintValueAt(constrain(Div8(x/SCALE+4),0,world.MapWidth-1),constrain(Div8(y/SCALE)+2,0,world.MapHeight-1),0) > 0 
-      && world.SMGetColor(constrain(Div8(x/SCALE+4),0,world.MapWidth-1),constrain(Div8(y/SCALE)+2,0,world.MapHeight-1)) != PlayerColor;
+      EBottomInk = world.SMGetPaintValueAt(constrain(Div8(Div8(x)+4),0,world.MapWidth-1),constrain(Div64(y)+2,0,world.MapHeight-1),0) > 0 
+      && world.SMGetColor(constrain(Div8(Div8(x)+4),0,world.MapWidth-1),constrain(Div64(y)+2,0,world.MapHeight-1)) != PlayerColor;
 
       //Kid to Squid to Kid collision
       if(DOWN_HOLD && !Last_DOWN_HOLD && (!A_HOLD || (A_HOLD&&!Last_A_HOLD))) {
         Kid2SquidFrames = 0;
-        y+=Mul8(SCALE);
+        y+=64;
       }
       if(!DOWN_HOLD && Last_DOWN_HOLD && !A_HOLD) {
         Kid2SquidFrames = 0;
-        y-=Mul8(SCALE);
+        y-=64;
       }
       if(A_HOLD&&!Last_A_HOLD && DOWN_HOLD) {
         Kid2SquidFrames = 0;
-        y-=Mul8(SCALE);
+        y-=64;
       }
       if(!A_HOLD&&Last_A_HOLD && DOWN_HOLD) {
         Kid2SquidFrames = 0;
-        y+=Mul8(SCALE);
+        y+=64;
       }
       if(!A_HOLD&&Last_A_HOLD && DOWN_HOLD&&!Last_DOWN_HOLD) {
         Kid2SquidFrames = 0;
-        y-=Mul8(SCALE);
+        y-=64;
       }
       if(A_HOLD&&!Last_A_HOLD && !DOWN_HOLD&&Last_DOWN_HOLD) {
         Kid2SquidFrames = 0;
-        y-=Mul8(SCALE);
+        y-=64;
       }
 
       //Put ink under player when shooting
       if(ShootCall) {
-        inkX = Div8(x/SCALE);
-        inkY = Div8(y/SCALE);
+        inkX = Div64(x);
+        inkY = Div64(y);
         
         inkX = constrain(inkX,0,world.MapWidth-1);
         inkY = constrain(inkY,0,world.MapHeight-1);
@@ -212,28 +212,28 @@ class Player :
       //Stairs and slopes handeling
       if(LEFT_HOLD) {
         IsSwiming = true;
-        byte col = TilesParams_Array[world.getTile(Div8(x/SCALE-1),Div8(y/SCALE+11))*TileParamsCount+0];
+        byte col = TilesParams_Array[world.getTile(Div8(Div8(x)-1),Div8(Div8(y)+11))*TileParamsCount+0];
         if(col == 7) {
-          x -= 1*SCALE;
-          y -= 1*SCALE;
+          x -= 8;
+          y -= 8;
         } else if(col == 0) {
-          col = TilesParams_Array[world.getTile(Div8(x/SCALE+4),Div8(y/SCALE+16))*TileParamsCount+0];
+          col = TilesParams_Array[world.getTile(Div8(Div8(x)+4),Div8(Div8(y)+16))*TileParamsCount+0];
           if(col == 7) {
-            x -= 1*SCALE;
-            y -= 1*SCALE;
+            x -= 8;
+            y -= 8;
           }
         }
       }
       if(RIGHT_HOLD) {
-        byte col = TilesParams_Array[world.getTile(Div8(x/SCALE+12),Div8(y/SCALE+11))*TileParamsCount+0];
+        byte col = TilesParams_Array[world.getTile(Div8(Div8(x)+12),Div8(Div8(y)+11))*TileParamsCount+0];
         if(col == 6) {
-          x += 1*SCALE;
-          y -= 1*SCALE;
+          x += 8;
+          y -= 8;
         } else if(col == 0) {
-          col = TilesParams_Array[world.getTile(Div8(x/SCALE+4),Div8(y/SCALE+16))*TileParamsCount+0];
+          col = TilesParams_Array[world.getTile(Div8(Div8(x)+4),Div8(Div8(y)+16))*TileParamsCount+0];
           if(col == 6) {
-            x += 1*SCALE;
-            y -= 1*SCALE;
+            x += 8;
+            y -= 8;
           }
         }
       }
@@ -241,11 +241,11 @@ class Player :
       //Swim PhysX
       ////////////
       if(DOWN_HOLD && !A_HOLD) {
-        bool BottomInkSquid = world.SMGetPaintValueAt(constrain(Div8(x/SCALE+4),0,world.MapWidth-1),constrain(Div8(y/SCALE)+1,0,world.MapHeight-1),0) > 0 
-        && world.SMGetColor(constrain(Div8(x/SCALE+4),0,world.MapWidth-1),constrain(Div8(y/SCALE)+1,0,world.MapHeight-1)) == PlayerColor;
+        bool BottomInkSquid = world.SMGetPaintValueAt(constrain(Div8(Div8(x)+4),0,world.MapWidth-1),constrain(Div8(Div8(y))+1,0,world.MapHeight-1),0) > 0 
+        && world.SMGetColor(constrain(Div8(Div8(x)+4),0,world.MapWidth-1),constrain(Div8(Div8(y))+1,0,world.MapHeight-1)) == PlayerColor;
 
-        bool BottomEInkSquid = world.SMGetPaintValueAt(constrain(Div8(x/SCALE+4),0,world.MapWidth-1),constrain(Div8(y/SCALE)+1,0,world.MapHeight-1),0) > 0 
-        && world.SMGetColor(constrain(Div8(x/SCALE+4),0,world.MapWidth-1),constrain(Div8(y/SCALE)+1,0,world.MapHeight-1)) != PlayerColor;
+        bool BottomEInkSquid = world.SMGetPaintValueAt(constrain(Div8(Div8(x)+4),0,world.MapWidth-1),constrain(Div8(Div8(y))+1,0,world.MapHeight-1),0) > 0 
+        && world.SMGetColor(constrain(Div8(Div8(x)+4),0,world.MapWidth-1),constrain(Div8(Div8(y))+1,0,world.MapHeight-1)) != PlayerColor;
 
         if(BottomEInkSquid && PlayerCode == 0) {
           shakeTimeLeft = 1;
@@ -275,7 +275,7 @@ class Player :
             Refill = constrain(Refill+2,0,100);
           }
           if(LVelY == 0) {
-            particleManager.spawnParticle(x/SCALE+1,y/SCALE+3,3,colorGroup,PlayerColor);
+            particleManager.spawnParticle(Div8(x)+1,Div8(y)+3,3,colorGroup,PlayerColor);
           }
           LVelY = constrain(LVelY+1, -5, 5);
 
@@ -655,8 +655,8 @@ class Player :
           ShootCall = false;
         }
 
-        bool BottomInkSquid = world.SMGetPaintValueAt(constrain(Div8(x/SCALE+4),0,world.MapWidth-1),constrain(Div8(y/SCALE)+1,0,world.MapHeight-1),0) > 0 
-        && world.SMGetColor(constrain(Div8(x/SCALE+4),0,world.MapWidth-1),constrain(Div8(y/SCALE)+1,0,world.MapHeight-1)) == PlayerColor;
+        bool BottomInkSquid = world.SMGetPaintValueAt(constrain(Div8(Div8(x)+4),0,world.MapWidth-1),constrain(Div8(Div8(y))+1,0,world.MapHeight-1),0) > 0 
+        && world.SMGetColor(constrain(Div8(Div8(x)+4),0,world.MapWidth-1),constrain(Div8(Div8(y))+1,0,world.MapHeight-1)) == PlayerColor;
         if((LeftInk || BottomInk || RightInk || BottomInkSquid) && !ShootCall) {
           DOWN_HOLD = true;
         }
@@ -683,11 +683,11 @@ class Player :
 
         if(targetY > 0) {
           if(PlayerDir < 0) {
-            if(TilesParams_Array[world.getTile(constrain(Div8(x/SCALE+0),0,world.MapWidth-1),constrain(Div8(y/SCALE)+2,0,world.MapHeight-1))*5+0] == 0) {
+            if(TilesParams_Array[world.getTile(constrain(Div8(Div8(x)+0),0,world.MapWidth-1),constrain(Div8(Div8(y))+2,0,world.MapHeight-1))*5+0] == 0) {
               B_PRESSED = true;
             }
           } else {
-            if(TilesParams_Array[world.getTile(constrain(Div8(x/SCALE+8),0,world.MapWidth-1),constrain(Div8(y/SCALE)+2,0,world.MapHeight-1))*5+0] == 0) {
+            if(TilesParams_Array[world.getTile(constrain(Div8(Div8(x)+8),0,world.MapWidth-1),constrain(Div8(Div8(y))+2,0,world.MapHeight-1))*5+0] == 0) {
               B_PRESSED = true;
             }
           }
@@ -729,8 +729,8 @@ class Player :
           }
           
           bulletsManager.spawnBullet(
-            Object::x-(7*SCALE)+(21*((PlayerDir+1)/2)*SCALE),
-            Object::y+(5*SCALE),
+            Object::x-(7*8)+(21*((PlayerDir+1)/2)*8),
+            Object::y+(5*8),
             (int)(cos(aimingAngleV-(PI/2.0F))*110.0F),
             (int)(sin(aimingAngleV-(PI/2.0F))*110.0F),
             PlayerColor,
@@ -797,27 +797,27 @@ class Player :
           if(PlayerDir == 1) {
             if(PlayerGender == 0) {
               InklingF.setFrame(playerImageID);
-              gb.display.drawImage(toScreenX(x/SCALE-8+LVelX+(sizeX-((sizeX*PlayerDir)/3*(4-abs(LVelX))))),toScreenY(y/SCALE-7-8+LVelY),InklingF,(sizeX*PlayerDir)/3*(4-abs(LVelX)),(sizeY));
+              gb.display.drawImage(toScreenX(Div8(x)-8+LVelX+(sizeX-((sizeX*PlayerDir)/3*(4-abs(LVelX))))),toScreenY(Div8(y)-7-8+LVelY),InklingF,(sizeX*PlayerDir)/3*(4-abs(LVelX)),(sizeY));
             } else {
               InklingM.setFrame(playerImageID);
-              gb.display.drawImage(toScreenX(x/SCALE-8+LVelX+(sizeX-((sizeX*PlayerDir)/3*(4-abs(LVelX))))),toScreenY(y/SCALE-7-8+LVelY),InklingM,(sizeX*PlayerDir)/3*(4-abs(LVelX)),(sizeY));
+              gb.display.drawImage(toScreenX(Div8(x)-8+LVelX+(sizeX-((sizeX*PlayerDir)/3*(4-abs(LVelX))))),toScreenY(Div8(y)-7-8+LVelY),InklingM,(sizeX*PlayerDir)/3*(4-abs(LVelX)),(sizeY));
             }
           } else {
             if(PlayerGender == 0) {
               InklingF.setFrame(playerImageID);
-              gb.display.drawImage(toScreenX(x/SCALE-8+LVelX),toScreenY(y/SCALE-7-8+LVelY),InklingF,(sizeX*PlayerDir)/3*(4-abs(LVelX)),(sizeY));
+              gb.display.drawImage(toScreenX(Div8(x)-8+LVelX),toScreenY(Div8(y)-7-8+LVelY),InklingF,(sizeX*PlayerDir)/3*(4-abs(LVelX)),(sizeY));
             } else {
               InklingM.setFrame(playerImageID);
-              gb.display.drawImage(toScreenX(x/SCALE-8+LVelX),toScreenY(y/SCALE-7-8+LVelY),InklingM,(sizeX*PlayerDir)/3*(4-abs(LVelX)),(sizeY));
+              gb.display.drawImage(toScreenX(Div8(x)-8+LVelX),toScreenY(Div8(y)-7-8+LVelY),InklingM,(sizeX*PlayerDir)/3*(4-abs(LVelX)),(sizeY));
             }
           }
         } else {
           if(PlayerGender == 0) {
             InklingF.setFrame(playerImageID);
-            gb.display.drawImage(toScreenX(x/SCALE-8+LVelX),toScreenY(y/SCALE-7-8+LVelY),InklingF,(sizeX*PlayerDir),(sizeY));
+            gb.display.drawImage(toScreenX(Div8(x)-8+LVelX),toScreenY(Div8(y)-7-8+LVelY),InklingF,(sizeX*PlayerDir),(sizeY));
           } else {
             InklingM.setFrame(playerImageID);
-            gb.display.drawImage(toScreenX(x/SCALE-8+LVelX),toScreenY(y/SCALE-7-8+LVelY),InklingM,(sizeX*PlayerDir),(sizeY));
+            gb.display.drawImage(toScreenX(Div8(x)-8+LVelX),toScreenY(Div8(y)-7-8+LVelY),InklingM,(sizeX*PlayerDir),(sizeY));
           }
         }
       } else {
@@ -837,10 +837,10 @@ class Player :
 
           if(PlayerGender == 0) {
           InklingF.setFrame(playerImageID);
-            gb.display.drawImage(toScreenX(x/SCALE-8),toScreenY(y/SCALE-7),InklingF,(sizeX*PlayerDir),(sizeY));
+            gb.display.drawImage(toScreenX(Div8(x)-8),toScreenY(Div8(y)-7),InklingF,(sizeX*PlayerDir),(sizeY));
           } else {
             InklingM.setFrame(playerImageID);
-            gb.display.drawImage(toScreenX(x/SCALE-8),toScreenY(y/SCALE-7),InklingM,(sizeX*PlayerDir),(sizeY));
+            gb.display.drawImage(toScreenX(Div8(x)-8),toScreenY(Div8(y)-7),InklingM,(sizeX*PlayerDir),(sizeY));
           }
 
           gb.display.colorIndex = palette;
@@ -873,26 +873,26 @@ class Player :
             case 0:
             InklingF.setFrame(playerImageID);
             H0InklingF.setFrame(playerImageID);
-            gb.display.drawImage(toScreenX(x/SCALE-8),toScreenY(y/SCALE-7),InklingF,sizeX*PlayerDir,sizeY);
-            gb.display.drawImage(toScreenX(x/SCALE-8),toScreenY(y/SCALE-7),H0InklingF,sizeX*PlayerDir,sizeY);
+            gb.display.drawImage(toScreenX(Div8(x)-8),toScreenY(Div8(y)-7),InklingF,sizeX*PlayerDir,sizeY);
+            gb.display.drawImage(toScreenX(Div8(x)-8),toScreenY(Div8(y)-7),H0InklingF,sizeX*PlayerDir,sizeY);
             break;
             case 1:
             InklingF.setFrame(playerImageID);
             H1InklingF.setFrame(playerImageID);
-            gb.display.drawImage(toScreenX(x/SCALE-8),toScreenY(y/SCALE-7),InklingF,sizeX*PlayerDir,sizeY);
-            gb.display.drawImage(toScreenX(x/SCALE-8),toScreenY(y/SCALE-7),H1InklingF,sizeX*PlayerDir,sizeY);
+            gb.display.drawImage(toScreenX(Div8(x)-8),toScreenY(Div8(y)-7),InklingF,sizeX*PlayerDir,sizeY);
+            gb.display.drawImage(toScreenX(Div8(x)-8),toScreenY(Div8(y)-7),H1InklingF,sizeX*PlayerDir,sizeY);
             break;
             case 2:
             InklingF.setFrame(playerImageID);
             H2InklingF.setFrame(playerImageID);
-            gb.display.drawImage(toScreenX(x/SCALE-8),toScreenY(y/SCALE-7),InklingF,sizeX*PlayerDir,sizeY);
-            gb.display.drawImage(toScreenX(x/SCALE-8),toScreenY(y/SCALE-7),H2InklingF,sizeX*PlayerDir,sizeY);
+            gb.display.drawImage(toScreenX(Div8(x)-8),toScreenY(Div8(y)-7),InklingF,sizeX*PlayerDir,sizeY);
+            gb.display.drawImage(toScreenX(Div8(x)-8),toScreenY(Div8(y)-7),H2InklingF,sizeX*PlayerDir,sizeY);
             break;
             case 3:
             InklingF.setFrame(playerImageID);
             H3InklingF.setFrame(playerImageID);
-            gb.display.drawImage(toScreenX(x/SCALE-8),toScreenY(y/SCALE-7),InklingF,sizeX*PlayerDir,sizeY);
-            gb.display.drawImage(toScreenX(x/SCALE-8),toScreenY(y/SCALE-7),H3InklingF,sizeX*PlayerDir,sizeY);
+            gb.display.drawImage(toScreenX(Div8(x)-8),toScreenY(Div8(y)-7),InklingF,sizeX*PlayerDir,sizeY);
+            gb.display.drawImage(toScreenX(Div8(x)-8),toScreenY(Div8(y)-7),H3InklingF,sizeX*PlayerDir,sizeY);
             break;
           }
         } else {
@@ -900,26 +900,26 @@ class Player :
             case 0:
             InklingM.setFrame(playerImageID);
             H0InklingM.setFrame(playerImageID);
-            gb.display.drawImage(toScreenX(x/SCALE-8),toScreenY(y/SCALE-7),InklingM,sizeX*PlayerDir,sizeY);
-            gb.display.drawImage(toScreenX(x/SCALE-8),toScreenY(y/SCALE-7),H0InklingM,sizeX*PlayerDir,sizeY);
+            gb.display.drawImage(toScreenX(Div8(x)-8),toScreenY(Div8(y)-7),InklingM,sizeX*PlayerDir,sizeY);
+            gb.display.drawImage(toScreenX(Div8(x)-8),toScreenY(Div8(y)-7),H0InklingM,sizeX*PlayerDir,sizeY);
             break;
             case 1:
             InklingM.setFrame(playerImageID);
             H1InklingM.setFrame(playerImageID);
-            gb.display.drawImage(toScreenX(x/SCALE-8),toScreenY(y/SCALE-7),InklingM,sizeX*PlayerDir,sizeY);
-            gb.display.drawImage(toScreenX(x/SCALE-8),toScreenY(y/SCALE-7),H1InklingM,sizeX*PlayerDir,sizeY);
+            gb.display.drawImage(toScreenX(Div8(x)-8),toScreenY(Div8(y)-7),InklingM,sizeX*PlayerDir,sizeY);
+            gb.display.drawImage(toScreenX(Div8(x)-8),toScreenY(Div8(y)-7),H1InklingM,sizeX*PlayerDir,sizeY);
             break;
             case 2:
             InklingM.setFrame(playerImageID);
             H2InklingM.setFrame(playerImageID);
-            gb.display.drawImage(toScreenX(x/SCALE-8),toScreenY(y/SCALE-7),InklingM,sizeX*PlayerDir,sizeY);
-            gb.display.drawImage(toScreenX(x/SCALE-8),toScreenY(y/SCALE-7),H2InklingM,sizeX*PlayerDir,sizeY);
+            gb.display.drawImage(toScreenX(Div8(x)-8),toScreenY(Div8(y)-7),InklingM,sizeX*PlayerDir,sizeY);
+            gb.display.drawImage(toScreenX(Div8(x)-8),toScreenY(Div8(y)-7),H2InklingM,sizeX*PlayerDir,sizeY);
             break;
             case 3:
             InklingM.setFrame(playerImageID);
             H3InklingM.setFrame(playerImageID);
-            gb.display.drawImage(toScreenX(x/SCALE-8),toScreenY(y/SCALE-7),InklingM,sizeX*PlayerDir,sizeY);
-            gb.display.drawImage(toScreenX(x/SCALE-8),toScreenY(y/SCALE-7),H3InklingM,sizeX*PlayerDir,sizeY);
+            gb.display.drawImage(toScreenX(Div8(x)-8),toScreenY(Div8(y)-7),InklingM,sizeX*PlayerDir,sizeY);
+            gb.display.drawImage(toScreenX(Div8(x)-8),toScreenY(Div8(y)-7),H3InklingM,sizeX*PlayerDir,sizeY);
             break;
           }
         }
@@ -929,9 +929,9 @@ class Player :
 
       if(!IsSwiming && (cpuLoad < 100 && PlayerCode != 0)) {
         if(PlayerDir == 1) {
-          gb.display.drawImage(toScreenX(x/SCALE-5)+HatOffset[playerImageID*2],toScreenY(y/SCALE-10)-HatOffset[playerImageID*2+1],HeadgearSprites[hat],16,16);
+          gb.display.drawImage(toScreenX(Div8(x)-5)+HatOffset[playerImageID*2],toScreenY(Div8(y)-10)-HatOffset[playerImageID*2+1],HeadgearSprites[hat],16,16);
         } else {
-          gb.display.drawImage(toScreenX(x/SCALE-3)-HatOffset[playerImageID*2],toScreenY(y/SCALE-10)-HatOffset[playerImageID*2+1],HeadgearSprites[hat],-16,16);
+          gb.display.drawImage(toScreenX(Div8(x)-3)-HatOffset[playerImageID*2],toScreenY(Div8(y)-10)-HatOffset[playerImageID*2+1],HeadgearSprites[hat],-16,16);
         }
       }
       
@@ -942,9 +942,9 @@ class Player :
     void BulletCollision () {
       for(byte i = 0; i < BCOUNT; i++) {
         if(!bulletsManager.bullets[i].IsDead) {
-          if(gb.collidePointRect(bulletsManager.bullets[i].x/SCALE,bulletsManager.bullets[i].y/SCALE,x/SCALE,y/SCALE,getWidth(),getHeight())) {
+          if(gb.collidePointRect(Div8(bulletsManager.bullets[i].x),Div8(bulletsManager.bullets[i].y),Div8(x),Div8(y),getWidth(),getHeight())) {
             if(bulletsManager.bullets[i].color != PlayerColor) {
-              particleManager.spawnParticle(bulletsManager.bullets[i].x/SCALE,bulletsManager.bullets[i].y/SCALE,0,colorGroup,bulletsManager.bullets[i].color);
+              particleManager.spawnParticle(Div8(bulletsManager.bullets[i].x),Div8(bulletsManager.bullets[i].y),0,colorGroup,bulletsManager.bullets[i].color);
               Live-=bulletsManager.bullets[i].Damage;
               bulletsManager.bullets[i].Die();
               
@@ -968,11 +968,11 @@ class Player :
         RespawnTimer--;
         if(RespawnTimer == 0) {
           if(PlayerColor == revertColors) {
-            x = ((GetMap[world.CurrentLoadedMap][2]*8)-4)*SCALE;
-            y = (GetMap[world.CurrentLoadedMap][3]*8)*SCALE;
+            x = ((GetMap[world.CurrentLoadedMap][2]*8)-4)*8;
+            y = (GetMap[world.CurrentLoadedMap][3]*8)*8;
           } else {
-            x = (GetMap[world.CurrentLoadedMap][0]*8)*SCALE - Mul8(GetMap[world.CurrentLoadedMap][2])*SCALE - Mul8(SCALE);
-            y = (GetMap[world.CurrentLoadedMap][3]*8)*SCALE;
+            x = (GetMap[world.CurrentLoadedMap][0]*8)*8 - Mul8(GetMap[world.CurrentLoadedMap][2])*8 - 64;
+            y = (GetMap[world.CurrentLoadedMap][3]*8)*8;
           }
         }
         return;
@@ -996,8 +996,8 @@ class Player :
     }
 
     void Die () {
-      particleManager.spawnParticle(x/SCALE,y/SCALE,4,colorGroup,PlayerColor);
-      particleManager.spawnParticle(x/SCALE+5,y/SCALE+11,3,colorGroup,!PlayerColor);
+      particleManager.spawnParticle(x/8,y/8,4,colorGroup,PlayerColor);
+      particleManager.spawnParticle(x/8+5,y/8+11,3,colorGroup,!PlayerColor);
       
       RespawnTimer = 80;
       Live = 100;
@@ -1022,13 +1022,13 @@ class PlayersOperator {
         if(i < PLAYER_C/2) {
           players[i-1].PlayerDir = 1;
           players[i-1].PlayerColor = revertColors;
-          players[i-1].x = ((GetMap[world.CurrentLoadedMap][2]*8)-4)*SCALE;
-          players[i-1].y = (GetMap[world.CurrentLoadedMap][3]*8)*SCALE;
+          players[i-1].x = ((GetMap[world.CurrentLoadedMap][2]*8)-4)*8;
+          players[i-1].y = (GetMap[world.CurrentLoadedMap][3]*8)*8;
         } else {
           players[i-1].PlayerDir = -1;
           players[i-1].PlayerColor = 1-revertColors;
-          players[i-1].x = (GetMap[world.CurrentLoadedMap][0]*8)*SCALE - (GetMap[world.CurrentLoadedMap][2]*8)*SCALE - (SCALE*8);
-          players[i-1].y = (GetMap[world.CurrentLoadedMap][3]*8)*SCALE;
+          players[i-1].x = (GetMap[world.CurrentLoadedMap][0]*8)*8 - (GetMap[world.CurrentLoadedMap][2]*8)*8- 64;
+          players[i-1].y = (GetMap[world.CurrentLoadedMap][3]*8)*8;
         }
 
         players[i-1].PlayerCode = i;
@@ -1078,7 +1078,7 @@ class PlayersOperator {
           for(int16_t e = 0; e < PLAYER_C; e++) {
             if(e==0) {
               if(players[i-1].PlayerColor != mainPlayer.PlayerColor && mainPlayer.RespawnTimer > 0) {
-                uint16_t Range = abs(players[i-1].x/SCALE-mainPlayer.x/SCALE)+abs(players[i-1].y/SCALE-mainPlayer.y/SCALE);
+                uint16_t Range = abs(players[i-1].x/8-mainPlayer.x/8)+abs(players[i-1].y/8-mainPlayer.y/8);
                 if(Range < 128) {
                   ennemieCountNearby++;
                   if(Range < closestRange) {
@@ -1088,7 +1088,7 @@ class PlayersOperator {
               }
             } else {
               if(players[i-1].PlayerColor != players[e-1].PlayerColor && players[e-1].RespawnTimer > 0) {
-                uint16_t Range = abs(players[i-1].x/SCALE-players[e-1].x/SCALE)+abs(players[i-1].y/SCALE-players[e-1].y/SCALE);
+                uint16_t Range = abs(players[i-1].x/8-players[e-1].x/8)+abs(players[i-1].y/8-players[e-1].y/8);
                 if(Range < 128) {
                   ennemieCountNearby++;
                   if(Range < closestRange) {
@@ -1145,8 +1145,8 @@ class PlayersOperator {
               
               players[i-1].TargetPlayerId = -1;
             } else {
-              players[i-1].targetX = mainPlayer.x/SCALE-players[i-1].x/SCALE;
-              players[i-1].targetY = mainPlayer.y/SCALE-players[i-1].y/SCALE;
+              players[i-1].targetX = Div8(mainPlayer.x)-Div8(players[i-1].x);
+              players[i-1].targetY = Div8(mainPlayer.y)-Div8(players[i-1].y);
             }
           } else {
             if(players[players[i-1].TargetPlayerId-1].RespawnTimer <= 0) {
@@ -1156,8 +1156,8 @@ class PlayersOperator {
 
               players[i-1].TargetPlayerId = -1;
             } else {
-              players[i-1].targetX = players[players[i-1].TargetPlayerId-1].x/SCALE-players[i-1].x/SCALE;
-              players[i-1].targetY = players[players[i-1].TargetPlayerId-1].y/SCALE-players[i-1].y/SCALE;
+              players[i-1].targetX = Div8(players[players[i-1].TargetPlayerId-1].x)-Div8(players[i-1].x);
+              players[i-1].targetY = Div8(players[players[i-1].TargetPlayerId-1].y)-Div8(players[i-1].y);
             }
           }
         }

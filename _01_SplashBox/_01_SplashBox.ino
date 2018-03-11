@@ -11,7 +11,7 @@
 #define AnimWALKSPEED 4
 #define AnimRUNSPEED 2
 
-#define SCALE 8
+//#define SCALE 8
 #define VFORCE 5
 
 #define BCOUNT 16
@@ -422,7 +422,17 @@ template<typename T> T Mul8 (T v) {
     //return v*8;
 }
 
-template<typename T> T Div8(T v) {
+template<typename T> T Div8 (T v) {
     return v >> 3;
     //return v/8;
+}
+
+template<typename T> T Mul64 (T v) {
+    return v << 6;
+    //return v*64;
+}
+
+template<typename T> T Div64 (T v) {
+    return v >> 6;
+    //return v/64;
 }

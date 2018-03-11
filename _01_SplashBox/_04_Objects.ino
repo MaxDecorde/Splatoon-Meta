@@ -33,13 +33,13 @@ class Object {
   };
 
   boolean isOffScreen() {
-    return (toScreenX(x/SCALE) + toScreenX(x/SCALE + getWidth()) < 0) || (toScreenX(x/SCALE) > LCDWIDTH) || (toScreenY(y/SCALE) + toScreenY(y/SCALE + getHeight()) < 0) || (toScreenY(y/SCALE) > LCDHEIGHT);
+    return (toScreenX(Div8(x)) + toScreenX(Div8(x) + getWidth()) < 0) || (toScreenX(Div8(x)) > LCDWIDTH) || (toScreenY(Div8(y)) + toScreenY(Div8(y) + getHeight()) < 0) || (toScreenY(Div8(y)) > LCDHEIGHT);
   }
 
   virtual void Draw () {
     if(isOffScreen())
         return; //skip boxes which are out of the screen
-      gb.display.fillRect(toScreenX(x/SCALE), toScreenY(y/SCALE), getWidth(), getHeight());
+      gb.display.fillRect(toScreenX(Div8(x)), toScreenY(Div8(y)), getWidth(), getHeight());
   }
   
   bool CheckForCollisionX (int8_t Dir) {
@@ -48,10 +48,10 @@ class Object {
       if(Dir == 1) {
         for(int16_t xd = 0; xd < getHeight(); xd++) { //yd = Y Down
           ColX[xd] = world.PixelInCollider(
-            Div8(x/SCALE-1),
-            Div8(y/SCALE),
-            (x/SCALE+getWidth()-1)%8,
-            (y/SCALE)%8+xd
+            Div8(Div8(x)-1),
+            Div64(y),
+            (Div8(x)+getWidth()-1)%8,
+            (Div8(y))%8+xd
           );
         }
         for(int16_t xd = 0; xd < getHeight(); xd++) {
@@ -64,10 +64,10 @@ class Object {
       if(Dir == -1) {
         for(int16_t xd = 0; xd < getHeight(); xd++) { //yd = Y Down
           ColX[xd] = world.PixelInCollider(
-            Div8(x/SCALE+getWidth()),
-            Div8(y/SCALE),
-            (x/SCALE+getWidth())%8,
-            (y/SCALE)%8+xd
+            Div8(Div8(x)+getWidth()),
+            Div64(y),
+            (Div8(x)+getWidth())%8,
+            (Div8(y))%8+xd
           );
         }
         for(int16_t xd = 0; xd < getHeight(); xd++) {
@@ -87,10 +87,10 @@ class Object {
       if(Dir == 1) {
         for(int16_t yd = 0; yd < getWidth(); yd++) { //yd = Y Down
           ColY[yd] = world.PixelInCollider(
-            Div8(x/SCALE),
-            Div8(y/SCALE-1),
-            (x/SCALE)%8+yd,
-            (y/SCALE+getHeight())%8
+            Div64(x),
+            Div8(Div8(y)-1),
+            (Div8(x))%8+yd,
+            (Div8(y)+getHeight())%8
           );
         }
         for(int16_t yd = 0; yd < getWidth(); yd++) {
@@ -103,10 +103,10 @@ class Object {
       if(Dir == -1) {
         for(int16_t yd = 0; yd < getWidth(); yd++) { //yd = Y Down
           ColY[yd] = world.PixelInCollider(
-            Div8(x/SCALE),
-            Div8(y/SCALE+getHeight()),
-            (x/SCALE)%8+yd,
-            (y/SCALE+getHeight())%8
+            Div64(x),
+            Div8(Div8(y)+getHeight()),
+            (Div8(x))%8+yd,
+            (Div8(y)+getHeight())%8
           );
         }
         for(int16_t yd = 0; yd < getWidth(); yd++) {
@@ -124,10 +124,10 @@ class Object {
     byte ColY[getWidth()];
     for(int16_t yd = 0; yd < getWidth(); yd++) { //yd = Y Down
       ColY[yd] = world.PixelInCollider(
-        Div8(x/SCALE),
-        Div8(y/SCALE-1),
-        (x/SCALE)%8+yd,
-        (y/SCALE+getHeight())%8
+        Div64(x),
+        Div8(Div8(y)-1),
+        (Div8(x))%8+yd,
+        (Div8(y)+getHeight())%8
       );
     }
     for(int16_t yd = 0; yd < getWidth(); yd++) {
@@ -138,10 +138,10 @@ class Object {
     
     for(int16_t yd = 0; yd < getWidth(); yd++) { //yd = Y Down
       ColY[yd] = world.PixelInCollider(
-        Div8(x/SCALE),
-        Div8(y/SCALE+getHeight()),
-        (x/SCALE)%8+yd,
-        (y/SCALE+getHeight())%8
+        Div64(x),
+        Div8(Div8(y)+getHeight()),
+        (Div8(x))%8+yd,
+        (Div8(y)+getHeight())%8
       );
     }
     for(int16_t yd = 0; yd < getWidth(); yd++) {
@@ -153,10 +153,10 @@ class Object {
     byte ColX[getHeight()];
     for(int16_t xd = 0; xd < getHeight(); xd++) { //yd = Y Down
       ColX[xd] = world.PixelInCollider(
-        Div8(x/SCALE-1),
-        Div8(y/SCALE),
-        (x/SCALE+getWidth()-1)%8,
-        (y/SCALE)%8+xd
+        Div8(Div8(x)-1),
+        Div64(y),
+        (Div8(x)+getWidth()-1)%8,
+        (Div8(y))%8+xd
       );
     }
     for(int16_t xd = 0; xd < getHeight(); xd++) {
@@ -166,10 +166,10 @@ class Object {
     }
     for(int16_t xd = 0; xd < getHeight(); xd++) { //yd = Y Down
       ColX[xd] = world.PixelInCollider(
-        Div8(x/SCALE+getWidth()),
-        Div8(y/SCALE),
-        (x/SCALE+getWidth())%8,
-        (y/SCALE)%8+xd
+        Div8(Div8(x)+getWidth()),
+        Div64(y),
+        (Div8(x)+getWidth())%8,
+        (Div8(y))%8+xd
       );
     }
     for(int16_t xd = 0; xd < getHeight(); xd++) {

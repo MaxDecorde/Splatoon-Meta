@@ -17,8 +17,8 @@ void PrepareMap (uint8_t mapID) {
   world.SMResetMap();
   
   world.CurrentLoadedMap = mapID;
-  player.mainPlayer.x = ((GetMap[world.CurrentLoadedMap][2]*8)-4)*SCALE;
-  player.mainPlayer.y = (GetMap[world.CurrentLoadedMap][3]*8)*SCALE;
+  player.mainPlayer.x = ((GetMap[world.CurrentLoadedMap][2]*8)-4)*8;
+  player.mainPlayer.y = (GetMap[world.CurrentLoadedMap][3]*8)*8;
   world.MapWidth = GetMap[world.CurrentLoadedMap][0];
   world.MapHeight = GetMap[world.CurrentLoadedMap][1];
 
@@ -83,8 +83,8 @@ void DrawCursor() {
         if(gb.buttons.repeat(BUTTON_B,Weapons[mainWeapon][5]) && !gb.buttons.pressed(BUTTON_B)) {
           float aimingAngle = 0;
           for(uint8_t b = 0; b < Weapons[mainWeapon][8]; b++) {
-            int16_t rootX = player.mainPlayer.x/SCALE;
-            int16_t rootY = player.mainPlayer.y/SCALE;
+            int16_t rootX = Div8(player.mainPlayer.x);
+            int16_t rootY = Div8(player.mainPlayer.y);
             int16_t targetX = cameraX+curX;
             int16_t targetY = cameraY+curY;
   
@@ -120,8 +120,8 @@ void DrawCursor() {
               gb.display.drawLine(toScreenX(rootX),toScreenY(rootY),toScreenX(targetX),toScreenY(targetY));
               
               int8_t bulletID = bulletsManager.spawnBullet(
-                rootX*SCALE+(2*SCALE),
-                rootY*SCALE+(2*SCALE),
+                rootX*8+16,
+                rootY*8+16,
                 -(int16_t)(cos(aimingAngle)*Weapons[mainWeapon][1]+random(-Weapons[mainWeapon][2]*10,Weapons[mainWeapon][2]*10)/10.0F),
                 (int16_t)(sin(aimingAngle)*Weapons[mainWeapon][1]+random(-Weapons[mainWeapon][2]*10,Weapons[mainWeapon][2]*10)/10.0F),
                 player.mainPlayer.PlayerColor,
@@ -149,8 +149,8 @@ void DrawCursor() {
               break;
             }
             
-            int16_t rootX = player.mainPlayer.x/SCALE;
-            int16_t rootY = player.mainPlayer.y/SCALE;
+            int16_t rootX = Div8(player.mainPlayer.x);
+            int16_t rootY = Div8(player.mainPlayer.y);
             
             if(player.mainPlayer.PlayerDir == 1) {
               //root = + 22,9 from player
@@ -166,8 +166,8 @@ void DrawCursor() {
               aimingAngle = (PI)+(random(-Weapons[mainWeapon][4],Weapons[mainWeapon][4])/50.0F);
             }
             int8_t bulletID = bulletsManager.spawnBullet(
-              rootX*SCALE+(2*SCALE),
-              rootY*SCALE+(2*SCALE),
+              rootX*8+16,
+              rootY*8+16,
               -(int16_t)(cos(aimingAngle)*(Weapons[mainWeapon][1]+random(-Weapons[mainWeapon][2]*10,Weapons[mainWeapon][2]*10)/10.0F)),
               (int16_t)(sin(aimingAngle)*(Weapons[mainWeapon][1]+random(-Weapons[mainWeapon][2]*10,Weapons[mainWeapon][2]*10)/10.0F))+-Weapons[mainWeapon][11],
               player.mainPlayer.PlayerColor,
@@ -189,8 +189,8 @@ void DrawCursor() {
           }
           float aimingAngle = 0;
           for(uint8_t b = 0; b < Weapons[mainWeapon][8]/2; b++) {
-            int16_t rootX = player.mainPlayer.x/SCALE;
-            int16_t rootY = player.mainPlayer.y/SCALE;
+            int16_t rootX = Div8(player.mainPlayer.x);
+            int16_t rootY = Div8(player.mainPlayer.y);
             
             if(player.mainPlayer.PlayerDir == 1) {
               //root = + 22,9 from player
@@ -206,8 +206,8 @@ void DrawCursor() {
               aimingAngle = (PI)+(random(-Weapons[mainWeapon][4],Weapons[mainWeapon][4])/50.0F);
             }
             int8_t bulletID = bulletsManager.spawnBullet(
-              rootX*SCALE+(2*SCALE),
-              rootY*SCALE+(2*SCALE),
+              rootX*8+16,
+              rootY*8+16,
               0,
               -Weapons[mainWeapon][1],
               player.mainPlayer.PlayerColor,
@@ -227,8 +227,8 @@ void DrawCursor() {
           WeaponResetTimer += 1;
         }
         if(WeaponResetTimer > Weapons[mainWeapon][5]) { //Recharge Indicator
-          int16_t rootX = player.mainPlayer.x/SCALE;
-          int16_t rootY = player.mainPlayer.y/SCALE;
+          int16_t rootX = Div8(player.mainPlayer.x);
+          int16_t rootY = Div8(player.mainPlayer.y);
           int16_t targetX = cameraX+curX;
           int16_t targetY = cameraY+curY;
           if(player.mainPlayer.PlayerDir == 1) {
@@ -253,8 +253,8 @@ void DrawCursor() {
           float aimingAngle = 0;
           float driftX = 0;
           float driftY = 0;
-          int16_t rootX = player.mainPlayer.x/SCALE;
-          int16_t rootY = player.mainPlayer.y/SCALE;
+          int16_t rootX = Div8(player.mainPlayer.x);
+          int16_t rootY = Div8(player.mainPlayer.y);
           int16_t targetX = cameraX+curX;
           int16_t targetY = cameraY+curY;
           if(player.mainPlayer.PlayerDir == 1) {
@@ -291,13 +291,13 @@ void DrawCursor() {
   
             //gb.display.setColor(RED);
             //gb.display.drawRect(toScreenX((rootX+2+driftX/SCALE)/8*8),toScreenY((rootY+2-driftY/SCALE)/8*8),8,8);
-            if(TilesParams_Array[world.getTile((rootX+2+driftX/SCALE)/8,(rootY+2-driftY/SCALE)/8)] != 0) {
+            if(TilesParams_Array[world.getTile((rootX+2+(driftX/8))/8,(rootY+2-(driftY/8))/8)] != 0) {
               break;
             }
             
             int8_t bulletID = bulletsManager.spawnBullet(
-              rootX*SCALE+(2*SCALE)+(int16_t)driftX,
-              rootY*SCALE+(2*SCALE)-(int16_t)driftY,
+              rootX*8+16+(int16_t)driftX,
+              rootY*8+16-(int16_t)driftY,
               -(int16_t)(cos(aimingAngle)*50),
               (int16_t)(sin(aimingAngle)*50),
               player.mainPlayer.PlayerColor,
@@ -322,8 +322,8 @@ void DrawCursor() {
             
           float aimingAngle = 0;
           for(uint8_t b = 0; b < Weapons[mainWeapon][8]; b++) {
-            int16_t rootX = player.mainPlayer.x/SCALE;
-            int16_t rootY = player.mainPlayer.y/SCALE;
+            int16_t rootX = Div8(player.mainPlayer.x);
+            int16_t rootY = Div8(player.mainPlayer.y);
             
             if(player.mainPlayer.PlayerDir == 1) {
               //root = + 22,9 from player
@@ -339,8 +339,8 @@ void DrawCursor() {
               aimingAngle = (PI)+(random(-Weapons[mainWeapon][4],Weapons[mainWeapon][4])/50.0F);
             }
             int8_t bulletID = bulletsManager.spawnBullet(
-              rootX*SCALE+(2*SCALE),
-              rootY*SCALE+(2*SCALE),
+              rootX*8+16,
+              rootY*8+16,
               -(int16_t)(cos(aimingAngle)*(Weapons[mainWeapon][1]+random(-Weapons[mainWeapon][2]*10,Weapons[mainWeapon][2]*10)/10.0F)),
               (int16_t)(sin(aimingAngle)*(Weapons[mainWeapon][1]+random(-Weapons[mainWeapon][2]*10,Weapons[mainWeapon][2]*10)/10.0F))+-Weapons[mainWeapon][11],
               player.mainPlayer.PlayerColor,
@@ -702,8 +702,8 @@ void loop () {
             FreezePlayers = false;
           }
         } else {
-          cameraX = (cameraX*5+(player.mainPlayer.x/SCALE+4-(LCDWIDTH/2) + ((curX-LCDWIDTH/2)/4)*3 + (-player.mainPlayer.vx/5)))/6;
-          cameraY = (cameraY*4+(player.mainPlayer.y/SCALE+4-(LCDHEIGHT/2) + ((curY-LCDWIDTH/2)/6)*4 + (-player.mainPlayer.vy/5)))/5;
+          cameraX = (cameraX*5+(Div8(player.mainPlayer.x)+4-(LCDWIDTH/2) + ((curX-LCDWIDTH/2)/4)*3 + (-player.mainPlayer.vx/5)))/6;
+          cameraY = (cameraY*4+(Div8(player.mainPlayer.y)+4-(LCDHEIGHT/2) + ((curY-LCDWIDTH/2)/6)*4 + (-player.mainPlayer.vy/5)))/5;
         }
         ClampCamera();
         if(gb.buttons.pressed(BUTTON_MENU)) {
@@ -1113,11 +1113,11 @@ void loop () {
           particleManager.Update();
     
           if((Weapons[mainWeapon][0]) == 2 && gb.buttons.repeat(BUTTON_A,0)) {
-            cameraX = (cameraX*5+(player.mainPlayer.x/SCALE+4-(LCDWIDTH/2) + ((curX-LCDWIDTH/2)/6)*10 + (-player.mainPlayer.vx/5)))/6;
-            cameraY = (cameraY*4+(player.mainPlayer.y/SCALE+4-(LCDHEIGHT/2) + ((curY-LCDWIDTH/2)/6)*12 + (-player.mainPlayer.vy/5)))/5;
+            cameraX = (cameraX*5+(Div8(player.mainPlayer.x)+4-(LCDWIDTH/2) + ((curX-LCDWIDTH/2)/6)*10 + (-player.mainPlayer.vx/5)))/6;
+            cameraY = (cameraY*4+(Div8(player.mainPlayer.y)+4-(LCDHEIGHT/2) + ((curY-LCDWIDTH/2)/6)*12 + (-player.mainPlayer.vy/5)))/5;
           } else {
-            cameraX = (cameraX*5+(player.mainPlayer.x/SCALE+4-(LCDWIDTH/2) + ((curX-LCDWIDTH/2)/4)*3 + (-player.mainPlayer.vx/5)))/6;
-            cameraY = (cameraY*4+(player.mainPlayer.y/SCALE+4-(LCDHEIGHT/2) + ((curY-LCDWIDTH/2)/6)*4 + (-player.mainPlayer.vy/5)))/5;
+            cameraX = (cameraX*5+(Div8(player.mainPlayer.x)+4-(LCDWIDTH/2) + ((curX-LCDWIDTH/2)/4)*3 + (-player.mainPlayer.vx/5)))/6;
+            cameraY = (cameraY*4+(Div8(player.mainPlayer.y)+4-(LCDHEIGHT/2) + ((curY-LCDWIDTH/2)/6)*4 + (-player.mainPlayer.vy/5)))/5;
           }
     
           /*if(gb.buttons.repeat(BUTTON_UP,0)) {
@@ -1243,7 +1243,7 @@ void loop () {
           gb.display.cursorX = 50;
           gb.display.cursorY = 10;
           char ipC[5];
-          sprintf(ipC,"%05d",player.mainPlayer.InkPoints); //player.mainPlayer.InkPoints
+          sprintf(ipC,"%05d",gb.getCpuLoad()); //player.mainPlayer.InkPoints
           gb.display.print(ipC);
           gb.display.print("P");
 
@@ -1402,6 +1402,7 @@ void loop () {
           AnimationTimer2-=1;
         } else {
           if(gb.buttons.pressed(BUTTON_A)) {
+            stopMusic();
             IsPlaying = false;
             AnimationTimer = 0;
             AnimationTimer2 = 0;

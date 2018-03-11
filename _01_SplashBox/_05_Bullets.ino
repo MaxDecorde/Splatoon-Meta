@@ -98,16 +98,16 @@ class Bullets:
         int8_t bulldir = (vx<0)*2-1;
         if(Type == 0) { //Squish
           BulletSquish.setFrame(constrain(Timer/(BulletTimeLimit/4),0,3));
-          gb.display.drawImage(toScreenX(x/SCALE-3), toScreenY(y/SCALE-3), BulletSquish, 7*bulldir, 7);
+          gb.display.drawImage(toScreenX(Div8(x)-3), toScreenY(Div8(y)-3), BulletSquish, 7*bulldir, 7);
         } else if(Type == 1) { //Flat
           BulletLong.setFrame(constrain(Timer/(BulletTimeLimit/4),0,3));
-          gb.display.drawImage(toScreenX(x/SCALE-3), toScreenY(y/SCALE-3), BulletLong, 7*bulldir, 7);
+          gb.display.drawImage(toScreenX(Div8(x)-3), toScreenY(Div8(y)-3), BulletLong, 7*bulldir, 7);
         } if(Type == 2) { //Falling
           FallingBullet.setFrame(constrain(Timer/(BulletTimeLimit/4),0,3));
-          gb.display.drawImage(toScreenX(x/SCALE-3), toScreenY(y/SCALE-3), FallingBullet, 7*bulldir, 7);
+          gb.display.drawImage(toScreenX(Div8(x)-3), toScreenY(Div8(y)-3), FallingBullet, 7*bulldir, 7);
         } else if(Type == 3) { //Spray
           SprayBullet.setFrame(constrain(Timer/(BulletTimeLimit/4),0,3));
-          gb.display.drawImage(toScreenX(x/SCALE-3), toScreenY(y/SCALE-3), SprayBullet, 7*bulldir, 7);
+          gb.display.drawImage(toScreenX(Div8(x)-3), toScreenY(Div8(y)-3), SprayBullet, 7*bulldir, 7);
         }
         gb.display.colorIndex = palette;
       }
@@ -132,11 +132,11 @@ class Bullets:
       
       if(collided && !IsDead) {
         if(IsGroundedDown) {
-          particleManager.spawnParticle(x/SCALE,y/SCALE-1,2,colorGroup,color);
+          particleManager.spawnParticle(Div8(x),Div8(y)-1,2,colorGroup,color);
         }
         
-        inkX = (x/SCALE);//+(vx>=0?1:-1)
-        inkY = (y/SCALE);//+(vy>=0?1:-1)
+        inkX = Div8(x);//+(vx>=0?1:-1)
+        inkY = Div8(y);//+(vy>=0?1:-1)
 
         //UpdateGrounding();
         /*if(IsGroundedDown) {
