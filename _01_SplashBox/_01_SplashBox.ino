@@ -119,6 +119,144 @@ void startMusic () {
 void stopMusic () {
   gb.sound.stop(MusicTrack);
 }
+void playSFX (byte Type, byte Variation) {
+  //Types:
+  //0: Jump
+  //1: Light Landing, Hard Landing
+  //2: Hit, No Damage Hit, Blaster Hit
+  //3: Dead
+  //4: Ink Splashes, Bullet Hit
+  //5: Explosion
+  //6: Shoot/Brush, Shoot/ShootMachineGun, Shoot/Classic, Shoot/Untitled
+  //7: UI/AWAAAA, UI/SEL, UI/SELLLEECT, UI/NNNNEEAHHH, UI/LVLUP, UI/LVLDOWN, UI/DOOR
+  
+  uint8_t Rndm = 0;
+  if(Type == 0) {
+    Rndm = random(0,3);
+    if(Rndm == 0) {
+      gb.sound.play("S/Jump_0.wav");
+    } else if(Rndm == 1) {
+      gb.sound.play("S/Jump_1.wav");
+    } else if(Rndm == 2) {
+      gb.sound.play("S/Jump_2.wav");
+    }
+  }
+  if(Type == 1) {
+    if(Variation == 0) {
+      gb.sound.play("S/LND_SFT.wav");
+    } else {
+      gb.sound.play("S/LND_HRD.wav");
+    }
+  }
+  if(Type == 2) {
+    if(Variation == 0) {
+      Rndm = random(0,4);
+      if(Rndm == 0) {
+        gb.sound.play("S/HIT_0.wav");
+      } else if(Rndm == 1) {
+        gb.sound.play("S/HIT_1.wav");
+      } else if(Rndm == 2) {
+        gb.sound.play("S/HIT_2.wav");
+      } else if(Rndm == 3) {
+        gb.sound.play("S/HIT_3.wav");
+      }
+    }
+    if(Variation == 1) {
+      Rndm = random(0,3);
+      if(Rndm == 0) {
+        gb.sound.play("S/HIT_NG0.wav");
+      } else if(Rndm == 1) {
+        gb.sound.play("S/HIT_NG1.wav");
+      } else if(Rndm == 2) {
+        gb.sound.play("S/HIT_NG2.wav");
+      }
+    }
+    if(Variation == 2) {
+      gb.sound.play("S/BLAS_HIT.wav");
+    }
+  }
+  if(Type == 3) {
+    Rndm = random(0,3);
+    if(Rndm == 0) {
+      gb.sound.play("S/DEA_0.wav");
+    } else if(Rndm == 1) {
+      gb.sound.play("S/DEA_1.wav");
+    } else if(Rndm == 2) {
+      gb.sound.play("S/DEA_2.wav");
+    }
+  }
+  if(Type == 4) {
+    if(Variation == 0) {
+      Rndm = random(0,4);
+      if(Rndm == 0) {
+        gb.sound.play("S/INK_SP0.wav");
+      } else if(Rndm == 1) {
+        gb.sound.play("S/INK_SP1.wav");
+      } else if(Rndm == 2) {
+        gb.sound.play("S/INK_SP2.wav");
+      } else if(Rndm == 3) {
+        gb.sound.play("S/INK_SP3.wav");
+      }
+    }
+    if(Variation == 1) {
+      gb.sound.play("S/HIT_BUL.wav");
+    }
+  }
+  if(Type == 5) {
+    Rndm = random(0,3);
+    if(Rndm == 0) {
+      gb.sound.play("S/EXPL_0.wav");
+    } else if(Rndm == 1) {
+      gb.sound.play("S/EXPL_1.wav");
+    } else if(Rndm == 2) {
+      gb.sound.play("S/EXPL_2.wav");
+    }
+  }
+  if(Type == 6) {
+    if(Variation == 0) {
+      Rndm = random(0,3);
+      if(Rndm == 0) {
+        gb.sound.play("S/BRUSH_0.wav");
+      } else if(Rndm == 1) {
+        gb.sound.play("S/BRUSH_1.wav");
+      } else if(Rndm == 2) {
+        gb.sound.play("S/BRUSH_2.wav");
+      }
+    }
+    if(Variation == 1) {
+      gb.sound.play("S/MGUN_SHT.wav");
+    }
+    if(Variation == 2) {
+      gb.sound.play("S/CLS_SHT.wav");
+    }
+    if(Variation == 3) {
+      gb.sound.play("S/SHOOT.wav");
+    }
+  }
+  if(Type == 7) {
+    if(Variation == 0) {
+      gb.sound.play("S/UI_AWA.wav");
+    }
+    if(Variation == 1) {
+      gb.sound.play("S/UI_SEL.wav");
+    }
+    if(Variation == 2) {
+      gb.sound.play("S/UI_YAH.wav");
+    }
+    if(Variation == 3) {
+      gb.sound.play("S/UI_NEA.wav");
+    }
+    if(Variation == 4) {
+      gb.sound.play("S/UI_LVLUP.wav");
+    }
+    if(Variation == 5) {
+      gb.sound.play("S/UI_DWN.wav");
+    }
+    if(Variation == 6) {
+      gb.sound.play("S/UI_DOOR.wav");
+    }
+  }
+}
 
 Color palette[] = {  
   (Color)0xf779, //(Color)0xf779 White

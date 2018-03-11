@@ -32,7 +32,7 @@ void PrepareMap (uint8_t mapID) {
   bulletsManager.Reset();
 
   if(mapID != 0) {
-    AnimationTimer2 = 3000; //Min*60*fps = Match Lenght
+    AnimationTimer2 = 1800; //Min*60*fps = Match Lenght
     AnimationTimer = STARTLENGHT;
   } else {
     AnimationTimer = STARTLENGHT2;
@@ -428,6 +428,7 @@ void loop () {
             for(int i = 0; i < 5+1; i++) {
               if(uiSplashes[i].sizev == 0) {
                 uiSplashes[i].Init(random(0,LCDWIDTH),random(0,LCDHEIGHT),random(12,32),random(0,2),random(0,7));
+                playSFX(4,0);
                 break;
               }
             }
@@ -454,13 +455,14 @@ void loop () {
           AnimationTimer = 0;
         }
         
-        if(gb.buttons.held(BUTTON_A,25)) {
+        if(gb.buttons.held(BUTTON_A,20)) {
           UseBackgroundInGame = !UseBackgroundInGame;
           gb.display.setColor((ColorIndex)0);
           gb.display.fillRect(0,0,80,64);
         }
         
         if(gb.buttons.released(BUTTON_A)) {
+          playSFX(7,2);
           AnimationTimer = 0;
           AnimationTimer2 = 0;
           AnimationTimer3 = 0;
@@ -504,12 +506,14 @@ void loop () {
             gb.display.drawBitmap(LCDWIDTH-24,LCDHEIGHT-44-(sin(AnimationTimer3/55.0F*PI)*12.0F),ArrowUI);
           }
           if(gb.buttons.pressed(BUTTON_LEFT)) {
+            playSFX(7,0);
             AnimationTimer = 0;
             if(AnimationTimer2 == 0) {
               AnimationTimer2 = 55;
             }
           }
           if(gb.buttons.pressed(BUTTON_RIGHT)) {
+            playSFX(7,0);
             AnimationTimer = 1;
             if(AnimationTimer3 == 0) {
               AnimationTimer3 = 55;
@@ -517,6 +521,7 @@ void loop () {
           }
 
           if(gb.buttons.pressed(BUTTON_A)) {
+            playSFX(7,1);
             SelectedGender = AnimationTimer;
             
             AnimationTimer = 0;
@@ -568,6 +573,7 @@ void loop () {
           gb.display.drawBitmap(1+(AnimationTimer*19)+6,LCDHEIGHT-32,ArrowUI);
 
           if(gb.buttons.repeat(BUTTON_LEFT,4)) {
+            playSFX(7,0);
             AnimationTimer--;
             AnimationTimer = constrain(AnimationTimer,0,3);
             if(AnimationTimer == 0) {
@@ -589,6 +595,7 @@ void loop () {
             }
           }
           if(gb.buttons.repeat(BUTTON_RIGHT,4)) {
+            playSFX(7,0);
             AnimationTimer++;
             AnimationTimer = constrain(AnimationTimer,0,3);
             if(AnimationTimer == 0) {
@@ -610,6 +617,7 @@ void loop () {
             }
           }
           if(gb.buttons.pressed(BUTTON_B) || gb.buttons.pressed(BUTTON_MENU)) {
+            playSFX(7,3);
             AnimationTimer = SelectedGender;
             SelectedGender = 2;
             AnimationTimer2 = 0;
@@ -618,6 +626,7 @@ void loop () {
             AnimationTimer5 = 0;
           }
           if(gb.buttons.pressed(BUTTON_A)) {
+            playSFX(7,2);
             SelectedHaircut = AnimationTimer;
             AnimationTimer = 0;
             AnimationTimer2 = 0;
@@ -1202,11 +1211,11 @@ void loop () {
           gb.display.cursorY = 2;
           gb.display.fontSize = 1;
           char minC[5];
-          sprintf(minC,"%01d",AnimationTimer2/25/60);
+          sprintf(minC,"%01d",AnimationTimer2/20/60);
           gb.display.print(minC);
           gb.display.print(":");
           char secC[5];
-          sprintf(secC,"%02d",AnimationTimer2/25-(AnimationTimer2/25/60)*60);
+          sprintf(secC,"%02d",AnimationTimer2/20-(AnimationTimer2/20/60)*60);
           gb.display.print(secC);
     
           //change palette
