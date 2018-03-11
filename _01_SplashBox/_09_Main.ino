@@ -397,6 +397,7 @@ void DrawUI() {
 
 void setup() {
   gb.begin();
+  gb.setFrameRate(20);
   gb.display.setFont(SquidSquare);
   colorGroup = random(0,7);
   gb.display.colorIndex = palette;
@@ -655,8 +656,8 @@ void loop () {
       //Inkopolis
       ///////////
       if(GameState == 1) {
-        gb.display.setColor((ColorIndex)12);
-        gb.display.fill();
+        //gb.display.setColor((ColorIndex)12);
+        //gb.display.fill();
 
         Background.setFrame(GetMap[world.CurrentLoadedMap][4]);
         gb.display.drawImage(0,0,Background);
@@ -1090,12 +1091,13 @@ void loop () {
     //////////
     if(IsPlaying && GameState == 0) {
       if(AnimationTimer3 == 0) {
-        gb.display.setColor((ColorIndex)12);
-        gb.display.fill();
-
+        
         if(UseBackgroundInGame) {
           Background.setFrame(GetMap[world.CurrentLoadedMap][4]);
           gb.display.drawImage(0,0,Background);
+        } else {
+          gb.display.setColor((ColorIndex)12);
+          gb.display.fill();
         }
         
         //gb.display.drawImage(0,8,BackGCity0);
