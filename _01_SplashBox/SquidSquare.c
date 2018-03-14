@@ -36,17 +36,10 @@
  *                  // bit field of all characters
  */
 
-#include <inttypes.h>
-#include <avr/pgmspace.h>
-
-#ifndef SQUIDSQUARE_H
-#define SQUIDSQUARE_H
-
-#define SQUIDSQUARE_WIDTH 3
-#define SQUIDSQUARE_HEIGHT -5
+#include <Arduino.h>
 
 const uint8_t SquidSquare[] = {
-    3,5, //width and height
+    3,5, //width and height //3,5
     
     // font data
     0x00, 0x00, 0x00, // 0
@@ -180,5 +173,3 @@ const uint8_t SquidSquare[] = {
 
     
 };
-
-#endif

@@ -17,6 +17,7 @@ class Player :
     int8_t LVelX = 0;
     int8_t LVelY = 0;
     bool LastGrounded = false;
+    int16_t Lastvy = 0;
     
     int8_t PlayerDir = 1; //Was Going Right
     bool IsSwiming = false;
@@ -77,6 +78,7 @@ class Player :
       if(doorCode == 12 || doorCode == 13 || doorCode == 14) {
         DoorWarning = true;
         if(gb.buttons.pressed(BUTTON_UP)) {
+          playSFX(7,6);
           if(doorCode == 12) {
             AnimationTimer = 0;
             AnimationTimer2 = 0;
@@ -276,6 +278,8 @@ class Player :
           }
           if(LVelY == 0) {
             particleManager.spawnParticle(Div8(x)+1,Div8(y)+3,3,colorGroup,PlayerColor);
+            if(!isOffScreen())
+              playSFX(4,0);
           }
           LVelY = constrain(LVelY+1, -5, 5);
 
@@ -455,9 +459,22 @@ class Player :
       //if(!GoingRight && VelocityX < 0) {
       //  WalkParticle = 2+(blinkEye/60.0F*2);
       //}
+
+      if(Lastvy > 40 && !LastGrounded && IsGroundedDown) {
+        if(!isOffScreen())
+          playSFX(1,1);
+      } else if(!LastGrounded && IsGroundedDown) {
+        if(!isOffScreen())
+          playSFX(1,0);
+      } else if(B_PRESSED) {
+        if(!isOffScreen())
+          playSFX(1,0);
+      }
   
       //Jumps
       if(B_PRESSED && Object::IsGroundedDown  && !A_HOLD) {
+        if(!isOffScreen())
+          playSFX(0,0);
         if(EBottomInk) {
           vy = PEJumpForce;
         } else {
@@ -947,6 +964,12 @@ class Player :
               particleManager.spawnParticle(Div8(bulletsManager.bullets[i].x),Div8(bulletsManager.bullets[i].y),0,colorGroup,bulletsManager.bullets[i].color);
               Live-=bulletsManager.bullets[i].Damage;
               bulletsManager.bullets[i].Die();
+
+              if(!isOffScreen() && Live > 0) {
+                playSFX(2,0);
+              } else if(!isOffScreen()) {
+                playSFX(3,0);
+              }
               
               if(PlayerCode == 0) {
                 shakeTimeLeft += 3;
@@ -979,6 +1002,7 @@ class Player :
       }
       
       MoveUpdate();
+      LastGrounded = IsGroundedDown;
       Object::Update();
       BlinkingUpdate();
       Draw();
@@ -993,6 +1017,8 @@ class Player :
       DOWN_PRESSED = false;
       Last_DOWN_HOLD = DOWN_HOLD;
       Last_A_HOLD = A_HOLD;
+      
+      Lastvy = vy;
     }
 
     void Die () {

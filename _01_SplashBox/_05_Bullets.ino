@@ -131,6 +131,9 @@ class Bullets:
       }
       
       if(collided && !IsDead) {
+        if(!isOffScreen())
+          playSFX(1,1);
+          
         if(IsGroundedDown) {
           particleManager.spawnParticle(Div8(x),Div8(y)-1,2,colorGroup,color);
         }

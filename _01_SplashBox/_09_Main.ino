@@ -118,7 +118,8 @@ void DrawCursor() {
               player.mainPlayer.Refill -= Weapons[mainWeapon][10];
               gb.display.setColor(BLACK);
               gb.display.drawLine(toScreenX(rootX),toScreenY(rootY),toScreenX(targetX),toScreenY(targetY));
-              
+
+              playSFX(6,2);
               int8_t bulletID = bulletsManager.spawnBullet(
                 rootX*8+16,
                 rootY*8+16,
@@ -165,6 +166,7 @@ void DrawCursor() {
       
               aimingAngle = (PI)+(random(-Weapons[mainWeapon][4],Weapons[mainWeapon][4])/50.0F);
             }
+            playSFX(6,1);
             int8_t bulletID = bulletsManager.spawnBullet(
               rootX*8+16,
               rootY*8+16,
@@ -223,6 +225,9 @@ void DrawCursor() {
         }
         break;
         case 2: //--Chargers
+        if(gb.buttons.held(BUTTON_A,Weapons[mainWeapon][5])) {
+          playSFX(2,1);
+        }
         if(gb.buttons.repeat(BUTTON_A,0)) {
           WeaponResetTimer += 1;
         }
@@ -282,6 +287,7 @@ void DrawCursor() {
           }
           shakeTimeLeft += 3;
           shakeAmplitude += 1;
+          playSFX(5,0);
           for(uint8_t b = 0; b < Weapons[mainWeapon][8]; b++) {
             gb.display.setColor((ColorIndex)0);
             gb.display.drawLine(toScreenX(rootX),toScreenY(rootY),toScreenX(targetX),toScreenY(targetY));
@@ -319,7 +325,8 @@ void DrawCursor() {
           } else {
             break;
           }
-            
+
+          playSFX(6,0);
           float aimingAngle = 0;
           for(uint8_t b = 0; b < Weapons[mainWeapon][8]; b++) {
             int16_t rootX = Div8(player.mainPlayer.x);
@@ -402,6 +409,13 @@ void setup() {
   colorGroup = random(0,7);
   gb.display.colorIndex = palette;
   PrepareMap(0);
+
+  Coin = gb.save.get(0);
+  Level = gb.save.get(1);
+  mainWeapon = gb.save.get(2);
+  gb.save.get(3,RankedLevelScore);
+  gb.save.get(4,RankedLevel);
+  gb.save.get(5,RankedLevelBrokeness);
 }
 
 byte Mode = 0;
@@ -411,6 +425,7 @@ long r2 = 0;
 void loop () {
   if(gb.update()) {
     gb.lights.clear();
+    gb.display.setFont(SquidSquare);
     if(!IsPlaying) {
 
 
@@ -799,10 +814,12 @@ void loop () {
         gb.display.drawImage(76,1,UIElement_2);
 
         if(gb.buttons.repeat(BUTTON_LEFT,7)) {
+          playSFX(7,0);
           AnimationTimer2 = constrain(AnimationTimer2-1,0,WeaponCount);
         }
 
         if(gb.buttons.repeat(BUTTON_RIGHT,7)) {
+          playSFX(7,0);
           AnimationTimer2 = constrain(AnimationTimer2+1,0,WeaponCount);
         }
 
@@ -858,7 +875,9 @@ void loop () {
         
         if(gb.buttons.pressed(BUTTON_MENU) || gb.buttons.released(BUTTON_A)) {
           if(gb.buttons.released(BUTTON_A)) {
+            playSFX(4,1);
             mainWeapon = AnimationTimer2;
+            gb.save.set(2,mainWeapon);
           }
           
           AnimationTimer = STARTLENGHT2;
@@ -1296,17 +1315,21 @@ void loop () {
             }
             if(!revertColors) {
               if(AlphaScore > BetaScore) {
+                playSFX(7,4);
                 AddedCoins = (byte)constrain((15+player.mainPlayer.InkPoints/55)*constrain(Level/20.0F,1,5),0,149);
                 AddedLevel = (byte)constrain((7+player.mainPlayer.InkPoints/67),0,120);
               } else {
+                playSFX(7,5);
                 AddedCoins = (byte)constrain((player.mainPlayer.InkPoints/55)*constrain(Level/20.0F,1,5),0,149);
                 AddedLevel = (byte)constrain((1+player.mainPlayer.InkPoints/47),0,120);
               }
             } else {
               if(AlphaScore < BetaScore) {
+                playSFX(7,4);
                 AddedCoins = (byte)constrain((15+player.mainPlayer.InkPoints/55)*constrain(Level/20.0F,1,5),0,149);
                 AddedLevel = (byte)constrain((7+player.mainPlayer.InkPoints/67),0,120);
               } else {
+                playSFX(7,5);
                 AddedCoins = (byte)constrain((player.mainPlayer.InkPoints/55)*constrain(Level/20.0F,1,5),0,149);
                 AddedLevel = (byte)constrain((1+player.mainPlayer.InkPoints/47),0,120);
               }
@@ -1314,6 +1337,8 @@ void loop () {
 
             Coin = constrain(Coin+AddedCoins,0,999999);
             Level = constrain(Level+(AddedLevel*0.01F),0,99);
+            gb.save.set(0, Coin);
+            gb.save.set(1, Level);
           }
         }
       } else {

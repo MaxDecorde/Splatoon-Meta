@@ -12,7 +12,8 @@ const char* rankScore[] = {
     "A+",
     "S-",
     "S",
-    "S+"
+    "S+",
+    "X"
 };
 
 const char* enText[] = {
@@ -1721,3 +1722,200 @@ const uint16_t* Weapons[] {
   TentaCharger,
   CarbonRoller
 };
+
+
+
+
+//SOUND!
+
+const Gamebuino_Meta::Sound_FX Jump[] = {
+  {Gamebuino_Meta::Sound_FX_Wave::SQUARE,0,195,-5,-8,42,24},
+};
+
+const Gamebuino_Meta::Sound_FX Light_Land[] = {
+  {Gamebuino_Meta::Sound_FX_Wave::NOISE,0,255,-21,38,224,6},
+};
+
+const Gamebuino_Meta::Sound_FX Heavy_Land[] = {
+  {Gamebuino_Meta::Sound_FX_Wave::NOISE,0,255,-2,38,128,20},
+};
+
+const Gamebuino_Meta::Sound_FX Hit[] = {
+  {Gamebuino_Meta::Sound_FX_Wave::NOISE,0,138,-18,0,160,2},
+};
+
+const Gamebuino_Meta::Sound_FX Hit_ND[] = {
+  {Gamebuino_Meta::Sound_FX_Wave::SQUARE,0,248,-13,0,13,6},
+};
+
+const Gamebuino_Meta::Sound_FX BulletS[] = {
+  {Gamebuino_Meta::Sound_FX_Wave::NOISE,0,136,-11,0,64,2},
+};
+
+const Gamebuino_Meta::Sound_FX Shoot[] = {
+  {Gamebuino_Meta::Sound_FX_Wave::SQUARE,0,203,-14,32,53,5},
+};
+
+const Gamebuino_Meta::Sound_FX Death[] = {
+  {Gamebuino_Meta::Sound_FX_Wave::SQUARE,0,253,-2,127,268,79},
+};
+
+const Gamebuino_Meta::Sound_FX InkSplash[] = {
+  {Gamebuino_Meta::Sound_FX_Wave::SQUARE,0,202,-4,-59,159,30},
+};
+
+const Gamebuino_Meta::Sound_FX Explosion[] = {
+  {Gamebuino_Meta::Sound_FX_Wave::NOISE,0,255,-4,-83,208,19},
+};
+
+const Gamebuino_Meta::Sound_FX Brush[] = {
+  {Gamebuino_Meta::Sound_FX_Wave::NOISE,0,221,-3,-104,128,19},
+};
+
+const Gamebuino_Meta::Sound_FX MachineGun[] = {
+  {Gamebuino_Meta::Sound_FX_Wave::NOISE,0,255,-3,-104,240,3},
+};
+
+const Gamebuino_Meta::Sound_FX Shoot2[] = {
+  {Gamebuino_Meta::Sound_FX_Wave::NOISE,0,255,-3,-104,96,3},
+};
+
+const Gamebuino_Meta::Sound_FX AWA[] = {
+  {Gamebuino_Meta::Sound_FX_Wave::NOISE,0,255,-6,21,16,7},
+};
+
+const Gamebuino_Meta::Sound_FX SEL[] = {
+  {Gamebuino_Meta::Sound_FX_Wave::SQUARE,0,255,-11,-127,60,10},
+};
+
+const Gamebuino_Meta::Sound_FX YAH[] = {
+  {Gamebuino_Meta::Sound_FX_Wave::SQUARE,0,255,109,-47,21,10},
+};
+
+const Gamebuino_Meta::Sound_FX NEA[] = {
+  {Gamebuino_Meta::Sound_FX_Wave::SQUARE,0,255,127,127,13,23},
+};
+
+const Gamebuino_Meta::Sound_FX LevelUp[] = {
+  {Gamebuino_Meta::Sound_FX_Wave::SQUARE,0,252,29,-1,18,10},
+};
+
+const Gamebuino_Meta::Sound_FX LevelDown[] = {
+  {Gamebuino_Meta::Sound_FX_Wave::NOISE,0,255,39,-15,144,25},
+};
+
+const Gamebuino_Meta::Sound_FX Door[] = {
+  {Gamebuino_Meta::Sound_FX_Wave::SQUARE,0,255,-3,-79,134,20},
+};
+
+
+int8_t MusicTrack = -1;
+void startMusic () {
+  if(MusicTrack != -1) {
+    return;
+  }
+  uint8_t Music = random(0,5);
+  if(Music == 0) {
+    MusicTrack = gb.sound.play("S/MUSIC_0.wav");
+  } else if(Music == 1) {
+    MusicTrack = gb.sound.play("S/MUSIC_1.wav");
+  } else if(Music == 2) {
+    MusicTrack = gb.sound.play("S/MUSIC_2.wav");
+  } else if(Music == 3) {
+    MusicTrack = gb.sound.play("S/MUSIC_3.wav");
+  } else if(Music == 4) {
+    MusicTrack = gb.sound.play("S/MUSIC_4.wav");
+  }
+}
+void stopMusic () {
+  MusicTrack = -1;
+  gb.sound.stop(MusicTrack);
+}
+int8_t SFXTrack = 0;
+void playSFX (byte Type, byte Variation) {
+  //Types:
+  //0: Jump
+  //1: Light Landing, Hard Landing
+  //2: Hit, No Damage Hit, Blaster Hit
+  //3: Dead
+  //4: Ink Splashes, Bullet Hit
+  //5: Explosion
+  //6: Shoot/Brush, Shoot/ShootMachineGun, Shoot/Classic, Shoot/Untitled
+  //7: UI/AWAAAA, UI/SEL, UI/SELLLEECT, UI/NNNNEEAHHH, UI/LVLUP, UI/LVLDOWN, UI/DOOR
+  
+  uint8_t Rndm = 0;
+  if(Type == 0) {
+    gb.sound.fx(Jump);
+  }
+  if(Type == 1) {
+    if(Variation == 0) {
+      gb.sound.fx(Light_Land);
+    } else {
+      gb.sound.fx(Heavy_Land);
+    }
+  }
+  if(Type == 2) {
+    if(Variation == 0) {
+      gb.sound.fx(Hit);
+    }
+    if(Variation == 1) {
+      gb.sound.fx(Hit_ND);
+    }
+    if(Variation == 2) {
+      //gb.sound.stop(SFXTrack);
+      //SFXTrack = gb.sound.play("S/BLAS_HIT.wav");
+    }
+  }
+  if(Type == 3) {
+    gb.sound.fx(Death);
+  }
+  if(Type == 4) {
+    if(Variation == 0) {
+      gb.sound.fx(InkSplash);
+    }
+    if(Variation == 1) {
+      gb.sound.fx(BulletS);
+    }
+  }
+  if(Type == 5) {
+    gb.sound.fx(Explosion);
+  }
+  if(Type == 6) {
+    if(Variation == 0) {
+      gb.sound.fx(Brush);
+    }
+    if(Variation == 1) {
+      gb.sound.fx(MachineGun);
+    }
+    if(Variation == 2) {
+      //gb.sound.stop(SFXTrack);
+      //SFXTrack = gb.sound.play("S/CLS_SHT.wav");
+    }
+    if(Variation == 3) {
+      gb.sound.fx(Shoot);
+    }
+  }
+  if(Type == 7) {
+    if(Variation == 0) {
+      gb.sound.fx(AWA);
+    }
+    if(Variation == 1) {
+      gb.sound.fx(SEL);
+    }
+    if(Variation == 2) {
+      gb.sound.fx(YAH);
+    }
+    if(Variation == 3) {
+      gb.sound.fx(NEA);
+    }
+    if(Variation == 4) {
+      gb.sound.fx(LevelUp);
+    }
+    if(Variation == 5) {
+      gb.sound.fx(LevelDown);
+    }
+    if(Variation == 6) {
+      gb.sound.fx(Door);
+    }
+  }
+}
