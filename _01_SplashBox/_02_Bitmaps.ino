@@ -1828,8 +1828,8 @@ void startMusic () {
   }
 }
 void stopMusic () {
-  MusicTrack = -1;
   gb.sound.stop(MusicTrack);
+  MusicTrack = -1;
 }
 int8_t SFXTrack = 0;
 void playSFX (byte Type, byte Variation) {

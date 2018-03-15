@@ -15,8 +15,8 @@ extern const uint8_t SquidSquare[];
 //#define SCALE 8
 #define VFORCE 5
 
-#define BCOUNT 16
-#define PCOUNT 8
+#define BCOUNT 12
+#define PCOUNT 6
 
 #define STARTLENGHT 90
 #define STARTLENGHT2 130

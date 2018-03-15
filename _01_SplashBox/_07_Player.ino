@@ -466,9 +466,6 @@ class Player :
       } else if(!LastGrounded && IsGroundedDown) {
         if(!isOffScreen())
           playSFX(1,0);
-      } else if(B_PRESSED) {
-        if(!isOffScreen())
-          playSFX(1,0);
       }
   
       //Jumps

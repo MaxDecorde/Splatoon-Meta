@@ -39,8 +39,8 @@ int ClampInt (int minv, int16_t maxv, int16_t value) {
 // WORLD MANAGER
 /////////////////
 
-#define MaxMapW 88 //64
-#define MaxMapH 32 //64
+#define MaxMapW 78 //78
+#define MaxMapH 32 //32
 
 class World {
   public:

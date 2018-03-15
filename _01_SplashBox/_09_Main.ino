@@ -411,7 +411,7 @@ void setup() {
   PrepareMap(0);
 
   Coin = gb.save.get(0);
-  Level = gb.save.get(1);
+  Level = (float)gb.save.get(1);
   mainWeapon = gb.save.get(2);
   gb.save.get(3,RankedLevelScore);
   gb.save.get(4,RankedLevel);
@@ -1273,7 +1273,7 @@ void loop () {
           gb.display.cursorX = 50;
           gb.display.cursorY = 10;
           char ipC[5];
-          sprintf(ipC,"%05d",gb.getCpuLoad()); //player.mainPlayer.InkPoints
+          sprintf(ipC,"%05d",gb.getFreeRam()); //player.mainPlayer.InkPoints
           gb.display.print(ipC);
           gb.display.print("P");
 
@@ -1338,7 +1338,7 @@ void loop () {
             Coin = constrain(Coin+AddedCoins,0,999999);
             Level = constrain(Level+(AddedLevel*0.01F),0,99);
             gb.save.set(0, Coin);
-            gb.save.set(1, Level);
+            gb.save.set(1, (int32_t)Level);
           }
         }
       } else {
