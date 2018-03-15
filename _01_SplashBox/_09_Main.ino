@@ -1273,7 +1273,7 @@ void loop () {
           gb.display.cursorX = 50;
           gb.display.cursorY = 10;
           char ipC[5];
-          sprintf(ipC,"%05d",gb.getFreeRam()); //player.mainPlayer.InkPoints
+          sprintf(ipC,"%05d",player.mainPlayer.InkPoints); //player.mainPlayer.InkPoints
           gb.display.print(ipC);
           gb.display.print("P");
 
